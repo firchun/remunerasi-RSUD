@@ -24,7 +24,7 @@ cek_login();
     <div class="flex-1 flex flex-col overflow-hidden">
 
       <!-- Header -->
-      <header class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/60 shadow-sm">
+      <header class="fixed top-0 left-0 w-full z-50 bajckdrop-blur-md bg-white/60 shadow-sm">
         <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
 
           <!-- Kiri: Logo + Judul -->
@@ -91,7 +91,7 @@ cek_login();
             </a>
 
             <!-- Ralan per-bulan -->
-            <a href="/ranap/index.php"
+            <a href="/bulanan_rajal/index.php"
               class="bg-white shadow-lg rounded-xl p-6 w-72 text-center hover:shadow-xl transition duration-200">
               <div class="text-yellow-500 text-4xl mb-3">
                 <i class="fa-solid fa-user-doctor"></i>
@@ -116,19 +116,10 @@ cek_login();
               <div class="text-green-500 text-4xl mb-3">
                 <i class="fa-solid fa-money-bill"></i>
               </div>
-              <h3 class="text-xl font-bold text-gray-800">BPJS Ralan</h3>
-              <p class="text-gray-600 text-sm mt-1">Data Total BPJS Rawat Jalan</p>
+              <h3 class="text-xl font-bold text-gray-800">BPJS </h3>
+              <p class="text-gray-600 text-sm mt-1">Data Total BPJS DIterima</p>
             </a>
 
-            <!-- BPJS Ranap -->
-            <a href="/ranap/index.php"
-              class="bg-white shadow-lg rounded-xl p-6 w-72 text-center hover:shadow-xl transition duration-200">
-              <div class="text-green-500 text-4xl mb-3">
-                <i class="fa-solid fa-money-bill"></i>
-              </div>
-              <h3 class="text-xl font-bold text-gray-800">BPJS Ranap</h3>
-              <p class="text-gray-600 text-sm mt-1">Data Total BPJS Rawat Inap</p>
-            </a>
 
           </div>
         </div>

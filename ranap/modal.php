@@ -1,3 +1,16 @@
+ <!-- Modal pilih kolom -->
+ <div id="modalKolom" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center px-4">
+   <div class="bg-white rounded-xl p-6 w-96">
+     <h3 class="text-lg font-bold mb-4">Pilih Kolom yang Tampil</h3>
+     <div id="columnToggles" class="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto">
+       <!-- Checkbox akan di-generate otomatis -->
+     </div>
+     <div class="mt-4 flex justify-end gap-2">
+       <button onclick="document.getElementById('modalKolom').classList.add('hidden')"
+         class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Tutup</button>
+     </div>
+   </div>
+ </div>
  <div id="modalUpload" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center px-4">
    <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-lg">
 

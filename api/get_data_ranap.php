@@ -3,155 +3,192 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+set_time_limit(120); // Increase timeout to 120 seconds
 
 require_once '../config/conf.php';
 $koneksi  = bukakoneksi();
 $koneksi2 = bukakoneksi2();
 
-header('Content-Type: application/json');
-
-// ===============
-// DataTables
-// ===============
+// Get DataTables parameters
 $draw   = $_POST['draw']   ?? 1;
 $start  = $_POST['start']  ?? 0;
 $length = $_POST['length'] ?? 25;
 $search = $_POST['search']['value'] ?? '';
 
-// Filter
-$tgl1      = $_POST['tgl1']      ?? '';
-$tgl2      = $_POST['tgl2']      ?? '';
+// Filters
+$tgl1       = $_POST['tgl1']       ?? '';
+$tgl2       = $_POST['tgl2']       ?? '';
 $kd_bangsal = $_POST['kd_bangsal'] ?? '';
-$tcari     = $_POST['tcari']     ?? '';
+$kd_dokter  = $_POST['kd_dokter']  ?? '';
+$nip        = $_POST['nip']        ?? '';
+$kd_pj      = $_POST['kd_pj']      ?? '';
+$tcari      = $_POST['tcari']      ?? '';
+$gedung      = $_POST['gedung']      ?? '';
 
-$tgl1_format = $tgl1 ? str_replace("T", " ", $tgl1) . ":00" : "";
-$tgl2_format = $tgl2 ? str_replace("T", " ", $tgl2) . ":59" : "";
+// Convert datetime-local → MYSQL
+$tgl1_format = !empty($tgl1) ? str_replace("T", " ", $tgl1) . ":00" : "";
+$tgl2_format = !empty($tgl2) ? str_replace("T", " ", $tgl2) . ":59" : "";
 
 // ===============================
-// BASE QUERY
+// BASE QUERY - ACUAN reg_periksa
 // ===============================
 $base = "
-    FROM pasien
-    JOIN reg_periksa 
-        ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
-    JOIN bridging_sep 
-        ON bridging_sep.no_rawat = reg_periksa.no_rawat
-    JOIN rawat_inap_drpr 
-        ON rawat_inap_drpr.no_rawat = reg_periksa.no_rawat
-    JOIN jns_perawatan_inap 
-        ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
-    JOIN dokter 
-        ON rawat_inap_drpr.kd_dokter = dokter.kd_dokter
-    JOIN petugas 
-        ON rawat_inap_drpr.nip = petugas.nip
-    JOIN penjab 
-        ON reg_periksa.kd_pj = penjab.kd_pj
-    LEFT JOIN kamar_inap 
-        ON kamar_inap.no_rawat = reg_periksa.no_rawat
-    LEFT JOIN kamar 
-        ON kamar_inap.kd_kamar = kamar.kd_kamar
-    LEFT JOIN bangsal 
-        ON kamar.kd_bangsal = bangsal.kd_bangsal
+    FROM reg_periksa
+    JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
+    JOIN penjab ON reg_periksa.kd_pj = penjab.kd_pj
+    JOIN operasi ON operasi.no_rawat = reg_periksa.no_rawat
+    LEFT JOIN bridging_sep ON bridging_sep.no_rawat = reg_periksa.no_rawat
+    LEFT JOIN rawat_inap_drpr ON rawat_inap_drpr.no_rawat = reg_periksa.no_rawat
+    LEFT JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
+    LEFT JOIN dokter ON reg_periksa.kd_dokter = dokter.kd_dokter
+    LEFT JOIN petugas ON rawat_inap_drpr.nip = petugas.nip
     WHERE 1=1
+    AND reg_periksa.status_lanjut = 'Ranap'
+   
 ";
 
 // ===============================
-// FILTER
+// FILTERS
 // ===============================
-if ($tgl1 && $tgl2) {
-    $base .= " AND CONCAT(rawat_inap_drpr.tgl_perawatan,' ',rawat_inap_drpr.jam_rawat)
-               BETWEEN '$tgl1_format' AND '$tgl2_format'";
-}
 
-if ($kd_bangsal) {
-    $base .= " AND bangsal.kd_bangsal = '$kd_bangsal'";
-}
-
-if ($tcari) {
+// Date filter - berdasarkan tanggal registrasi atau tindakan
+if (!empty($tgl1) && !empty($tgl2)) {
     $base .= " AND (
-        rawat_inap_drpr.no_rawat LIKE '%$tcari%' OR
-        dokter.nm_dokter LIKE '%$tcari%' OR
-        bridging_sep.no_sep LIKE '%$tcari%' OR
-        bangsal.nm_bangsal LIKE '%$tcari%'
+        CONCAT(reg_periksa.tgl_registrasi,' ',reg_periksa.jam_reg) 
+        BETWEEN '$tgl1_format' AND '$tgl2_format'
+        OR CONCAT(rawat_inap_drpr.tgl_perawatan,' ',rawat_inap_drpr.jam_rawat) 
+        BETWEEN '$tgl1_format' AND '$tgl2_format'
     )";
 }
 
-if ($search) {
+// Bangsal - check di kamar_inap
+if (!empty($kd_bangsal)) {
+    $base .= " AND EXISTS (
+        SELECT 1 FROM kamar_inap ki
+        JOIN kamar k ON ki.kd_kamar = k.kd_kamar
+        WHERE ki.no_rawat = reg_periksa.no_rawat 
+        AND k.kd_bangsal = '$kd_bangsal'
+        LIMIT 1
+    )";
+}
+
+// Dokter - bisa dari reg_periksa atau rawat_inap_drpr
+if (!empty($kd_dokter)) {
+    $base .= " AND (reg_periksa.kd_dokter = '$kd_dokter' OR rawat_inap_drpr.kd_dokter = '$kd_dokter')";
+}
+
+// Petugas
+if (!empty($nip)) {
+    $base .= " AND rawat_inap_drpr.nip = '$nip'";
+}
+
+// Penjab/Cara Bayar
+if (!empty($kd_pj)) {
+    $base .= " AND reg_periksa.kd_pj = '$kd_pj'";
+}
+
+// gedung
+if (!empty($gedung)) {
+    $base .= "
+    AND EXISTS (
+        SELECT 1
+        FROM kamar_inap ki
+        JOIN kamar km ON ki.kd_kamar = km.kd_kamar
+        JOIN bangsal bs ON km.kd_bangsal = bs.kd_bangsal
+        WHERE ki.no_rawat = reg_periksa.no_rawat
+        AND bs.nm_bangsal LIKE '%$gedung%'
+    )";
+}
+// Cari manual (tcari)
+if (!empty($tcari)) {
     $base .= " AND (
-        rawat_inap_drpr.no_rawat LIKE '%$search%' OR
-        dokter.nm_dokter LIKE '%$search%' OR
-        bangsal.nm_bangsal LIKE '%$search%' OR
-        bridging_sep.no_sep LIKE '%$search%'
+        reg_periksa.no_rawat LIKE '%$tcari%' 
+        OR pasien.nm_pasien LIKE '%$tcari%' 
+        OR dokter.nm_dokter LIKE '%$tcari%' 
+        OR reg_periksa.no_rkm_medis LIKE '%$tcari%'
+        OR bridging_sep.no_sep LIKE '%$tcari%'
+    )";
+}
+
+// Search DataTables
+if (!empty($search)) {
+    $base .= " AND (
+        reg_periksa.no_rawat LIKE '%$search%' 
+        OR reg_periksa.no_rkm_medis LIKE '%$search%'
+        OR pasien.nm_pasien LIKE '%$search%'
+        OR dokter.nm_dokter LIKE '%$search%'
+        OR bridging_sep.no_sep LIKE '%$search%'
     )";
 }
 
 // ===============================
-// MAIN QUERY
+// MAIN QUERY - ACUAN reg_periksa
 // ===============================
 $query = "
 SELECT 
-    rawat_inap_drpr.no_rawat,
+    reg_periksa.no_rawat,
     reg_periksa.no_rkm_medis,
+    reg_periksa.tgl_registrasi,
+    reg_periksa.jam_reg,
     pasien.nm_pasien,
-
-    rawat_inap_drpr.kd_jenis_prw,
-    jns_perawatan_inap.nm_perawatan,
-
-    rawat_inap_drpr.kd_dokter,
-    dokter.nm_dokter,
-    rawat_inap_drpr.nip,
-    petugas.nama AS nama_petugas,
-
-    rawat_inap_drpr.tgl_perawatan,
-    rawat_inap_drpr.jam_rawat,
-    bridging_sep.no_sep,
+    IFNULL(bridging_sep.no_sep, '-') AS no_sep,
     penjab.png_jawab,
 
-    IFNULL((
-        SELECT bangsal.nm_bangsal 
-        FROM kamar_inap
-        JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
-        JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
-        WHERE kamar_inap.no_rawat = rawat_inap_drpr.no_rawat
-        LIMIT 1
-    ), 'Ruang Terhapus') AS ruang,
+    IFNULL(MIN(rawat_inap_drpr.tgl_perawatan), reg_periksa.tgl_registrasi) AS tgl_perawatan,
+    IFNULL(MIN(rawat_inap_drpr.jam_rawat), reg_periksa.jam_reg) AS jam_rawat,
+    IFNULL(MIN(CONCAT(rawat_inap_drpr.tgl_perawatan,' ',rawat_inap_drpr.jam_rawat)), 
+           CONCAT(reg_periksa.tgl_registrasi,' ',reg_periksa.jam_reg)) AS waktu_perawatan,
+    MIN(dokter.nm_dokter) AS nm_dokter,
+    MIN(petugas.nama) AS nama_petugas,
 
-    SUM(jns_perawatan_inap.material) AS total_material,
-    SUM(jns_perawatan_inap.bhp) AS total_bhp,
-    SUM(jns_perawatan_inap.tarif_tindakandr) AS total_tindakan_dr,
-    SUM(jns_perawatan_inap.tarif_tindakanpr) AS total_tindakan_pr,
-    SUM(jns_perawatan_inap.kso) AS total_kso,
-    SUM(jns_perawatan_inap.menejemen) AS total_menejemen,
-    SUM(jns_perawatan_inap.total_byrdrpr) AS total_biaya_rawat
+    IFNULL(SUM(jns_perawatan_inap.material), 0) AS total_material,
+    IFNULL(SUM(jns_perawatan_inap.bhp), 0) AS total_bhp,
+    IFNULL(SUM(jns_perawatan_inap.tarif_tindakandr), 0) AS total_tindakan_dr,
+    IFNULL(SUM(jns_perawatan_inap.tarif_tindakanpr), 0) AS total_tindakan_pr,
+    IFNULL(SUM(jns_perawatan_inap.kso), 0) AS total_kso,
+    IFNULL(SUM(jns_perawatan_inap.menejemen), 0) AS total_menejemen,
+    IFNULL(SUM(jns_perawatan_inap.total_byrdrpr), 0) AS total_biaya_rawat,
+    
+    CASE 
+        WHEN COUNT(rawat_inap_drpr.no_rawat) > 0 THEN 'Sudah Ada Tindakan'
+        ELSE 'Belum Ada Tindakan'
+    END AS status_tindakan
 
 $base
-GROUP BY rawat_inap_drpr.no_rawat
-ORDER BY rawat_inap_drpr.no_rawat DESC
+
+GROUP BY 
+    reg_periksa.no_rawat,
+    reg_periksa.no_rkm_medis,
+    reg_periksa.tgl_registrasi,
+    reg_periksa.jam_reg,
+    pasien.nm_pasien,
+    bridging_sep.no_sep,
+    penjab.png_jawab
+ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC
 LIMIT $start, $length
 ";
 
 // ===============================
-// COUNT TOTAL
+// COUNT TOTAL - OPTIMIZED
 // ===============================
 $count_total = mysqli_fetch_assoc(
     mysqli_query($koneksi, "
-        SELECT COUNT(DISTINCT rawat_inap_drpr.no_rawat) AS total
-        FROM rawat_inap_drpr
-        JOIN reg_periksa ON reg_periksa.no_rawat = rawat_inap_drpr.no_rawat
+        SELECT COUNT(DISTINCT no_rawat) AS total
+        FROM reg_periksa
+        WHERE status_lanjut = 'Ranap'
     ")
 )['total'];
 
 // ===============================
-// COUNT FILTERED
+// COUNT FILTERED - OPTIMIZED
 // ===============================
+$count_filtered_query = "
+    SELECT COUNT(DISTINCT reg_periksa.no_rawat) AS total
+    $base
+";
+
 $count_filtered = mysqli_fetch_assoc(
-    mysqli_query($koneksi, "
-        SELECT COUNT(*) AS total FROM (
-            SELECT rawat_inap_drpr.no_rawat
-            $base
-            GROUP BY rawat_inap_drpr.no_rawat
-        ) AS x
-    ")
+    mysqli_query($koneksi, $count_filtered_query)
 )['total'];
 
 // ===============================
@@ -159,21 +196,293 @@ $count_filtered = mysqli_fetch_assoc(
 // ===============================
 $result = mysqli_query($koneksi, $query);
 
+if (!$result) {
+    echo json_encode([
+        "draw" => intval($draw),
+        "recordsTotal" => 0,
+        "recordsFiltered" => 0,
+        "data" => [],
+        "error" => mysqli_error($koneksi)
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $data = [];
 
 while ($row = mysqli_fetch_assoc($result)) {
+    $no_rawat = $row['no_rawat'];
+    $no_sep = $row['no_sep'];
 
-    // $no_sep = $row['no_sep'];
-    // $total_bpjs = 0;
+    // ===============================
+    // Get RESEP - RACIKAN & NON RACIKAN & OPERASI
+    // ===============================
+    $resep_result = mysqli_query($koneksi, "
+        SELECT no_resep 
+        FROM resep_obat 
+        WHERE no_rawat = '$no_rawat' AND tgl_perawatan != '0000-00-00' AND status = 'ralan'
+    ");
 
-    // // Ambil dari koneksi2
-    // $sql2 = mysqli_query($koneksi2, "SELECT total_bpjs FROM inapcbg WHERE no_sep='$no_sep' LIMIT 1");
-    // if ($sql2 && mysqli_num_rows($sql2) > 0) {
-    //     $r2 = mysqli_fetch_assoc($sql2);
-    //     $total_bpjs = $r2['total_bpjs'];
-    // }
+    $total_racikan = 0;
+    $total_non_racikan = 0;
+    $total_operasi = 0;
 
-    // $row['total_bpjs'] = $total_bpjs;
+    if ($resep_result && mysqli_num_rows($resep_result) > 0) {
+        while ($resep = mysqli_fetch_assoc($resep_result)) {
+            $no_resep = $resep['no_resep'];
+
+
+            $is_operasi = (substr($no_resep, 0, 2) === 'OK');
+
+
+            $cek_racikan = mysqli_query($koneksi, "
+                SELECT COUNT(*) as ada 
+                FROM resep_dokter_racikan 
+                WHERE no_resep = '$no_resep'
+                LIMIT 1
+            ");
+
+            $ada_racikan = false;
+            if ($cek_racikan && mysqli_num_rows($cek_racikan) > 0) {
+                $data_racikan = mysqli_fetch_assoc($cek_racikan);
+                $ada_racikan = ($data_racikan['ada'] > 0);
+            }
+
+            $cek_non_racikan = mysqli_query($koneksi, "
+                SELECT COUNT(*) as ada 
+                FROM resep_dokter 
+                WHERE no_resep = '$no_resep'
+                LIMIT 1
+            ");
+
+            $ada_non_racikan = false;
+            if ($cek_non_racikan && mysqli_num_rows($cek_non_racikan) > 0) {
+                $data_non_racikan = mysqli_fetch_assoc($cek_non_racikan);
+                $ada_non_racikan = ($data_non_racikan['ada'] > 0);
+            }
+
+
+            if ($is_operasi) {
+                $total_operasi++;
+            } else {
+                if ($ada_racikan) {
+                    $total_racikan++;
+                } else if ($ada_non_racikan) {
+                    $total_non_racikan++;
+                }
+            }
+        }
+    }
+
+    // Format output
+    $row['jumlah_resep_racikan'] = $total_racikan;
+    $row['jumlah_resep_non_racikan'] = $total_non_racikan;
+    $row['jumlah_resep_operasi'] = $total_operasi;
+    $row['total_resep'] = $total_racikan + $total_non_racikan + $total_operasi;
+    $row['jumlah_resep_real'] = mysqli_num_rows($resep_result); // Total resep dari resep_obat
+
+    // Hitung jasa farmasi
+    $row['jasa_farmasi'] = ($total_racikan * 25000) + ($total_non_racikan * 15000) + ($total_operasi * 35000);
+    $row['jasa_farmasi_format'] = number_format($row['jasa_farmasi'], 0, ',', '.');
+
+    // Get Bangsal/Ruang - Single query
+    $bangsal_result = mysqli_query($koneksi, "
+        SELECT bangsal.nm_bangsal 
+        FROM kamar_inap
+        JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
+        JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
+        WHERE kamar_inap.no_rawat = '$no_rawat'
+        ORDER BY kamar_inap.tgl_masuk DESC
+        LIMIT 1
+    ");
+
+    $row['ruang'] = 'Belum Masuk Kamar';
+    if ($bangsal_result && mysqli_num_rows($bangsal_result) > 0) {
+        $bangsal_data = mysqli_fetch_assoc($bangsal_result);
+        $row['ruang'] = $bangsal_data['nm_bangsal'];
+    }
+
+    // ===============================
+    // Get KAMAR INAP - LAMA & BIAYA
+    // ===============================
+    $kamar_result = mysqli_query($koneksi, "
+        SELECT 
+            SUM(kamar_inap.lama) AS total_lama_inap,
+            SUM(kamar_inap.lama * kamar_inap.trf_kamar) AS total_biaya_kamar
+        FROM kamar_inap
+        WHERE kamar_inap.no_rawat = '$no_rawat'
+    ");
+
+    if ($kamar_result && mysqli_num_rows($kamar_result) > 0) {
+        $kamar_data = mysqli_fetch_assoc($kamar_result);
+        $row['total_lama_inap'] = $kamar_data['total_lama_inap'] ?? 0;
+        $row['total_biaya_kamar'] = $kamar_data['total_biaya_kamar'] ?? 0;
+    } else {
+        $row['total_lama_inap'] = 0;
+        $row['total_biaya_kamar'] = 0;
+    }
+
+    // Get LAB totals - Aggregated
+    $lab_result = mysqli_query($koneksi, "
+        SELECT 
+            SUM(IFNULL(bagian_rs,0)) AS total_material_lab,
+            SUM(IFNULL(tarif_tindakan_dokter,0)) AS total_dokter_lab,
+            SUM(IFNULL(tarif_tindakan_petugas,0)) AS total_petugas_lab,
+            SUM(IFNULL(menejemen,0)) AS total_menejemen_lab,
+            SUM(IFNULL(biaya,0)) AS total_lab
+        FROM periksa_lab
+        WHERE no_rawat = '$no_rawat' 
+    ");
+
+    if ($lab_result && mysqli_num_rows($lab_result) > 0) {
+        $lab_data = mysqli_fetch_assoc($lab_result);
+        $row = array_merge($row, $lab_data);
+    } else {
+        $row['total_material_lab'] = 0;
+        $row['total_dokter_lab'] = 0;
+        $row['total_petugas_lab'] = 0;
+        $row['total_menejemen_lab'] = 0;
+        $row['total_lab'] = 0;
+    }
+
+    // operasi
+    // operasi
+    $operasi_result = mysqli_query($koneksi, "
+    SELECT (
+        IFNULL(SUM(biayaoperator1),0) +
+        IFNULL(SUM(biayaoperator2),0) +
+        IFNULL(SUM(biayaoperator3),0) +
+        IFNULL(SUM(biayaasisten_operator1),0) +
+        IFNULL(SUM(biayaasisten_operator2),0) +
+        IFNULL(SUM(biayaasisten_operator3),0) +
+        IFNULL(SUM(biayainstrumen),0) +
+        IFNULL(SUM(biayadokter_anak),0) +
+        IFNULL(SUM(biayaperawaat_resusitas),0) +
+        IFNULL(SUM(biayadokter_anestesi),0) +
+        IFNULL(SUM(biayaasisten_anestesi),0) +
+        IFNULL(SUM(biayaasisten_anestesi2),0) +
+        IFNULL(SUM(biayabidan),0) +
+        IFNULL(SUM(biayabidan2),0) +
+        IFNULL(SUM(biayabidan3),0) +
+        IFNULL(SUM(biayaperawat_luar),0) +
+        IFNULL(SUM(biaya_omloop),0) +
+        IFNULL(SUM(biaya_omloop2),0) +
+        IFNULL(SUM(biaya_omloop3),0) +
+        IFNULL(SUM(biaya_omloop4),0) +
+        IFNULL(SUM(biaya_omloop5),0) +
+        IFNULL(SUM(biaya_dokter_pjanak),0) +
+        IFNULL(SUM(biaya_dokter_umum),0) +
+        IFNULL(SUM(biayaalat),0) +
+        IFNULL(SUM(biayasewaok),0) +
+        IFNULL(SUM(akomodasi),0) +
+        IFNULL(SUM(bagian_rs),0) +
+        IFNULL(SUM(biayasarpras),0)
+        ) AS total_operasi,
+        (
+        IFNULL(SUM(biayaoperator1),0) +
+        IFNULL(SUM(biayaoperator2),0) +
+        IFNULL(SUM(biayaoperator3),0)
+         ) AS total_operator_operasi,
+        (
+       IFNULL(SUM(biayaasisten_operator1),0) +
+        IFNULL(SUM(biayaasisten_operator2),0) +
+        IFNULL(SUM(biayaasisten_operator3),0) 
+         ) AS total_asisten_operator_operasi,
+        (
+       IFNULL(SUM(biayadokter_anestesi),0) +
+        IFNULL(SUM(biayaasisten_anestesi),0) +
+        IFNULL(SUM(biayaasisten_anestesi2),0) 
+         ) AS total_anestesi_operasi,
+        (
+     IFNULL(SUM(biayabidan),0) +
+        IFNULL(SUM(biayabidan2),0) +
+        IFNULL(SUM(biayabidan3),0) 
+         ) AS total_bidan_operasi,
+        (
+     IFNULL(SUM(biaya_omloop),0) +
+        IFNULL(SUM(biaya_omloop2),0) +
+        IFNULL(SUM(biaya_omloop3),0) +
+        IFNULL(SUM(biaya_omloop4),0) +
+        IFNULL(SUM(biaya_omloop5),0) 
+         ) AS total_onloop_operasi,
+        (
+        IFNULL(SUM(biayadokter_anak),0) 
+         ) AS total_perina_operasi
+    FROM operasi
+    WHERE no_rawat = '$no_rawat' AND status = 'Ranap'
+");
+
+    if ($operasi_result && mysqli_num_rows($operasi_result) > 0) {
+        $operasi_data = mysqli_fetch_assoc($operasi_result);
+        $row = array_merge($row, $operasi_data);
+    } else {
+        $row['total_perina_operasi'] = 0;
+        $row['total_onloop_operasi'] = 0;
+        $row['total_bidan_operasi'] = 0;
+        $row['total_anestesi_operasi'] = 0;
+        $row['total_asisten_operator_operasi'] = 0;
+        $row['total_operator_operasi'] = 0;
+        $row['total_operasi'] = 0;
+    }
+
+    // Get RADIOLOGI totals - Aggregated
+    $rad_result = mysqli_query($koneksi, "
+        SELECT 
+            SUM(IFNULL(bagian_rs,0)) AS total_material_radiologi,
+            SUM(IFNULL(tarif_tindakan_dokter,0)) AS total_dokter_radiologi,
+            SUM(IFNULL(tarif_tindakan_petugas,0)) AS total_petugas_radiologi,
+            SUM(IFNULL(menejemen,0)) AS total_menejemen_radiologi,
+            SUM(IFNULL(biaya,0)) AS total_radiologi
+        FROM periksa_radiologi
+        WHERE no_rawat = '$no_rawat' AND status = 'Ranap'
+    ");
+
+    if ($rad_result && mysqli_num_rows($rad_result) > 0) {
+        $rad_data = mysqli_fetch_assoc($rad_result);
+        $row = array_merge($row, $rad_data);
+    } else {
+        $row['total_material_radiologi'] = 0;
+        $row['total_dokter_radiologi'] = 0;
+        $row['total_petugas_radiologi'] = 0;
+        $row['total_menejemen_radiologi'] = 0;
+        $row['total_radiologi'] = 0;
+    }
+
+    // Get OBAT totals - Aggregated
+    $obat_result = mysqli_query($koneksi, "
+        SELECT 
+            SUM(IFNULL(total,0)) AS total_obat
+        FROM detail_pemberian_obat
+        WHERE no_rawat = '$no_rawat' AND status = 'Ranap'
+    ");
+
+    if ($obat_result && mysqli_num_rows($obat_result) > 0) {
+        $obat_data = mysqli_fetch_assoc($obat_result);
+        $row['total_obat'] = $obat_data['total_obat'];
+        $row['total_obat_dan_ppn'] = $obat_data['total_obat'] * 1.11;
+    } else {
+        $row['total_obat'] = 0;
+        $row['total_obat_dan_ppn'] = 0;
+    }
+
+    // Get total BPJS dari koneksi2
+    $row['total_bpjs'] = 0;
+    if ($no_sep && $no_sep != '-') {
+        $q2 = mysqli_query($koneksi2, "SELECT total_bpjs FROM inacbd WHERE no_sep = '$no_sep' LIMIT 1");
+
+        if ($q2 && mysqli_num_rows($q2) > 0) {
+            $r2 = mysqli_fetch_assoc($q2);
+            $row['total_bpjs'] = $r2['total_bpjs'];
+        }
+    }
+
+    // Calculate grand total - TERMASUK BIAYA KAMAR
+    $row['grand_total'] =
+        ($row['total_biaya_rawat'] ?? 0) +
+        ($row['total_biaya_kamar'] ?? 0) +
+        ($row['total_obat'] ?? 0) +
+        ($row['total_lab'] ?? 0) +
+        ($row['total_radiologi'] ?? 0);
+
     $data[] = $row;
 }
 
@@ -186,3 +495,9 @@ echo json_encode([
     "recordsFiltered" => intval($count_filtered),
     "data"            => $data
 ], JSON_UNESCAPED_UNICODE);
+
+mysqli_close($koneksi);
+mysqli_close($koneksi2);
+
+// operasi :
+// anasatesi perawat, perawat ok, perawat bayi , dokter kandungan, anastesi dokter, dokter anak, perawat nifas/bidan

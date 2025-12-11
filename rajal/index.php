@@ -5,6 +5,9 @@ $koneksi = bukakoneksi();
 $query_poli = "SELECT * FROM poliklinik where status = '1' ORDER BY nm_poli";
 $result_poli = mysqli_query($koneksi, $query_poli);
 
+$query_pj = "SELECT * FROM penjab where status = '1' ORDER BY kd_pj";
+$result_pj = mysqli_query($koneksi, $query_pj);
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -149,6 +152,16 @@ $result_poli = mysqli_query($koneksi, $query_poli);
                   <?php endwhile; ?>
                 </select>
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis</label>
+                <select id="kd_pj"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Semua Jenis</option>
+                  <?php while ($row = mysqli_fetch_assoc($result_pj)): ?>
+                    <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
+                  <?php endwhile; ?>
+                </select>
+              </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
@@ -178,6 +191,7 @@ $result_poli = mysqli_query($koneksi, $query_poli);
                   <th class="px-2  text-left">No.Rawat</th>
                   <th class="px-2  text-left">No.SEP</th>
                   <th class="px-2  text-left">No.RM</th>
+                  <th class="px-2  text-left">Jenis</th>
                   <th class="px-2  text-left">Dokter</th>
                   <th class="px-2  text-left">Polik</th>
                   <!-- tindakan -->
@@ -187,6 +201,10 @@ $result_poli = mysqli_query($koneksi, $query_poli);
                   <th class="px-2  text-right">non-medis (Tindakan)</th>
                   <th class="px-2  text-right">Total (Tindakan)</th>
                   <!-- obat -->
+                  <th class="text-right">Racikan (Obat)</th>
+                  <th class="text-right">Non-racikan (obat)</th>
+                  <th class="text-right">Operasi (obat)</th>
+                  <th class="text-right">Jasa Farmasi</th>
                   <th class="px-2  text-right">Total Obat (11%)</th>
                   <!-- lab -->
                   <th class="px-2  text-right">sarana (Lab)</th>
@@ -217,7 +235,7 @@ $result_poli = mysqli_query($koneksi, $query_poli);
               <tbody></tbody>
               <tfoot class="bg-green-800 font-bold text-white">
                 <tr>
-                  <th colspan="6" class="text-right">TOTAL</th>
+                  <th colspan="7" class="text-right">TOTAL</th>
                   <!-- Footer nilai total -->
                   <th class="text-right">Sarana (tindakan)</th>
                   <th class="text-right">JM Dokter (tindakan)</th>
@@ -225,6 +243,10 @@ $result_poli = mysqli_query($koneksi, $query_poli);
                   <th class="text-right">non-medis (tindakan)</th>
                   <th class="text-right">Total Tindakan</th>
                   <!-- obat -->
+                  <th class="text-right">Racikan (Obat)</th>
+                  <th class="text-right">Non-racikan (obat)</th>
+                  <th class="text-right">Operasi (obat)</th>
+                  <th class="text-right">Jasa Farmasi</th>
                   <th class="text-right">Total Obat (11%)</th>
                   <!-- lab -->
                   <th class="px-2  text-right">sarana (Lab)</th>
@@ -252,7 +274,7 @@ $result_poli = mysqli_query($koneksi, $query_poli);
                   <th class="text-right">% non-medis</th>
                 </tr>
                 <tr>
-                  <th colspan="6" class="text-right">TOTAL</th>
+                  <th colspan="7" class="text-right">TOTAL</th>
                   <!-- Footer nilai total -->
                   <th class="text-right">Sarana (tindakan)</th>
                   <th class="text-right">JM Dokter (tindakan)</th>
@@ -260,6 +282,10 @@ $result_poli = mysqli_query($koneksi, $query_poli);
                   <th class="text-right">non-medis (tindakan)</th>
                   <th class="text-right">Total Tindakan</th>
                   <!-- obat -->
+                  <th class="text-right">Racikan (Obat)</th>
+                  <th class="text-right">Non-racikan (obat)</th>
+                  <th class="text-right">Operasi (obat)</th>
+                  <th class="text-right">Jasa Farmasi</th>
                   <th class="text-right">Total Obat (11%)</th>
                   <!-- lab -->
                   <th class="px-2  text-right">sarana (Lab)</th>
