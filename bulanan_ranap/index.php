@@ -11,7 +11,7 @@ $result_pj = mysqli_query($koneksi, $query_pj);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Bulanan Per Poliklinik - RSUD MERAUKE</title>
+  <title>Laporan Bulanan Per Kamar - RSUD MERAUKE</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -57,7 +57,7 @@ $result_pj = mysqli_query($koneksi, $query_pj);
           </a>
           <div>
             <h2 class="text-xl font-bold text-green-800">
-              Laporan Bulanan Per Poliklinik - RSUD MERAUKE
+              Laporan Bulanan Per Kamar - RSUD MERAUKE
             </h2>
 
           </div>
@@ -113,7 +113,7 @@ $result_pj = mysqli_query($koneksi, $query_pj);
               <thead class="bg-green-800 text-white">
                 <tr>
                   <th class="px-2 text-left">No.</th>
-                  <th class="px-2 text-left">Poliklinik</th>
+                  <th class="px-2 text-left">Kamar</th>
                   <th class="px-2 text-right">Kunjungan</th>
                   <!-- Tindakan -->
                   <th class="px-2 text-right">Sarana</th>
@@ -195,14 +195,14 @@ $result_pj = mysqli_query($koneksi, $query_pj);
         buttons: [{
             extend: 'excel',
             text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
-            title: 'Laporan Bulanan Per Poliklinik'
+            title: 'Laporan Bulanan Per Kamar'
           },
           {
             extend: 'pdfHtml5',
             text: '<i class="fas fa-file-pdf mr-2"></i>Export PDF',
             orientation: 'landscape',
             pageSize: 'A4',
-            title: 'Laporan Bulanan Per Poliklinik',
+            title: 'Laporan Bulanan Per Kamar',
             customize: function(doc) {
               doc.defaultStyle.fontSize = 7;
               doc.styles.tableHeader.fontSize = 8;
@@ -341,7 +341,7 @@ $result_pj = mysqli_query($koneksi, $query_pj);
       const kd_pj = $('#kd_pj').val();
 
       $.ajax({
-        url: '../api/get_monthly_report.php',
+        url: '../api/get_monthly_report_ranap.php',
         type: 'POST',
         data: {
           bulan,

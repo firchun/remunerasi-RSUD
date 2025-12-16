@@ -101,7 +101,7 @@ cek_login();
             </a>
 
             <!-- Ranap per-bulan -->
-            <a href="/ranap/index.php"
+            <a href="/bulanan_ranap/index.php"
               class="bg-white shadow-lg rounded-xl p-6 w-72 text-center hover:shadow-xl transition duration-200">
               <div class="text-purple-700 text-4xl mb-3">
                 <i class="fa-solid fa-bed"></i>

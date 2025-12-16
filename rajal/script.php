@@ -266,6 +266,31 @@
          {
            data: 'total_biaya_rawat'
          },
+         //  operasi
+         {
+           data: 'total_perina_operasi'
+         },
+         {
+           data: 'total_onloop_operasi'
+         },
+         {
+           data: 'total_bidan_operasi'
+         },
+         {
+           data: 'total_dr_anestesi_operasi'
+         },
+         {
+           data: 'total_asisten_anestesi_operasi'
+         },
+         {
+           data: 'total_asisten_operator_operasi'
+         },
+         {
+           data: 'total_operator_operasi'
+         },
+         {
+           data: 'total_operasi'
+         },
          //  obat
          {
            data: 'jumlah_resep_racikan'

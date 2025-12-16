@@ -200,6 +200,15 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                   <th class="px-2  text-right">Perawat (Tindakan)</th>
                   <th class="px-2  text-right">non-medis (Tindakan)</th>
                   <th class="px-2  text-right">Total (Tindakan)</th>
+                  <!-- operasi -->
+                  <th class="px-2  text-right">Total Perina (Operasi)</th>
+                  <th class="px-2  text-right">Total onloop (Operasi)</th>
+                  <th class="px-2  text-right">Total bidan (Operasi)</th>
+                  <th class="px-2  text-right">Total Dokter anestesi (Operasi)</th>
+                  <th class="px-2  text-right">Total asisten anestesi (Operasi)</th>
+                  <th class="px-2  text-right">Total asisten operator (Operasi)</th>
+                  <th class="px-2  text-right">Total operator (Operasi)</th>
+                  <th class="px-2  text-right">Total (Operasi)</th>
                   <!-- obat -->
                   <th class="text-right">Racikan (Obat)</th>
                   <th class="text-right">Non-racikan (obat)</th>
@@ -242,6 +251,15 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                   <th class="text-right">JM Perawat (tindakan)</th>
                   <th class="text-right">non-medis (tindakan)</th>
                   <th class="text-right">Total Tindakan</th>
+                  <!-- operasi -->
+                  <th class="px-2  text-right">Total Perina (Operasi)</th>
+                  <th class="px-2  text-right">Total onloop (Operasi)</th>
+                  <th class="px-2  text-right">Total bidan (Operasi)</th>
+                  <th class="px-2  text-right">Total Dokter anestesi (Operasi)</th>
+                  <th class="px-2  text-right">Total asisten anestesi (Operasi)</th>
+                  <th class="px-2  text-right">Total asisten operator (Operasi)</th>
+                  <th class="px-2  text-right">Total operator (Operasi)</th>
+                  <th class="px-2  text-right">Total (Operasi)</th>
                   <!-- obat -->
                   <th class="text-right">Racikan (Obat)</th>
                   <th class="text-right">Non-racikan (obat)</th>
@@ -281,6 +299,15 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                   <th class="text-right">JM Perawat (tindakan)</th>
                   <th class="text-right">non-medis (tindakan)</th>
                   <th class="text-right">Total Tindakan</th>
+                  <!-- operasi -->
+                  <th class="px-2  text-right">Total Perina (Operasi)</th>
+                  <th class="px-2  text-right">Total onloop (Operasi)</th>
+                  <th class="px-2  text-right">Total bidan (Operasi)</th>
+                  <th class="px-2  text-right">Total Dokter anestesi (Operasi)</th>
+                  <th class="px-2  text-right">Total asisten anestesi (Operasi)</th>
+                  <th class="px-2  text-right">Total asisten operator (Operasi)</th>
+                  <th class="px-2  text-right">Total operator (Operasi)</th>
+                  <th class="px-2  text-right">Total (Operasi)</th>
                   <!-- obat -->
                   <th class="text-right">Racikan (Obat)</th>
                   <th class="text-right">Non-racikan (obat)</th>

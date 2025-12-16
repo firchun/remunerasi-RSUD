@@ -54,6 +54,7 @@ $base = "
         FROM kamar_inap ki
         WHERE ki.no_rawat = reg_periksa.no_rawat
     )
+
 )
 ";
 
@@ -215,6 +216,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $no_rawat = $row['no_rawat'];
     $no_sep = $row['no_sep'];
 
+
     // ===============================
     // Get RESEP - RACIKAN & NON RACIKAN & OPERASI
     // ===============================
@@ -290,6 +292,88 @@ while ($row = mysqli_fetch_assoc($result)) {
     $row['jasa_farmasi'] = ($total_racikan * 25000) + ($total_non_racikan * 15000) + ($total_operasi * 35000);
     $row['jasa_farmasi_format'] = number_format($row['jasa_farmasi'], 0, ',', '.');
 
+    // operasi
+    $operasi_result = mysqli_query($koneksi, "
+        SELECT (
+            IFNULL(SUM(biayaoperator1),0) +
+            IFNULL(SUM(biayaoperator2),0) +
+            IFNULL(SUM(biayaoperator3),0) +
+            IFNULL(SUM(biayaasisten_operator1),0) +
+            IFNULL(SUM(biayaasisten_operator2),0) +
+            IFNULL(SUM(biayaasisten_operator3),0) +
+            IFNULL(SUM(biayainstrumen),0) +
+            IFNULL(SUM(biayadokter_anak),0) +
+            IFNULL(SUM(biayaperawaat_resusitas),0) +
+            IFNULL(SUM(biayadokter_anestesi),0) +
+            IFNULL(SUM(biayaasisten_anestesi),0) +
+            IFNULL(SUM(biayaasisten_anestesi2),0) +
+            IFNULL(SUM(biayabidan),0) +
+            IFNULL(SUM(biayabidan2),0) +
+            IFNULL(SUM(biayabidan3),0) +
+            IFNULL(SUM(biayaperawat_luar),0) +
+            IFNULL(SUM(biaya_omloop),0) +
+            IFNULL(SUM(biaya_omloop2),0) +
+            IFNULL(SUM(biaya_omloop3),0) +
+            IFNULL(SUM(biaya_omloop4),0) +
+            IFNULL(SUM(biaya_omloop5),0) +
+            IFNULL(SUM(biaya_dokter_pjanak),0) +
+            IFNULL(SUM(biaya_dokter_umum),0) +
+            IFNULL(SUM(biayaalat),0) +
+            IFNULL(SUM(biayasewaok),0) +
+            IFNULL(SUM(akomodasi),0) +
+            IFNULL(SUM(bagian_rs),0) +
+            IFNULL(SUM(biayasarpras),0)
+            ) AS total_operasi,
+            (
+            IFNULL(SUM(biayaoperator1),0) +
+            IFNULL(SUM(biayaoperator2),0) +
+            IFNULL(SUM(biayaoperator3),0)
+            ) AS total_operator_operasi,
+            (
+        IFNULL(SUM(biayaasisten_operator1),0) +
+            IFNULL(SUM(biayaasisten_operator2),0) +
+            IFNULL(SUM(biayaasisten_operator3),0) 
+            ) AS total_asisten_operator_operasi,
+            (
+        IFNULL(SUM(biayadokter_anestesi),0) 
+            ) AS total_dr_anestesi_operasi,
+            (
+            IFNULL(SUM(biayaasisten_anestesi),0) +
+            IFNULL(SUM(biayaasisten_anestesi2),0) 
+            ) AS total_asisten_anestesi_operasi,
+            (
+        IFNULL(SUM(biayabidan),0) +
+            IFNULL(SUM(biayabidan2),0) +
+            IFNULL(SUM(biayabidan3),0) 
+            ) AS total_bidan_operasi,
+            (
+        IFNULL(SUM(biaya_omloop),0) +
+            IFNULL(SUM(biaya_omloop2),0) +
+            IFNULL(SUM(biaya_omloop3),0) +
+            IFNULL(SUM(biaya_omloop4),0) +
+            IFNULL(SUM(biaya_omloop5),0) 
+            ) AS total_onloop_operasi,
+            (
+            IFNULL(SUM(biayadokter_anak),0) 
+            ) AS total_perina_operasi
+        FROM operasi
+        WHERE no_rawat = '$no_rawat' AND status = 'Ranap'
+    ");
+
+    if ($operasi_result && mysqli_num_rows($operasi_result) > 0) {
+        $operasi_data = mysqli_fetch_assoc($operasi_result);
+        $row = array_merge($row, $operasi_data);
+    } else {
+        $row['total_perina_operasi'] = 0;
+        $row['total_onloop_operasi'] = 0;
+        $row['total_bidan_operasi'] = 0;
+        $row['total_dr_anestesi_operasi'] = 0;
+        $row['total_asisten_anestesi_operasi'] = 0;
+        $row['total_asisten_operator_operasi'] = 0;
+        $row['total_operator_operasi'] = 0;
+        $row['total_operasi'] = 0;
+    }
+
     // Get LAB totals
     $lab_result = mysqli_query($koneksi, "
         SELECT 
@@ -336,6 +420,21 @@ while ($row = mysqli_fetch_assoc($result)) {
         $row['total_radiologi'] = 0;
     }
 
+    // Get OBAT pulang total
+    $obat_pulang_result = mysqli_query($koneksi, "
+        SELECT 
+            SUM(IFNULL(total,0)) AS total_obat
+        FROM resep_pulang
+        WHERE no_rawat = '$no_rawat'
+    ");
+
+    if ($obat_pulang_result && mysqli_num_rows($obat_pulang_result) > 0) {
+        $obat_pulang_data = mysqli_fetch_assoc($obat_pulang_result);
+        $row['total_obat_pulang'] = $obat_pulang_data['total_obat_pulang'];
+    } else {
+        $row['total_obat_pulang'] = 0;
+    }
+
     // Get OBAT totals
     $obat_result = mysqli_query($koneksi, "
         SELECT 
@@ -347,7 +446,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     if ($obat_result && mysqli_num_rows($obat_result) > 0) {
         $obat_data = mysqli_fetch_assoc($obat_result);
         $row['total_obat'] = $obat_data['total_obat'];
-        $row['total_obat_dan_ppn'] = $obat_data['total_obat'] * 1.11;
+        // $row['total_obat_dan_ppn'] = $obat_data['total_obat'] * 1.11;
     } else {
         $row['total_obat'] = 0;
         $row['total_obat_dan_ppn'] = 0;
