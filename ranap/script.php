@@ -159,6 +159,8 @@ $(document).ready(function() {
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
+  sevenDaysAgo.setHours(1, 0, 0, 0);
+  now.setHours(23, 0, 0, 0);
   $('#tgl2').val(formatDateTime(now));
   $('#tgl1').val(formatDateTime(sevenDaysAgo));
 
@@ -177,6 +179,7 @@ $(document).ready(function() {
       (parseFloat(row.total_biaya_kamar) || 0) +
       (parseFloat(row.total_operasi) || 0) +
       (parseFloat(row.total_radiologi) || 0) +
+      (parseFloat(row.total_rajal_biaya_rawat) || 0) +
       jasaResepPulang(row)
     );
   }
@@ -191,13 +194,32 @@ $(document).ready(function() {
         Math.round(row.total_obat)));
   }
 
+  function inapdrpr(row) {
+    return (
+      Math.round(row.total_tindakan_dr) +
+      Math.round(row.total_tindakan_pr));
+  }
+
+  function rajaldrpr(row) {
+    return (
+      Math.round(row.total_rajal_tindakan_dr) +
+      Math.round(row.total_rajal_tindakan_pr));
+  }
+
   // Initialize DataTable
   table = $('#tabelTindakan').DataTable({
     processing: true,
     serverSide: true,
     scrollY: "500px",
+    scrollX: true,
     scrollCollapse: true,
     dom: '<"flex justify-between items-center mb-4"lB>rtip',
+    fixedColumns: {
+      left: 3
+    },
+    columnDefs: [{
+      targets: [0, 1, 2]
+    }],
     buttons: [{
         extend: 'excel',
         text: 'Export Excel',
@@ -206,14 +228,14 @@ $(document).ready(function() {
         extend: 'pdfHtml5',
         text: 'Export PDF',
         orientation: 'landscape',
-        pageSize: 'A4',
+        pageSize: 'legal',
         customize: function(doc) {
-          doc.defaultStyle.fontSize = 5;
+          doc.defaultStyle.fontSize = 3;
 
-          doc.styles.tableHeader.fontSize = 8;
+          doc.styles.tableHeader.fontSize = 3;
 
           if (doc.content[0].text) {
-            doc.content[0].fontSize = 10;
+            doc.content[0].fontSize = 3;
           }
         }
       }
@@ -241,6 +263,7 @@ $(document).ready(function() {
         d.tcari = $('#tcari').val();
         d.gedung = $('#gedung').val();
         d.status_pulang = $('#status_pulang').val();
+        d.filter_sep = $('#filter_sep').val();
         d.search_value = d.search.value;
       }
     },
@@ -262,20 +285,32 @@ $(document).ready(function() {
         data: null,
         title: 'No SEP / Penanggung',
         render: function(data, type, row) {
-          if (type === 'sort' || type === 'type') return row.no_sep || '';
-
-          const noSep = (row.no_sep ?? '').trim();
+          const noSepRaw = (row.no_sep ?? '').trim();
           const penjab = (row.png_jawab ?? '').trim().toUpperCase();
 
-          if (noSep !== '' && noSep !== '-') {
-            return noSep;
+          // Jika ada data SEP
+          if (noSepRaw !== '' && noSepRaw !== '-') {
+            // Pecah string berdasarkan separator '|'
+            const sepList = noSepRaw.split('|');
+
+            // Jika hanya satu, langsung tampilkan. Jika lebih dari satu, buat list.
+            if (sepList.length > 1) {
+              let listHtml = '<ol style="margin:0;">';
+              sepList.forEach(function(item) {
+                listHtml += '<li>- ' + item.trim() + '</li>';
+              });
+              listHtml += '</ol>';
+              return listHtml;
+            }
+            return sepList[0];
           }
 
-          if (penjab === 'BPJS') {
-            return 'Belum Ada';
+          // Logika jika SEP tidak ada
+          if (penjab.includes('BPJS')) {
+            return '<span class="badge badge-danger">Belum Ada SEP</span>';
           }
 
-          return 'Bukan BPJS';
+          return '<span class="text-muted">Bukan BPJS</span>';
         }
       }, {
         data: 'no_rkm_medis'
@@ -287,15 +322,28 @@ $(document).ready(function() {
         data: 'nm_dokter'
       },
       {
+        "data": "daftar_dpjp",
+        "name": "daftar_dpjp",
+        "orderable": false,
+        "searchable": false,
+        "render": function(data, type, row) {
+          if (type === 'display') {
+            return data;
+          }
+          return data;
+        }
+      },
+      {
         data: 'ruang'
       },
       {
-        data: 'riwayat_kamar',
-        render: function(data) {
-          if (!data || data.length === 0) return '-';
-
-          return data.map(k => `<div title="${k.nm_bangsal}">- ${k.nm_bangsal}</div>`).join('');
-        }
+        data: 'col_hanya_kamar',
+      },
+      {
+        data: 'col_tarif_pr_kamar',
+      },
+      {
+        data: 'col_tarif_dr_kamar',
       },
       //  kamar
       {
@@ -308,8 +356,27 @@ $(document).ready(function() {
         data: 'status_pulang'
       },
       //  tindakan
+      //  {
+      //    data: 'daftar_perawat_tindakan',
+      //    render: function(data, type, row) {
+      //      if (type !== 'display') {
+      //        return (data ?? '').replace(/<[^>]*>?/gm, ' ').trim();
+      //      }
+      //      return data ?? '-';
+      //    }
+      //  },
+      //  {
+      //    data: 'daftar_dokter_tindakan',
+      //    render: function(data, type, row) {
+      //      if (type !== 'display') {
+      //        return (data ?? '').replace(/<[^>]*>?/gm, ' ').trim();
+      //      }
+      //      return data ?? '-';
+      //    }
+      //  },
       {
-        data: 'total_material'
+        data: 'total_material',
+        visible: false
       },
       {
         data: 'total_tindakan_dr'
@@ -321,30 +388,49 @@ $(document).ready(function() {
         data: 'total_menejemen'
       },
       {
-        data: 'total_biaya_rawat'
+        data: 'total_biaya_rawat',
+        visible: false
+      },
+
+      {
+        data: 'total_rajal_biaya_rawat',
+        visible: false
+      },
+      {
+        data: null,
+        render: function(data, type, row) {
+          return Math.round(inapdrpr(row));
+        }
+      },
+      {
+        data: null,
+        render: function(data, type, row) {
+          return Math.round(rajaldrpr(row));
+        }
       },
       //  operasi
       {
         data: 'nm_perawatan'
       },
-      {
-        data: 'daftar_petugas_operasi',
-        title: 'Petugas Operasi', // Judul kolom di header tabel
-        render: function(data, type, row) {
-          // Jika DataTables meminta data untuk sorting atau filtering (type !== 'display')
-          if (type !== 'display') {
-            // Kita kembalikan data mentah tanpa tag HTML untuk sorting/search yang benar
-            return data.replace(/<[^>]*>?/gm, ' ').trim() || '';
-          }
-          // Untuk tampilan, kita kembalikan string HTML (yang sudah kita buat di PHP)
-          return data;
-        }
-      },
+      // {
+      //   data: 'daftar_petugas_operasi',
+      //   title: 'Petugas Operasi', // Judul kolom di header tabel
+      //   render: function(data, type, row) {
+      //     // Jika DataTables meminta data untuk sorting atau filtering (type !== 'display')
+      //     if (type !== 'display') {
+      //       // Kita kembalikan data mentah tanpa tag HTML untuk sorting/search yang benar
+      //       return data.replace(/<[^>]*>?/gm, ' ').trim() || '';
+      //     }
+      //     // Untuk tampilan, kita kembalikan string HTML (yang sudah kita buat di PHP)
+      //     return data;
+      //   }
+      // },
       {
         data: 'anastesi'
       },
       {
-        data: 'total_jasa_sarana_rs'
+        data: 'total_jasa_sarana_rs',
+        visible: false
       },
       {
         data: 'total_perina_operasi'
@@ -377,6 +463,7 @@ $(document).ready(function() {
       {
         data: 'daftar_resep_racikan',
         title: 'Resep Racikan',
+        visible: false,
         render: function(data, type, row) {
           if (type !== 'display') return (data ?? '').replace(/<[^>]*>?/gm, ' ').trim();
           return data ?? '-';
@@ -388,6 +475,7 @@ $(document).ready(function() {
       {
         data: 'daftar_resep_non_racikan',
         title: 'Resep Non Racikan',
+        visible: false,
         render: function(data, type, row) {
           if (type !== 'display') return (data ?? '').replace(/<[^>]*>?/gm, ' ').trim();
           return data ?? '-';
@@ -399,6 +487,7 @@ $(document).ready(function() {
       {
         data: 'daftar_resep_operasi',
         title: 'Resep Operasi',
+        visible: false,
         render: function(data, type, row) {
           if (type !== 'display') return (data ?? '').replace(/<[^>]*>?/gm, ' ').trim();
           return data ?? '-';
@@ -431,16 +520,17 @@ $(document).ready(function() {
       },
 
       //  lab
+      // {
+      //   data: 'daftar_tindakan_lab',
+      //   title: 'Tindakan Lab',
+      //   render: function(data, type, row) {
+      //     if (type !== 'display') return (data ?? '').replace(/<[^>]*>?/gm, ' ').trim();
+      //     return data ?? '-';
+      //   }
+      // },
       {
-        data: 'daftar_tindakan_lab',
-        title: 'Tindakan Lab',
-        render: function(data, type, row) {
-          if (type !== 'display') return (data ?? '').replace(/<[^>]*>?/gm, ' ').trim();
-          return data ?? '-';
-        }
-      },
-      {
-        data: 'total_material_lab'
+        data: 'total_material_lab',
+        visible: false
       },
       {
         data: 'total_dokter_lab'
@@ -459,7 +549,8 @@ $(document).ready(function() {
         data: 'tindakan_radiologi'
       },
       {
-        data: 'total_material_radiologi'
+        data: 'total_material_radiologi',
+        visible: false
       },
       {
         data: 'total_dokter_radiologi'
@@ -471,7 +562,7 @@ $(document).ready(function() {
         data: 'total_menejemen_radiologi'
       },
       {
-        data: 'total_radiologi'
+        data: 'total_radiologi',
       },
       {
         data: null,
@@ -661,58 +752,164 @@ $(document).ready(function() {
       }
     },
     footerCallback: function(row, data, start, end, display) {
-      function sumColumn(index) {
-        return data
-          .map(row => parseFloat(row[index]) || 0)
-          .reduce((a, b) => a + b, 0);
-      }
+      const api = this.api();
 
-      let totalSarana = sumColumn('total_material');
-      let totalBHP = sumColumn('total_bhp');
-      let totalDokter = sumColumn('total_tindakan_dr');
-      let totalPerawat = sumColumn('total_tindakan_pr');
-      let totalManajemen = sumColumn('total_menejemen');
-      let totalSemua = sumColumn('total_biaya_rawat');
-      let totalObat = sumColumn('total_obat');
-      let totalLab = sumColumn('total_lab');
-      let totalRadiologi = sumColumn('total_radiologi');
-      let totalBayar =
-        totalSemua +
-        totalObat +
-        totalLab +
-        totalRadiologi;
+      // Helper untuk menjumlahkan data dari property object
+      const sumData = (propertyName) => {
+        return data.reduce((a, b) => {
+          let val = b[propertyName];
+          // Bersihkan jika string, konversi ke float
+          return a + (parseFloat(val) || 0);
+        }, 0);
+      };
 
-      // Format angka
-      function formatIDR(x) {
-        return "Rp " + x.toLocaleString('id-ID');
-      }
+      // Helper untuk format Rupiah
+      const formatIDR = (n) => {
+        return new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          maximumFractionDigits: 0
+        }).format(n);
+      };
 
-      // Update footer
-      let api = this.api();
-      $(api.column(5).footer()).html(formatIDR(totalSarana));
-      $(api.column(6).footer()).html(formatIDR(totalBHP));
-      $(api.column(7).footer()).html(formatIDR(totalDokter));
-      $(api.column(8).footer()).html(formatIDR(totalPerawat));
-      $(api.column(9).footer()).html(formatIDR(totalManajemen));
-      $(api.column(10).footer()).html(formatIDR(totalSemua));
-      // $(api.column(11).footer()).html(formatIDR(totalObat));
-      // $(api.column(12).footer()).html(formatIDR(totalLab));
-      // $(api.column(13).footer()).html(formatIDR(totalRadiologi));
-      // $(api.column(14).footer()).html(formatIDR(totalBayar));
+      // 1. Kalkulasi Total per Kategori
+      const totals = {
+
+        totalInapDrPr: data.reduce((a, b) => a + (inapdrpr(b) || 0), 0),
+        totalRajalDrPr: data.reduce((a, b) => a + (rajaldrpr(b) || 0), 0),
+
+
+        totalBiayaKamar: sumData('total_biaya_kamar'),
+        // Tindakan
+        saranaTindakan: sumData('total_material'),
+        drTindakan: sumData('total_tindakan_dr'),
+        prTindakan: sumData('total_tindakan_pr'),
+        manajemenTindakan: sumData('total_menejemen'),
+        totalTindakan: sumData('total_biaya_rawat'),
+        totalRajalTindakan: sumData('total_rajal_biaya_rawat'),
+
+        // Operasi
+        saranaOp: sumData('total_jasa_sarana_rs'),
+        perinaOp: sumData('total_perina_operasi'),
+        onloopOp: sumData('total_onloop_operasi'),
+        bidanOp: sumData('total_bidan_operasi'),
+        drAnestesi: sumData('total_dr_anestesi_operasi'),
+        asistenAnestesi: sumData('total_asisten_anestesi_operasi'),
+        asistenOp: sumData('total_asisten_operator_operasi'),
+        operatorOp: sumData('total_operator_operasi'),
+        totalOp: sumData('total_operasi'),
+
+        // Obat
+        jasaFarmasi: sumData('jasa_farmasi'),
+        totalObat: sumData('total_obat'),
+        jasaFarmasiPlg: data.reduce((a, b) => a + (parseFloat(b.total_obat_pulang) > 0 ? 15000 : 0), 0),
+        totalObatPlg: sumData('total_obat_pulang'),
+
+        // Lab
+        saranaLab: sumData('total_material_lab'),
+        drLab: sumData('total_dokter_lab'),
+        petugasLab: sumData('total_petugas_lab'),
+        manajemenLab: sumData('total_menejemen_lab'),
+        totalLab: sumData('total_lab'),
+
+        // Radiologi
+        saranaRad: sumData('total_material_radiologi'),
+        drRad: sumData('total_dokter_radiologi'),
+        petugasRad: sumData('total_petugas_radiologi'),
+        manajemenRad: sumData('total_menejemen_radiologi'),
+        totalRad: sumData('total_radiologi'),
+
+
+        // Grand Totals
+        totalBPJS: sumData('total_bpjs')
+      };
+
+      // Hitung Grand Total Bayar secara manual (seperti fungsi hitungTotalBayar)
+      const grandTotalBayar = totals.totalTindakan + totals.totalOp + totals.totalObat +
+        totals.jasaFarmasi + totals.totalLab + totals.totalRad + totals.totalRajalTindakan
+      totals.totalObatPlg + totals.jasaFarmasiPlg;
+
+
+      // 2. Update Elemen Footer berdasarkan Indeks (Urutkan sesuai <thead>)
+      // Catatan: Pastikan urutan indeks ini sesuai dengan susunan <th> di <tfoot> HTML Anda
+
+      $(api.column(12).footer()).html(formatIDR(totals.totalBiayaKamar));
+      $(api.column(14).footer()).html(formatIDR(totals.saranaTindakan));
+      $(api.column(15).footer()).html(formatIDR(totals.drTindakan));
+      $(api.column(16).footer()).html(formatIDR(totals.prTindakan));
+      $(api.column(17).footer()).html(formatIDR(totals.manajemenTindakan));
+      $(api.column(18).footer()).html(formatIDR(totals.totalTindakan));
+      $(api.column(19).footer()).html(formatIDR(totals.totalRajalTindakan));
+      $(api.column(20).footer()).html(formatIDR(totals.totalInapDrPr));
+      $(api.column(21).footer()).html(formatIDR(totals.totalRajalDrPr));
+
+      // Footer Operasi
+      $(api.column(24).footer()).html(formatIDR(totals.saranaOp));
+      $(api.column(25).footer()).html(formatIDR(totals.perinaOp));
+      $(api.column(26).footer()).html(formatIDR(totals.onloopOp));
+      $(api.column(27).footer()).html(formatIDR(totals.bidanOp));
+      $(api.column(28).footer()).html(formatIDR(totals.drAnestesi));
+      $(api.column(29).footer()).html(formatIDR(totals.asistenAnestesi));
+      $(api.column(30).footer()).html(formatIDR(totals.asistenOp));
+      $(api.column(31).footer()).html(formatIDR(totals.operatorOp));
+      $(api.column(32).footer()).html(formatIDR(totals.totalOp));
+
+      // Footer Obat & Farmasi
+      $(api.column(39).footer()).html(formatIDR(totals.jasaFarmasi));
+      $(api.column(40).footer()).html(formatIDR(totals.totalObat));
+      $(api.column(41).footer()).html(formatIDR(totals.jasaFarmasiPlg));
+      $(api.column(42).footer()).html(formatIDR(totals.totalObatPlg));
+
+      // Footer Lab
+      $(api.column(43).footer()).html(formatIDR(totals.saranaLab));
+      $(api.column(44).footer()).html(formatIDR(totals.drLab));
+      $(api.column(45).footer()).html(formatIDR(totals.petugasLab));
+      $(api.column(46).footer()).html(formatIDR(totals.manajemenLab));
+      $(api.column(47).footer()).html(formatIDR(totals.totalLab));
+
+      // Footer Radiologi
+      $(api.column(49).footer()).html(formatIDR(totals.saranaRad));
+      $(api.column(50).footer()).html(formatIDR(totals.drRad));
+      $(api.column(51).footer()).html(formatIDR(totals.petugasRad));
+      $(api.column(52).footer()).html(formatIDR(totals.manajemenRad));
+      $(api.column(53).footer()).html(formatIDR(totals.totalRad));
+
+      // Final Totals
+      $(api.column(54).footer()).html(formatIDR(grandTotalBayar));
+      $(api.column(55).footer()).html(formatIDR(totals.totalBPJS));
     }
   });
   table.columns().every(function(index) {
     let column = this;
-    let columnName = $(column.header()).text();
+    let columnName = $(column.header()).text().trim();
+
+    if (columnName === "" || index === 0) return;
+
+    let isVisible = column.visible();
+    let checkedAttr = isVisible ? 'checked' : '';
+
     $('#columnToggles').append(`
-        <label class="mr-2">
-          <input type="checkbox" class="toggle-vis" data-column="${index}" checked> ${columnName}
-        </label>
-    `);
+      <label class="inline-flex items-center p-2 border rounded-md cursor-pointer hover:bg-gray-50 mr-2 mb-2">
+        <input type="checkbox" class="toggle-vis mr-2" data-column="${index}" ${checkedAttr}> 
+        <span class="text-sm">${columnName}</span>
+      </label>
+  `);
   });
   $('input.toggle-vis').on('change', function(e) {
-    let column = table.column($(this).attr('data-column'));
-    column.visible(!column.visible());
+    let columnIdx = $(this).attr('data-column');
+
+    let column = table.column(columnIdx);
+    column.visible($(this).is(':checked'));
+
+    table.table().footer().querySelectorAll('tr').forEach(row => {});
+
+    table.columns.adjust();
+
+    if (table.fixedColumns) {
+      table.fixedColumns().update();
+    }
+
+    table.draw(false);
   });
 });
 
@@ -739,6 +936,8 @@ function resetFilter() {
   $('#kd_pj').val('');
   $('#tcari').val('');
   $('#gedung').val('');
+  $('#gedung').val('');
+  $('#filter_sep').val('semua');
 
   loadData();
 }

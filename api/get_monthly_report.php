@@ -140,47 +140,57 @@ SELECT
      " . (!empty($kd_pj) ? "AND rp.kd_pj = '$kd_pj'" : "") . "
     ) AS total_lab,
     
-    -- RADIOLOGI
-    (SELECT IFNULL(SUM(pr.bagian_rs), 0)
-     FROM periksa_radiologi pr
-     JOIN reg_periksa rp ON pr.no_rawat = rp.no_rawat
-     WHERE pr.status = 'Ralan'
+   -- RADIOLOGI (Murni dari Permintaan & Master Tarif)
+    (SELECT IFNULL(SUM(jns.bagian_rs), 0)
+     FROM permintaan_radiologi pm
+     JOIN permintaan_pemeriksaan_radiologi pp ON pm.noorder = pp.noorder
+     JOIN jns_perawatan_radiologi jns ON pp.kd_jenis_prw = jns.kd_jenis_prw
+     JOIN reg_periksa rp ON pm.no_rawat = rp.no_rawat
+     WHERE pm.status = 'Ralan'
      AND rp.kd_poli = poliklinik.kd_poli
      AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'
      " . (!empty($kd_pj) ? "AND rp.kd_pj = '$kd_pj'" : "") . "
     ) AS total_material_radiologi,
     
-    (SELECT IFNULL(SUM(pr.tarif_tindakan_dokter), 0)
-     FROM periksa_radiologi pr
-     JOIN reg_periksa rp ON pr.no_rawat = rp.no_rawat
-     WHERE pr.status = 'Ralan'
+    (SELECT IFNULL(SUM(jns.tarif_tindakan_dokter), 0)
+     FROM permintaan_radiologi pm
+     JOIN permintaan_pemeriksaan_radiologi pp ON pm.noorder = pp.noorder
+     JOIN jns_perawatan_radiologi jns ON pp.kd_jenis_prw = jns.kd_jenis_prw
+     JOIN reg_periksa rp ON pm.no_rawat = rp.no_rawat
+     WHERE pm.status = 'Ralan'
      AND rp.kd_poli = poliklinik.kd_poli
      AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'
      " . (!empty($kd_pj) ? "AND rp.kd_pj = '$kd_pj'" : "") . "
     ) AS total_dokter_radiologi,
     
-    (SELECT IFNULL(SUM(pr.tarif_tindakan_petugas), 0)
-     FROM periksa_radiologi pr
-     JOIN reg_periksa rp ON pr.no_rawat = rp.no_rawat
-     WHERE pr.status = 'Ralan'
+    (SELECT IFNULL(SUM(jns.tarif_tindakan_petugas), 0)
+     FROM permintaan_radiologi pm
+     JOIN permintaan_pemeriksaan_radiologi pp ON pm.noorder = pp.noorder
+     JOIN jns_perawatan_radiologi jns ON pp.kd_jenis_prw = jns.kd_jenis_prw
+     JOIN reg_periksa rp ON pm.no_rawat = rp.no_rawat
+     WHERE pm.status = 'Ralan'
      AND rp.kd_poli = poliklinik.kd_poli
      AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'
      " . (!empty($kd_pj) ? "AND rp.kd_pj = '$kd_pj'" : "") . "
     ) AS total_petugas_radiologi,
     
-    (SELECT IFNULL(SUM(pr.menejemen), 0)
-     FROM periksa_radiologi pr
-     JOIN reg_periksa rp ON pr.no_rawat = rp.no_rawat
-     WHERE pr.status = 'Ralan'
+    (SELECT IFNULL(SUM(jns.menejemen), 0)
+     FROM permintaan_radiologi pm
+     JOIN permintaan_pemeriksaan_radiologi pp ON pm.noorder = pp.noorder
+     JOIN jns_perawatan_radiologi jns ON pp.kd_jenis_prw = jns.kd_jenis_prw
+     JOIN reg_periksa rp ON pm.no_rawat = rp.no_rawat
+     WHERE pm.status = 'Ralan'
      AND rp.kd_poli = poliklinik.kd_poli
      AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'
      " . (!empty($kd_pj) ? "AND rp.kd_pj = '$kd_pj'" : "") . "
     ) AS total_menejemen_radiologi,
     
-    (SELECT IFNULL(SUM(pr.biaya), 0)
-     FROM periksa_radiologi pr
-     JOIN reg_periksa rp ON pr.no_rawat = rp.no_rawat
-     WHERE pr.status = 'Ralan'
+    (SELECT IFNULL(SUM(jns.total_byr), 0)
+     FROM permintaan_radiologi pm
+     JOIN permintaan_pemeriksaan_radiologi pp ON pm.noorder = pp.noorder
+     JOIN jns_perawatan_radiologi jns ON pp.kd_jenis_prw = jns.kd_jenis_prw
+     JOIN reg_periksa rp ON pm.no_rawat = rp.no_rawat
+     WHERE pm.status = 'Ralan'
      AND rp.kd_poli = poliklinik.kd_poli
      AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'
      " . (!empty($kd_pj) ? "AND rp.kd_pj = '$kd_pj'" : "") . "

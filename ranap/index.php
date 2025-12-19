@@ -17,6 +17,8 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Remunerasi RANAP RSUD MERAUKE</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
+  <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -53,6 +55,16 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
     margin-bottom: 10px;
   }
 
+  #tabelTindakan tbody td {
+    padding: 2px 4px !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+    height: auto;
+    border: 0.5px solid #d1d5db;
+    vertical-align: top !important;
+    text-align: left !important;
+  }
+
   .dt-button.buttons-excel.buttons-html5 {
     background-color: #16a34a !important;
     color: white !important;
@@ -82,6 +94,28 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
     align-items: center;
     gap: 6px;
   }
+
+  /* Menjaga z-index agar kolom yang di-freeze tetap di atas */
+  .DTFC_LeftWrapper table,
+  .DTFC_RightWrapper table {
+    background-color: white !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Memastikan border pada kolom yang di-freeze tetap terlihat */
+  th.dtfc-fixed-left,
+  td.dtfc-fixed-left {
+    background-color: white !important;
+    /* Gunakan warna solid agar data di bawahnya tidak tembus */
+    border-right: 1px solid #d1d5db !important;
+    z-index: 10;
+  }
+
+  /* Pastikan header yang di-freeze tetap hijau */
+  thead tr>.dtfc-fixed-left {
+    background-color: #166534 !important;
+    /* bg-green-800 */
+  }
   </style>
 </head>
 
@@ -96,7 +130,7 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
           </a>
           <div>
             <h2 class="text-xl font-bold text-green-800">
-              Remon Tindakan RANAP - RSUD MERAUKE
+              Remunerasi Tindakan RANAP - RSUD MERAUKE
             </h2>
 
           </div>
@@ -190,6 +224,15 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                   <?php endwhile; ?>
                 </select>
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status SEP</label>
+                <select id="filter_sep"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="semua" selected>Semua Data</option>
+                  <option value="ada">Ada SEP</option>
+                  <option value="tidak_ada">Tidak Ada SEP</option>
+                </select>
+              </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Pencarian</label>
@@ -212,38 +255,46 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
         <div class="bg-white rounded-2xl border border-green-700 p-6">
           <div class="overflow-x-auto">
             <table id="tabelTindakan" class="display w-full">
-              <thead class="bg-green-800 text-white">
+              <thead class="bg-green-800 text-white p-1 m-0">
                 <tr>
                   <th class="px-2 text-left">No.</th>
                   <th class="px-2  text-left">No.Rawat</th>
                   <th class="px-2  text-left">No.SEP</th>
                   <th class="px-2  text-left">No.RM</th>
                   <th class="px-2  text-left">Jenis</th>
-                  <th class="px-2  text-left">Dokter</th>
+                  <th class="px-2  text-left">DPJP</th>
+                  <th class="px-2  text-left">Dokter Menangani</th>
                   <th class="px-2  text-left">Kamar</th>
                   <th class="px-2  text-left">Riwayat Kamar</th>
+                  <th class="px-2  text-left">Jasa perawat </th>
+                  <th class="px-2  text-left">Jasa dokter</th>
                   <th class="px-2  text-right">Lama</th>
                   <th class="px-2  text-right">Tarif Kamar</th>
                   <th class="px-2  text-left">Status Pulang</th>
                   <!-- tindakan -->
-                  <th class="px-2  text-right">Sarana (Tindakan)</th>
-                  <th class="px-2  text-right">Dokter (Tindakan)</th>
-                  <th class="px-2  text-right">Perawat (Tindakan)</th>
-                  <th class="px-2  text-right">non-medis (Tindakan)</th>
-                  <th class="px-2  text-right">Total (Tindakan)</th>
+                  <!-- <th class="text-right">Perawat</th>
+                  <th class="text-right">Dokter</th> -->
+                  <th class="px-2  text-right">Sarana (T)</th>
+                  <th class="px-2  text-right">Dokter (T)</th>
+                  <th class="px-2  text-right">Perawat (T)</th>
+                  <th class="px-2  text-right">non-medis (T)</th>
+                  <th class="px-2  text-right">Total Ranap (T)</th>
+                  <th class="px-2  text-right">Total Rajal (T)</th>
+                  <th class="px-2  text-right">Ranap DrPr (T)</th>
+                  <th class="px-2  text-right">Rajal DrPr (T)</th>
                   <!-- operasi -->
                   <th class="px-2  text-right">Operasi</th>
-                  <th class="px-2  text-right">Petugas</th>
+                  <!-- <th class="px-2  text-right">Petugas</th> -->
                   <th class="px-2  text-right">Anastesi</th>
-                  <th class="px-2  text-right">Total Sarana (Operasi)</th>
-                  <th class="px-2  text-right">Total Perina (Operasi)</th>
-                  <th class="px-2  text-right">Total onloop (Operasi)</th>
-                  <th class="px-2  text-right">Total bidan (Operasi)</th>
-                  <th class="px-2  text-right">Total Dokter anestesi (Operasi)</th>
-                  <th class="px-2  text-right">Total asisten anestesi (Operasi)</th>
-                  <th class="px-2  text-right">Total asisten operator (Operasi)</th>
-                  <th class="px-2  text-right">Total operator (Operasi)</th>
-                  <th class="px-2  text-right">Total (Operasi)</th>
+                  <th class="px-2  text-right"> Sarana (OP)</th>
+                  <th class="px-2  text-right"> Perina (OP)</th>
+                  <th class="px-2  text-right"> onloop (OP)</th>
+                  <th class="px-2  text-right"> bidan (OP)</th>
+                  <th class="px-2  text-right"> Dokter anestesi (OP)</th>
+                  <th class="px-2  text-right"> asisten anestesi (OP)</th>
+                  <th class="px-2  text-right"> asisten operator (OP)</th>
+                  <th class="px-2  text-right"> operator (OP)</th>
+                  <th class="px-2  text-right"> Total (OP)</th>
                   <!-- obat -->
                   <th class="text-right">Racikan (Obat)</th>
                   <th class="px-2  text-right">No.resep racikan</th>
@@ -255,10 +306,10 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                   <th class="px-2  text-right">Total Obat</th>
                   <!-- obat pulang -->
                   <th class="px-2  text-right">jasa Farmasi Pulang</th>
-                  <th class="px-2  text-right">Total resep Pulang</th>
+                  <th class="px-2  text-right">Total obat Pulang</th>
 
                   <!-- lab -->
-                  <th class="px-2  text-right">Pemeriksaan (Lab)</th>
+                  <!-- <th class="px-2  text-right">Pemeriksaan (Lab)</th> -->
                   <th class="px-2  text-right">sarana (Lab)</th>
                   <th class="px-2  text-right">dokter (Lab)</th>
                   <th class="px-2  text-right">petugas (Lab)</th>
@@ -266,11 +317,11 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                   <th class="px-2  text-right">Total (Lab)</th>
                   <!-- radiologi -->
                   <th class="px-2  text-right">Radiologi</th>
-                  <th class="px-2  text-right">sarana (radiologi)</th>
-                  <th class="px-2  text-right">dokter (radiologi)</th>
-                  <th class="px-2  text-right">petugas (radiologi)</th>
-                  <th class="px-2  text-right">non-medis (radiologi)</th>
-                  <th class="px-2  text-right">Total (radiologi)</th>
+                  <th class="px-2  text-right">sarana (R)</th>
+                  <th class="px-2  text-right">dokter (R)</th>
+                  <th class="px-2  text-right">petugas (R)</th>
+                  <th class="px-2  text-right">non-medis (R)</th>
+                  <th class="px-2  text-right">Total (R)</th>
                   <!-- total -->
                   <th class="px-2  text-right">Total Bayar</th>
                   <th class="px-2  text-right">Total BPJS</th>
@@ -286,18 +337,23 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                 </tr>
               </thead>
               <tbody></tbody>
-              <tfoot class="bg-green-800 font-bold text-white">
+              <tfoot class="bg-green-800 font-bold text-white p-1 m-0">
                 <tr>
-                  <th colspan="11" class="text-right">TOTAL</th>
+                  <th colspan="12" class="text-right">TOTAL</th>
+                  <th class="text-right">Kamar</th>
+                  <th class="text-right">Status Pulang</th>
                   <!-- Footer nilai total -->
                   <th class="text-right">Sarana (tindakan)</th>
                   <th class="text-right">JM Dokter (tindakan)</th>
                   <th class="text-right">JM Perawat (tindakan)</th>
                   <th class="text-right">non-medis (tindakan)</th>
-                  <th class="text-right">Total Tindakan</th>
+                  <th class="text-right">Total (Tindakan)</th>
+                  <th class="text-right">Total Rajal (Tindakan)</th>
+                  <th class="px-2  text-right">Ranap DrPr (T)</th>
+                  <th class="px-2  text-right">Rajal DrPr (T)</th>
                   <!-- operasi -->
                   <th class="px-2  text-right">Operasi</th>
-                  <th class="px-2  text-right">Petugas</th>
+                  <!-- <th class="px-2  text-right">Petugas</th> -->
                   <th class="px-2  text-right">Anastesi</th>
                   <th class="px-2  text-right">Total Sarana (Operasi)</th>
                   <th class="px-2  text-right">Total perina (Operasi)</th>
@@ -320,10 +376,10 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                   <th class="px-2  text-right">Total Obat</th>
                   <!-- obat pulang -->
                   <th class="px-2  text-right">jasa Farmasi Pulang</th>
-                  <th class="px-2  text-right">Total resep Pulang</th>
+                  <th class="px-2  text-right">Total obat Pulang</th>
 
                   <!-- lab -->
-                  <th class="px-2  text-right">Pemeriksaan (Lab)</th>
+                  <!-- <th class="px-2  text-right">Pemeriksaan (Lab)</th> -->
                   <th class="px-2  text-right">sarana (Lab)</th>
                   <th class="px-2  text-right">dokter (Lab)</th>
                   <th class="px-2  text-right">petugas (Lab)</th>

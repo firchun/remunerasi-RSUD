@@ -24,6 +24,7 @@ $nip           = $_POST['nip']           ?? '';
 $kd_pj         = $_POST['kd_pj']         ?? '';
 $tcari         = $_POST['tcari']         ?? '';
 $gedung        = $_POST['gedung']        ?? '';
+$filter_sep = $_POST['filter_sep'] ?? 'semua';
 $status_pulang = $_POST['status_pulang'] ?? 'belum_pulang';
 
 // Convert datetime-local → MYSQL
@@ -33,14 +34,15 @@ $tgl2_format = !empty($tgl2) ? str_replace("T", " ", $tgl2) . ":59" : "";
 // ===============================
 // BASE QUERY - ACUAN reg_periksa
 // ===============================
+
 $base = "
     FROM reg_periksa
     JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
     JOIN penjab ON reg_periksa.kd_pj = penjab.kd_pj
-    LEFT JOIN operasi ON operasi.no_rawat = reg_periksa.no_rawat
-    LEFT JOIN bridging_sep ON bridging_sep.no_rawat = reg_periksa.no_rawat
     LEFT JOIN rawat_inap_drpr ON rawat_inap_drpr.no_rawat = reg_periksa.no_rawat
+    LEFT JOIN rawat_jl_drpr ON rawat_jl_drpr.no_rawat = reg_periksa.no_rawat
     LEFT JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
+    LEFT JOIN jns_perawatan ON rawat_jl_drpr.kd_jenis_prw = jns_perawatan.kd_jenis_prw
     LEFT JOIN dokter ON reg_periksa.kd_dokter = dokter.kd_dokter
     LEFT JOIN petugas ON rawat_inap_drpr.nip = petugas.nip
     WHERE 1=1
@@ -91,7 +93,7 @@ if (!empty($kd_pj)) {
     $base .= " AND reg_periksa.kd_pj = '$kd_pj_escaped'";
 }
 
-// gedung - Perbaikan untuk case-insensitive LIKE
+// gedung - Pencarian berdasarkan nama bangsal/gedung
 if (!empty($gedung)) {
     $gedung_escaped = mysqli_real_escape_string($koneksi, $gedung);
     $base .= "
@@ -101,12 +103,8 @@ if (!empty($gedung)) {
         JOIN kamar km ON ki.kd_kamar = km.kd_kamar
         JOIN bangsal bs ON km.kd_bangsal = bs.kd_bangsal
         WHERE ki.no_rawat = reg_periksa.no_rawat
-        AND LOWER(bs.nm_bangsal) LIKE LOWER('$gedung_escaped%')
-        AND CONCAT(ki.tgl_masuk, ' ', ki.jam_masuk) = (
-            SELECT MAX(CONCAT(ki2.tgl_masuk, ' ', ki2.jam_masuk))
-            FROM kamar_inap ki2
-            WHERE ki2.no_rawat = reg_periksa.no_rawat
-        )
+        AND bs.nm_bangsal LIKE '%$gedung_escaped%'
+        AND ki.stts_pulang != 'Pindah Kamar'
     )";
 }
 
@@ -118,6 +116,7 @@ if ($status_pulang === 'belum_pulang') {
         FROM kamar_inap ki
         WHERE ki.no_rawat = reg_periksa.no_rawat
         AND ki.stts_pulang = '-'
+        AND ki.stts_pulang != 'Pindah Kamar'
         LIMIT 1
     )";
 } elseif ($status_pulang === 'sudah_pulang') {
@@ -127,19 +126,26 @@ if ($status_pulang === 'belum_pulang') {
         FROM kamar_inap ki
         WHERE ki.no_rawat = reg_periksa.no_rawat
         AND ki.stts_pulang != '-'
+        AND ki.stts_pulang != 'Pindah Kamar'
         LIMIT 1
     )";
 }
 
-// Cari manual (tcari)
+
+if ($filter_sep === 'ada') {
+    $base .= " AND EXISTS (SELECT 1 FROM bridging_sep WHERE bridging_sep.no_rawat = reg_periksa.no_rawat AND no_sep != '' AND no_sep != '-') ";
+} elseif ($filter_sep === 'tidak_ada') {
+    $base .= " AND NOT EXISTS (SELECT 1 FROM bridging_sep WHERE bridging_sep.no_rawat = reg_periksa.no_rawat AND no_sep != '' AND no_sep != '-') ";
+}
+
+// Cari manual (Perbaikan tcari untuk SEP)
 if (!empty($tcari)) {
     $tcari_escaped = mysqli_real_escape_string($koneksi, $tcari);
     $base .= " AND (
         reg_periksa.no_rawat LIKE '%$tcari_escaped%' 
         OR pasien.nm_pasien LIKE '%$tcari_escaped%' 
         OR dokter.nm_dokter LIKE '%$tcari_escaped%' 
-        OR reg_periksa.no_rkm_medis LIKE '%$tcari_escaped%'
-        OR bridging_sep.no_sep LIKE '%$tcari_escaped%'
+        OR EXISTS (SELECT 1 FROM bridging_sep WHERE bridging_sep.no_rawat = reg_periksa.no_rawat AND no_sep LIKE '%$tcari_escaped%')
     )";
 }
 
@@ -163,25 +169,27 @@ SELECT
     reg_periksa.no_rawat,
     reg_periksa.no_rkm_medis,
     reg_periksa.tgl_registrasi,
+    reg_periksa.kd_poli,
     reg_periksa.jam_reg,
     pasien.nm_pasien,
-    IFNULL(bridging_sep.no_sep, '-') AS no_sep,
+    -- Ambil daftar SEP sebagai string list (Gunakan Subquery)
+    IFNULL((
+        SELECT GROUP_CONCAT(DISTINCT no_sep SEPARATOR ' | ') 
+        FROM bridging_sep 
+        WHERE bridging_sep.no_rawat = reg_periksa.no_rawat 
+        AND no_sep != '-' AND no_sep != ''
+    ), '-') AS no_sep,
     penjab.png_jawab,
 
     IFNULL(MIN(rawat_inap_drpr.tgl_perawatan), reg_periksa.tgl_registrasi) AS tgl_perawatan,
     IFNULL(MIN(rawat_inap_drpr.jam_rawat), reg_periksa.jam_reg) AS jam_rawat,
-    IFNULL(MIN(CONCAT(rawat_inap_drpr.tgl_perawatan,' ',rawat_inap_drpr.jam_rawat)), 
-           CONCAT(reg_periksa.tgl_registrasi,' ',reg_periksa.jam_reg)) AS waktu_perawatan,
     MIN(dokter.nm_dokter) AS nm_dokter,
-    MIN(petugas.nama) AS nama_petugas,
 
-    IFNULL(SUM(jns_perawatan_inap.material), 0) AS total_material,
-    IFNULL(SUM(jns_perawatan_inap.bhp), 0) AS total_bhp,
-    IFNULL(SUM(jns_perawatan_inap.tarif_tindakandr), 0) AS total_tindakan_dr,
-    IFNULL(SUM(jns_perawatan_inap.tarif_tindakanpr), 0) AS total_tindakan_pr,
-    IFNULL(SUM(jns_perawatan_inap.kso), 0) AS total_kso,
-    IFNULL(SUM(jns_perawatan_inap.menejemen), 0) AS total_menejemen,
+    -- Pembagian biaya (Tetap gunakan SUM karena GROUP BY no_rawat)
     IFNULL(SUM(jns_perawatan_inap.total_byrdrpr), 0) AS total_biaya_rawat,
+
+    -- Pembagian biaya (Tetap gunakan SUM karena GROUP BY no_rawat)
+    IFNULL(SUM(jns_perawatan.total_byrdrpr), 0) AS total_rajal_biaya_rawat,
     
     CASE 
         WHEN COUNT(rawat_inap_drpr.no_rawat) > 0 THEN 'Sudah Ada Tindakan'
@@ -196,7 +204,6 @@ GROUP BY
     reg_periksa.tgl_registrasi,
     reg_periksa.jam_reg,
     pasien.nm_pasien,
-    bridging_sep.no_sep,
     penjab.png_jawab
 ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC
 LIMIT $start, $length
@@ -246,7 +253,77 @@ $data = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $no_rawat = mysqli_real_escape_string($koneksi, $row['no_rawat']);
     $no_sep = $row['no_sep'];
+    // ===============================
+    // Get TOTAL TINDAKAN (Material, BHP, Jasa Dr, dll)
+    // ===============================
+    $tindakan_inap = mysqli_query($koneksi, "
+        SELECT 
+            SUM(jns.material) AS total_material,
+            SUM(jns.bhp) AS total_bhp,
+            SUM(jns.tarif_tindakandr) AS total_tindakan_dr,
+            SUM(jns.tarif_tindakanpr) AS total_tindakan_pr,
+            SUM(jns.kso) AS total_kso,
+            SUM(jns.menejemen) AS total_menejemen,
+            SUM(jns.total_byrdrpr) AS total_biaya_rawat
+        FROM rawat_inap_drpr drpr
+        JOIN jns_perawatan_inap jns ON drpr.kd_jenis_prw = jns.kd_jenis_prw
+        WHERE drpr.no_rawat = '$no_rawat'
+    ");
 
+    if ($tindakan_inap && mysqli_num_rows($tindakan_inap) > 0) {
+        $data_ti = mysqli_fetch_assoc($tindakan_inap);
+        $row['total_menejemen']   = $data_ti['total_menejemen'] ?? 0;
+        $row['total_material']   = $data_ti['total_material'] ?? 0;
+        $row['total_bhp']        = $data_ti['total_bhp'] ?? 0;
+        $row['total_tindakan_dr'] = $data_ti['total_tindakan_dr'] ?? 0;
+        $row['total_tindakan_pr'] = $data_ti['total_tindakan_pr'] ?? 0;
+        $row['total_biaya_rawat'] = $data_ti['total_biaya_rawat'] ?? 0;
+
+        $row['status_tindakan'] = ($row['total_biaya_rawat'] > 0) ? 'Sudah Ada Tindakan' : 'Belum Ada Tindakan';
+    } else {
+        $row['total_menejemen'] = 0;
+        $row['total_material'] = 0;
+        $row['total_bhp'] = 0;
+        $row['total_biaya_rawat'] = 0;
+        $row['status_tindakan'] = 'Belum Ada Tindakan';
+    }
+    // ===============================
+    // Get TOTAL TINDAKAN RAJAL
+    // ===============================
+    $tindakan_rajal = mysqli_query($koneksi, "
+        SELECT 
+            SUM(jns_jl.material) AS total_rajal_material,
+            SUM(jns_jl.bhp) AS total_rajal_bhp,
+            SUM(jns_jl.tarif_tindakandr) AS total_rajal_tindakan_dr,
+            SUM(jns_jl.tarif_tindakanpr) AS total_rajal_tindakan_pr,
+            SUM(jns_jl.kso) AS total_rajal_kso,
+            SUM(jns_jl.menejemen) AS total_rajal_menejemen,
+            SUM(jns_jl.total_byrdrpr) AS total_rajal_biaya_rawat
+        FROM rawat_jl_drpr drpr_jl
+        JOIN jns_perawatan jns_jl ON drpr_jl.kd_jenis_prw = jns_jl.kd_jenis_prw
+        WHERE drpr_jl.no_rawat = '$no_rawat'
+    ");
+
+    // PASTIKAN menggunakan variabel $tindakan_rajal, bukan $tindakan_inap
+    if ($tindakan_rajal && mysqli_num_rows($tindakan_rajal) > 0) {
+        $data_tr = mysqli_fetch_assoc($tindakan_rajal); // Beri nama berbeda, misal $data_tr
+        $row['total_rajal_menejemen']   = $data_tr['total_rajal_menejemen'] ?? 0;
+        $row['total_rajal_material']    = $data_tr['total_rajal_material'] ?? 0;
+        $row['total_rajal_bhp']         = $data_tr['total_rajal_bhp'] ?? 0;
+        $row['total_rajal_tindakan_dr'] = $data_tr['total_rajal_tindakan_dr'] ?? 0;
+        $row['total_rajal_tindakan_pr'] = $data_tr['total_rajal_tindakan_pr'] ?? 0;
+        $row['total_rajal_biaya_rawat'] = $data_tr['total_rajal_biaya_rawat'] ?? 0;
+
+        $row['status_rajal_tindakan'] = ($row['total_rajal_biaya_rawat'] > 0) ? 'Sudah Ada Tindakan' : 'Tidak Ada Tindakan';
+    } else {
+        $row['total_rajal_menejemen']   = 0;
+        $row['total_rajal_material']    = 0;
+        $row['total_rajal_bhp']         = 0;
+        $row['total_rajal_tindakan_dr'] = 0;
+        $row['total_rajal_tindakan_pr'] = 0;
+        $row['total_rajal_biaya_rawat'] = 0;
+        $row['status_rajal_tindakan']   = 'Tidak Ada Tindakan';
+    }
     // ===============================
     // Get RESEP - RACIKAN & NON RACIKAN & OPERASI
     // ===============================
@@ -345,6 +422,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
         JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
         WHERE kamar_inap.no_rawat = '$no_rawat'
+        AND kamar_inap.stts_pulang != 'Pindah Kamar'
         ORDER BY kamar_inap.tgl_masuk DESC
         LIMIT 1
     ");
@@ -371,68 +449,177 @@ while ($row = mysqli_fetch_assoc($result)) {
     // ===============================
     // Get RIWAYAT KAMAR - History perpindahan kamar
     // ===============================
-    $riwayat_kamar_result = mysqli_query($koneksi, "
+    // $riwayat_kamar_result = mysqli_query($koneksi, "
+    //     SELECT 
+    //         bangsal.nm_bangsal,
+    //         kamar_inap.tgl_masuk,
+    //         kamar_inap.jam_masuk,
+    //         kamar_inap.tgl_keluar,
+    //         kamar_inap.jam_keluar
+    //     FROM kamar_inap
+    //     JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
+    //     JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
+    //     WHERE kamar_inap.no_rawat = '$no_rawat'
+    //     ORDER BY kamar_inap.tgl_masuk ASC, kamar_inap.jam_masuk ASC
+    // ");
+
+    // // Inisialisasi array untuk 3 kolom berbeda
+    // $list_hanya_kamar = [];
+    // $list_ringkasan_pr = [];
+    // $list_ringkasan_dr = [];
+
+    // if ($riwayat_kamar_result && mysqli_num_rows($riwayat_kamar_result) > 0) {
+    //     while ($rk = mysqli_fetch_assoc($riwayat_kamar_result)) {
+    //         $tgl_masuk = $rk['tgl_masuk'];
+    //         $jam_masuk = $rk['jam_masuk'];
+    //         $tgl_keluar = $rk['tgl_keluar'];
+    //         $jam_keluar = $rk['jam_keluar'];
+    //         $nm_bangsal = strtolower($rk['nm_bangsal']);
+
+    //         // Penentuan batas waktu untuk filter tindakan
+    //         $end_date_time = ($tgl_keluar == '0000-00-00' || empty($tgl_keluar))
+    //             ? date('Y-m-d H:i:s')
+    //             : "$tgl_keluar $jam_keluar";
+    //         $start_date_time = "$tgl_masuk $jam_masuk";
+
+    //         // Query Hitung Jasa per rentang waktu di kamar tersebut
+    //         $sql_jasa = "
+    //             SELECT 
+    //                 SUM(jns.tarif_tindakandr) AS total_dr,
+    //                 SUM(jns.tarif_tindakanpr) AS total_pr
+    //             FROM rawat_inap_drpr drpr
+    //             JOIN jns_perawatan_inap jns ON drpr.kd_jenis_prw = jns.kd_jenis_prw
+    //             WHERE drpr.no_rawat = '$no_rawat'
+    //             AND CONCAT(drpr.tgl_perawatan, ' ', drpr.jam_rawat) BETWEEN '$start_date_time' AND '$end_date_time'
+    //         ";
+
+    //         $jasa_res = mysqli_query($koneksi, $sql_jasa);
+    //         $jasa_data = mysqli_fetch_assoc($jasa_res);
+
+    //         $js_dr = $jasa_data['total_dr'] ?? 0;
+    //         $js_pr = $jasa_data['total_pr'] ?? 0;
+
+    //         // 1. Kolom Riwayat Kamar Saja
+    //         $list_hanya_kamar[] = "<li>" . $nm_bangsal . "</li>";
+
+    //         // 2. Kolom Riwayat Kamar Perawat: icu (100.000)
+    //         $list_ringkasan_pr[] = "<li>" . $nm_bangsal . " (" . number_format($js_pr, 0, ',', '.') . ")</li>";
+
+    //         // 3. Kolom Riwayat Kamar Dokter: icu (500.000)
+    //         $list_ringkasan_dr[] = "<li>" . $nm_bangsal . " (" . number_format($js_dr, 0, ',', '.') . ")</li>";
+    //     }
+    // }
+
+    // // Masukkan ke row DataTables dengan style list bersih
+    // $row['col_hanya_kamar'] = !empty($list_hanya_kamar)
+    //     ? "<ul style='list-style:none; padding:0; margin:0;'>" . implode("", $list_hanya_kamar) . "</ul>" : "-";
+
+    // $row['col_tarif_pr_kamar'] = !empty($list_ringkasan_pr)
+    //     ? "<ul style='list-style:none; padding:0; margin:0;'>" . implode("", $list_ringkasan_pr) . "</ul>" : "-";
+
+    // $row['col_tarif_dr_kamar'] = !empty($list_ringkasan_dr)
+    //     ? "<ul style='list-style:none; padding:0; margin:0;'>" . implode("", $list_ringkasan_dr) . "</ul>" : "-";
+    // 1. Inisialisasi array kosong di setiap awal baris DataTables
+    // --- [ 1. INISIALISASI ARRAY & VARIABEL AWAL ] ---
+    // =========================================================================
+    // =========================================================================
+    // 1. HITUNG TOTAL JASA KESELURUHAN (GLOBAL)
+    // =========================================================================
+    $sql_total_global = "
         SELECT 
-            bangsal.nm_bangsal,
-            kamar_inap.tgl_masuk,
-            kamar_inap.jam_masuk,
-            kamar_inap.tgl_keluar,
-            kamar_inap.jam_keluar,
-            kamar_inap.lama,
-            kamar_inap.stts_pulang,
-            kamar.kd_kamar,
-            kamar_inap.trf_kamar
-        FROM kamar_inap
-        JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
+            SUM(total_dr) as total_dr, 
+            SUM(total_pr) as total_pr 
+        FROM (
+            /* Ambil SEMUA dari Rawat Inap */
+            SELECT SUM(jns.tarif_tindakandr) AS total_dr, SUM(jns.tarif_tindakanpr) AS total_pr
+            FROM rawat_inap_drpr drpr
+            JOIN jns_perawatan_inap jns ON drpr.kd_jenis_prw = jns.kd_jenis_prw
+            WHERE drpr.no_rawat = '$no_rawat'
+            UNION ALL
+            /* Ambil SEMUA dari Rawat Jalan */
+            SELECT SUM(jns.tarif_tindakandr) AS total_dr, SUM(jns.tarif_tindakanpr) AS total_pr
+            FROM rawat_jl_drpr drjl
+            JOIN jns_perawatan jns ON drjl.kd_jenis_prw = jns.kd_jenis_prw
+            WHERE drjl.no_rawat = '$no_rawat'
+        ) AS gabung_total";
+
+    $res_total_global = mysqli_query($koneksi, $sql_total_global);
+    $data_global = mysqli_fetch_assoc($res_total_global);
+    $all_dr = (float)($data_global['total_dr'] ?? 0);
+    $all_pr = (float)($data_global['total_pr'] ?? 0);
+
+    // =========================================================================
+    // 2. HITUNG JASA TIAP KAMAR (HANYA DARI TABEL RAWAT INAP)
+    // =========================================================================
+    $total_dr_kamar_saja = 0;
+    $total_pr_kamar_saja = 0;
+    $temp_kamar_html = "";
+    $temp_dr_html = "";
+    $temp_pr_html = "";
+
+    $riwayat_kamar_result = mysqli_query($koneksi, "
+        SELECT bangsal.nm_bangsal, ki.tgl_masuk, ki.jam_masuk, ki.tgl_keluar, ki.jam_keluar
+        FROM kamar_inap ki
+        JOIN kamar ON ki.kd_kamar = kamar.kd_kamar
         JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
-        WHERE kamar_inap.no_rawat = '$no_rawat'
-        ORDER BY kamar_inap.tgl_masuk ASC, kamar_inap.jam_masuk ASC
+        WHERE ki.no_rawat = '$no_rawat'
+        ORDER BY ki.tgl_masuk ASC, ki.jam_masuk ASC
     ");
 
-    $riwayat_kamar = [];
-    $riwayat_kamar_simple = [];
+    while ($rk = mysqli_fetch_assoc($riwayat_kamar_result)) {
+        $nm_bangsal = strtolower($rk['nm_bangsal']);
+        $start_dt = $rk['tgl_masuk'] . ' ' . $rk['jam_masuk'];
+        $end_dt   = ($rk['tgl_keluar'] == '0000-00-00' || empty($rk['tgl_keluar'])) ? date('Y-m-d H:i:s') : $rk['tgl_keluar'] . ' ' . $rk['jam_keluar'];
 
-    if ($riwayat_kamar_result && mysqli_num_rows($riwayat_kamar_result) > 0) {
-        while ($rk = mysqli_fetch_assoc($riwayat_kamar_result)) {
-            // Format detail untuk setiap kamar
-            $detail = [
-                'nm_bangsal' => $rk['nm_bangsal'],
-                'kd_kamar' => $rk['kd_kamar'],
-                'tgl_masuk' => $rk['tgl_masuk'],
-                'jam_masuk' => $rk['jam_masuk'],
-                'tgl_keluar' => $rk['tgl_keluar'],
-                'jam_keluar' => $rk['jam_keluar'],
-                'lama' => $rk['lama'],
-                'tarif' => $rk['trf_kamar'],
-                'total_biaya' => $rk['lama'] * $rk['trf_kamar'],
-                'stts_pulang' => $rk['stts_pulang']
-            ];
+        // HANYA ambil dari rawat_inap_drpr untuk jasa kamar
+        $sql_jasa_kamar = "
+            SELECT 
+                SUM(jns.tarif_tindakandr) AS total_dr, 
+                SUM(jns.tarif_tindakanpr) AS total_pr
+            FROM rawat_inap_drpr drpr 
+            JOIN jns_perawatan_inap jns ON drpr.kd_jenis_prw = jns.kd_jenis_prw
+            WHERE drpr.no_rawat = '$no_rawat' 
+            AND CONCAT(drpr.tgl_perawatan, ' ', drpr.jam_rawat) BETWEEN '$start_dt' AND '$end_dt'";
 
-            $riwayat_kamar[] = $detail;
+        $res_kamar = mysqli_query($koneksi, $sql_jasa_kamar);
+        $j_kamar = mysqli_fetch_assoc($res_kamar);
 
-            // Format sederhana untuk bullet points
-            $riwayat_kamar_simple[] = $rk['nm_bangsal'];
-        }
+        $dr_kmr = (float)($j_kamar['total_dr'] ?? 0);
+        $pr_kmr = (float)($j_kamar['total_pr'] ?? 0);
+
+        $total_dr_kamar_saja += $dr_kmr;
+        $total_pr_kamar_saja += $pr_kmr;
+
+        $temp_kamar_html .= "<li>" . $nm_bangsal . "</li>";
+        $temp_dr_html    .= "<li>" . $nm_bangsal . " (" . number_format($dr_kmr, 0, ',', '.') . ")</li>";
+        $temp_pr_html    .= "<li>" . $nm_bangsal . " (" . number_format($pr_kmr, 0, ',', '.') . ")</li>";
     }
 
-    // Simpan riwayat dalam format array
-    $row['riwayat_kamar'] = $riwayat_kamar;
+    // =========================================================================
+    // 3. HITUNG FINAL POLI/IGD (TOTAL GLOBAL - TOTAL KAMAR)
+    // =========================================================================
+    // Karena rawat_jl_drpr tidak dihitung di loop kamar, 
+    // maka nilai all_dr - total_dr_kamar_saja sudah termasuk SEMUA Rawat Jalan + Sisa Rawat Inap diluar jam kamar.
+    $js_dr_awal_final = $all_dr - $total_dr_kamar_saja;
+    $js_pr_awal_final = $all_pr - $total_pr_kamar_saja;
 
-    // Format bullet points untuk display
-    $row['riwayat_kamar_text'] = !empty($riwayat_kamar_simple)
-        ? implode("\n", array_map(function ($item) {
-            return "• " . $item;
-        }, $riwayat_kamar_simple))
-        : "Belum ada riwayat kamar";
+    $nm_poli = 'poli';
+    $cari_poli = mysqli_query($koneksi, "SELECT nm_poli FROM poliklinik WHERE kd_poli = '" . $row['kd_poli'] . "' LIMIT 1");
+    if ($poli_data = mysqli_fetch_assoc($cari_poli)) {
+        $nm_poli = strtolower($poli_data['nm_poli']);
+    }
 
-    // Format HTML untuk tooltip atau detail view
-    $row['riwayat_kamar_html'] = !empty($riwayat_kamar_simple)
-        ? "<ul><li>" . implode("</li><li>", $riwayat_kamar_simple) . "</li></ul>"
-        : "<p>Belum ada riwayat kamar</p>";
+    // Buat List Poli (Paling Atas)
+    $list_poli_kamar = "<li>" . $nm_poli . "</li>" . $temp_kamar_html;
+    $list_poli_dr    = "<li>" . $nm_poli . " (" . number_format(max(0, $js_dr_awal_final), 0, ',', '.') . ")</li>" . $temp_dr_html;
+    $list_poli_pr    = "<li>" . $nm_poli . " (" . number_format(max(0, $js_pr_awal_final), 0, ',', '.') . ")</li>" . $temp_pr_html;
 
-    // Jumlah total perpindahan kamar
-    $row['jumlah_perpindahan_kamar'] = count($riwayat_kamar);
-
+    // =========================================================================
+    // 4. OUTPUT FINAL KE ARRAY DATATABLES
+    // =========================================================================
+    $row['col_hanya_kamar']    = "<ul style='list-style:none; padding:0; margin:0;'>" . $list_poli_kamar . "</ul>";
+    $row['col_tarif_dr_kamar'] = "<ul style='list-style:none; padding:0; margin:0;'>" . $list_poli_dr . "</ul>";
+    $row['col_tarif_pr_kamar'] = "<ul style='list-style:none; padding:0; margin:0;'>" . $list_poli_pr . "</ul>";
     // ===============================
     // Get KAMAR INAP - LAMA & BIAYA
     // ===============================
@@ -452,7 +639,6 @@ while ($row = mysqli_fetch_assoc($result)) {
         $row['total_lama_inap'] = 0;
         $row['total_biaya_kamar'] = 0;
     }
-
     // ===============================
     // Get LAB totals - Aggregated
     // ===============================
@@ -587,6 +773,154 @@ while ($row = mysqli_fetch_assoc($result)) {
         $row['total_operasi'] = 0;
     }
     // ===============================
+    // Get DAFTAR DPJP, TINDAKAN, & OPERASI
+    // ===============================
+    $utama_suffix = " (DPJP UTAMA)";
+    $tindakan_suffix = " (TINDAKAN)";
+    $operasi_suffix = " (OPERASI)";
+
+    $dpjp_list_temp = [];
+    $utama_item = null;
+
+    // 1. Ambil dari dpjp_ranap (Data DPJP Resmi)
+    $dpjp_result = mysqli_query($koneksi, "
+        SELECT t2.nm_dokter FROM dpjp_ranap t1
+        JOIN dokter t2 ON t1.kd_dokter = t2.kd_dokter
+        WHERE t1.no_rawat = '$no_rawat'
+    ");
+    if ($dpjp_result) {
+        while ($dpjp = mysqli_fetch_assoc($dpjp_result)) {
+            $dpjp_list_temp[$dpjp['nm_dokter']] = $dpjp['nm_dokter'];
+        }
+    }
+
+    // 2. Ambil dari rawat_inap_drpr (Tindakan di Kamar)
+    $tindakan_dr_result = mysqli_query($koneksi, "
+        SELECT DISTINCT t2.nm_dokter FROM rawat_inap_drpr t1
+        JOIN dokter t2 ON t1.kd_dokter = t2.kd_dokter
+        WHERE t1.no_rawat = '$no_rawat' AND t1.kd_dokter LIKE 'd%'
+    ");
+    if ($tindakan_dr_result) {
+        while ($tdr = mysqli_fetch_assoc($tindakan_dr_result)) {
+            $nama_dr = $tdr['nm_dokter'];
+            // Masukkan hanya jika belum ada di list (agar tidak menimpa DPJP resmi)
+            if (!isset($dpjp_list_temp[$nama_dr])) {
+                $dpjp_list_temp[$nama_dr] = $nama_dr . $tindakan_suffix;
+            }
+        }
+    }
+
+    // 3. Ambil dari tabel operasi
+    $op_dr_query = mysqli_query($koneksi, "
+        SELECT 
+            operator1, operator2, operator3, dokter_anestesi, dokter_anak, dokter_pjanak, dokter_umum
+        FROM operasi WHERE no_rawat = '$no_rawat' AND status = 'Ranap' LIMIT 1
+    ");
+    if ($op_dr_query && mysqli_num_rows($op_dr_query) > 0) {
+        $op_data_row = mysqli_fetch_assoc($op_dr_query);
+        $op_kodes = array_filter([
+            $op_data_row['operator1'],
+            $op_data_row['operator2'],
+            $op_data_row['operator3'],
+            $op_data_row['dokter_anestesi'],
+            $op_data_row['dokter_anak'],
+            $op_data_row['dokter_pjanak'],
+            $op_data_row['dokter_umum']
+        ], function ($val) {
+            return !empty($val) && $val !== '-' && strtolower(substr($val, 0, 1)) !== 'p';
+        });
+
+        if (!empty($op_kodes)) {
+            $op_kodes_str = "'" . implode("','", array_map(function ($k) use ($koneksi) {
+                return mysqli_real_escape_string($koneksi, $k);
+            }, $op_kodes)) . "'";
+            $lookup_op_dr = mysqli_query($koneksi, "SELECT nm_dokter FROM dokter WHERE kd_dokter IN ($op_kodes_str)");
+            while ($odr = mysqli_fetch_assoc($lookup_op_dr)) {
+                $nama_op_dr = $odr['nm_dokter'];
+                // Masukkan hanya jika belum ada di list (DPJP & Tindakan lebih prioritas)
+                if (!isset($dpjp_list_temp[$nama_op_dr])) {
+                    $dpjp_list_temp[$nama_op_dr] = $nama_op_dr . $operasi_suffix;
+                }
+            }
+        }
+    }
+
+    // 4. Tentukan DPJP UTAMA dari reg_periksa
+    $dokter_reg_periksa = $row['nm_dokter'];
+    if (!empty($dokter_reg_periksa) && $dokter_reg_periksa !== 'N/A') {
+        if (isset($dpjp_list_temp[$dokter_reg_periksa])) {
+            $utama_item = $dokter_reg_periksa . $utama_suffix;
+            unset($dpjp_list_temp[$dokter_reg_periksa]);
+        } else {
+            $utama_item = $dokter_reg_periksa . $utama_suffix;
+        }
+    }
+
+    // 5. Finalisasi List
+    $dpjp_final_list = array_values($dpjp_list_temp);
+    sort($dpjp_final_list);
+    if ($utama_item !== null) {
+        array_unshift($dpjp_final_list, $utama_item);
+    }
+
+    $row['daftar_dpjp'] = !empty($dpjp_final_list)
+        ? "<ul><li>" . implode("</li><li>", $dpjp_final_list) . "</li></ul>"
+        : '-';
+    // ===============================
+    // Get DAFTAR & JUMLAH PERAWAT DAN DOKTER dari rawat_inap_drpr
+    // ===============================
+    // Ambil data Perawat (NIP)
+    $perawat_list = [];
+    $perawat_query = mysqli_query($koneksi, "
+    SELECT 
+        rawat_inap_drpr.nip,
+        petugas.nama,
+        SUM(jns_perawatan_inap.tarif_tindakanpr) AS pendapatan_perawat
+    FROM rawat_inap_drpr
+    INNER JOIN petugas ON rawat_inap_drpr.nip = petugas.nip
+    INNER JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
+    WHERE rawat_inap_drpr.no_rawat = '$no_rawat'
+    GROUP BY rawat_inap_drpr.nip
+");
+
+    if ($perawat_query) {
+        while ($p = mysqli_fetch_assoc($perawat_query)) {
+            $nom = number_format($p['pendapatan_perawat'], 0, ',', '.');
+            $perawat_list[] = "<li>" . $p['nama'] . " (" . $nom . ")</li>";
+        }
+    }
+
+    // Ambil data Dokter (KD_DOKTER)
+    $dokter_list = [];
+    $dokter_query = mysqli_query($koneksi, "
+    SELECT 
+        rawat_inap_drpr.kd_dokter,
+        dokter.nm_dokter,
+        SUM(jns_perawatan_inap.tarif_tindakandr) AS pendapatan_dokter
+    FROM rawat_inap_drpr
+    INNER JOIN dokter ON rawat_inap_drpr.kd_dokter = dokter.kd_dokter
+    INNER JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
+    WHERE rawat_inap_drpr.no_rawat = '$no_rawat'
+    GROUP BY rawat_inap_drpr.kd_dokter
+");
+
+    if ($dokter_query) {
+        while ($d = mysqli_fetch_assoc($dokter_query)) {
+            $nom = number_format($d['pendapatan_dokter'], 0, ',', '.');
+            $dokter_list[] = "<li>" . $d['nm_dokter'] . " (" . $nom . ")</li>";
+        }
+    }
+
+    // Render menjadi UL List murni
+    $row['daftar_perawat_tindakan'] = !empty($perawat_list)
+        ? "<ul style='padding-left: 20px; margin: 0;'>" . implode("", $perawat_list) . "</ul>"
+        : "-";
+
+    $row['daftar_dokter_tindakan'] = !empty($dokter_list)
+        ? "<ul style='padding-left: 20px; margin: 0;'>" . implode("", $dokter_list) . "</ul>"
+        : "-";
+
+    // ===============================
     // Get DAFTAR PETUGAS OPERASI
     // ===============================
     $operator_list = [];
@@ -601,7 +935,7 @@ while ($row = mysqli_fetch_assoc($result)) {
             operasi.dokter_anak, operasi.dokter_pjanak, operasi.dokter_umum,
             MAX(operasi.jenis_anasthesi) AS anastesi_label -- Tambahkan ini jika Anda mau label anestesi
         FROM operasi
-        WHERE no_rawat = '$no_rawat' AND operasi.status = 'Ranap'
+        WHERE no_rawat = '$no_rawat' AND operasi.status = 'Ranap' 
         LIMIT 1
     ");
 
@@ -639,9 +973,8 @@ while ($row = mysqli_fetch_assoc($result)) {
         // Kumpulkan semua kode user yang tidak kosong
         foreach ($peran_map as $kolom => $peran) {
             $kode = $op_data[$kolom];
-            if (!empty($kode) && $kode !== '-') {
+            if (!empty($kode) && $kode !== '-' && strtolower(substr($kode, 0, 1)) !== 'p') {
                 $kode_users[] = "'" . mysqli_real_escape_string($koneksi, $kode) . "'";
-                // Simpan mapping kode ke peran (untuk dicari nanti)
                 $kode_peran[$kode] = $peran;
             }
         }

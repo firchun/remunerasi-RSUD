@@ -109,9 +109,8 @@ cek_login();
               <h3 class="text-xl font-bold text-gray-800">Rawat Inap per-bulan</h3>
               <p class="text-gray-600 text-sm mt-1">Lihat data ranap pendapatan per-bulan</p>
             </a>
-
             <!-- BPJS Ralan -->
-            <a href="/ranap/index.php"
+            <a href="/bpjs/index.php"
               class="bg-white shadow-lg rounded-xl p-6 w-72 text-center hover:shadow-xl transition duration-200">
               <div class="text-green-500 text-4xl mb-3">
                 <i class="fa-solid fa-money-bill"></i>
@@ -119,8 +118,15 @@ cek_login();
               <h3 class="text-xl font-bold text-gray-800">BPJS </h3>
               <p class="text-gray-600 text-sm mt-1">Data Total BPJS DIterima</p>
             </a>
-
-
+            <!-- BPJS Ralan -->
+            <a href="/bpjs/index.php"
+              class="bg-white shadow-lg rounded-xl p-6 w-72 text-center hover:shadow-xl transition duration-200">
+              <div class="text-blue-500 text-4xl mb-3">
+                <i class="fa-solid fa-user-doctor"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800">Cari Paramedis/Dokter </h3>
+              <p class="text-gray-600 text-sm mt-1">Data Tindakan Paramedis/Dokter</p>
+            </a>
           </div>
         </div>
 

@@ -24,25 +24,38 @@ $result_pj = mysqli_query($koneksi, $query_pj);
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
   <style>
-    .dt-button.buttons-excel.buttons-html5,
-    .dt-button.buttons-pdf.buttons-html5 {
-      background-color: #16a34a !important;
-      color: white !important;
-      border: none !important;
-      padding: 12px 20px !important;
-      border-radius: 8px !important;
-      font-size: 14px !important;
-      font-weight: 600 !important;
-      cursor: pointer;
-      transition: 0.25s ease-in-out;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+  .dt-button.buttons-excel.buttons-html5,
+  .dt-button.buttons-pdf.buttons-html5 {
+    background-color: #16a34a !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: 0.25s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
 
-    .dt-button.buttons-pdf.buttons-html5 {
-      background-color: #dc2626 !important;
-    }
+  .dt-button.buttons-pdf.buttons-html5 {
+    background-color: #dc2626 !important;
+  }
+
+  #tabelBulanan tbody td {
+    padding: 6px 8px !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+    height: auto;
+    border: 0.5px solid #d1d5db;
+    vertical-align: middle !important;
+  }
+
+  .section-header {
+    background-color: #065f46 !important;
+  }
   </style>
 </head>
 
@@ -59,7 +72,6 @@ $result_pj = mysqli_query($koneksi, $query_pj);
             <h2 class="text-xl font-bold text-green-800">
               Laporan Bulanan Per Kamar - RSUD MERAUKE
             </h2>
-
           </div>
         </div>
       </header>
@@ -85,7 +97,7 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">Semua Cara Bayar</option>
                 <?php while ($row = mysqli_fetch_assoc($result_pj)): ?>
-                  <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
+                <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
                 <?php endwhile; ?>
               </select>
             </div>
@@ -112,65 +124,77 @@ $result_pj = mysqli_query($koneksi, $query_pj);
             <table id="tabelBulanan" class="display w-full">
               <thead class="bg-green-800 text-white">
                 <tr>
-                  <th class="px-2 text-left">No.</th>
-                  <th class="px-2 text-left">Kamar</th>
-                  <th class="px-2 text-right">Kunjungan</th>
-                  <!-- Tindakan -->
-                  <th class="px-2 text-right">Sarana</th>
-                  <th class="px-2 text-right">BHP</th>
-                  <th class="px-2 text-right">JM Dokter</th>
-                  <th class="px-2 text-right">JM Perawat</th>
-                  <th class="px-2 text-right">Non-Medis</th>
-                  <th class="px-2 text-right">Total Tindakan</th>
-                  <!-- Farmasi -->
+                  <th class="px-2 text-center align-middle">No.</th>
+                  <th class="px-2 text-left align-middle">Gedung</th>
+                  <th class="px-2 text-right align-middle">Kunjungan</th>
+                  <th class="px-2 text-right align-middle">Biaya Kamar</th>
+
+                  <!-- TINDAKAN -->
+                  <th class="px-2 text-right">Dokter (T)</th>
+                  <th class="px-2 text-right">Perawat (T)</th>
+                  <th class="px-2 text-right">non-medis (T)</th>
+                  <!-- FARMASI -->
                   <th class="px-2 text-right">Racikan</th>
                   <th class="px-2 text-right">Non-Racikan</th>
                   <th class="px-2 text-right">Operasi</th>
                   <th class="px-2 text-right">Jasa Farmasi</th>
-                  <th class="px-2 text-right">Total Obat+PPN</th>
-                  <!-- Lab -->
-                  <th class="px-2 text-right">Sarana Lab</th>
-                  <th class="px-2 text-right">JM Dr Lab</th>
-                  <th class="px-2 text-right">JM Petugas Lab</th>
-                  <th class="px-2 text-right">Non-Medis Lab</th>
+                  <th class="px-2 text-right">Total Obat</th>
+
+                  <!-- LAB -->
+                  <th class="px-2 text-right">Material</th>
+                  <th class="px-2 text-right">Tarif Dr</th>
+                  <th class="px-2 text-right">Tarif Petugas</th>
+                  <th class="px-2 text-right">Menejemen</th>
                   <th class="px-2 text-right">Total Lab</th>
-                  <!-- Radiologi -->
-                  <th class="px-2 text-right">Sarana Rad</th>
-                  <th class="px-2 text-right">JM Dr Rad</th>
-                  <th class="px-2 text-right">JM Petugas Rad</th>
-                  <th class="px-2 text-right">Non-Medis Rad</th>
-                  <th class="px-2 text-right">Total Radiologi</th>
-                  <!-- Grand Total -->
-                  <th class="px-2 text-right">GRAND TOTAL</th>
+                  <!-- RADIOLOGI -->
+                  <th class="px-2 text-right">Material</th>
+                  <th class="px-2 text-right">Tarif Dr</th>
+                  <th class="px-2 text-right">Tarif Petugas</th>
+                  <th class="px-2 text-right">Menejemen</th>
+                  <th class="px-2 text-right">Total Rad</th>
+                  <!-- OPERASI & TOTAL -->
+                  <th class="px-2 text-right align-middle">Total Operasi</th>
+                  <th class="px-2 text-right align-middle ">GRAND TOTAL</th>
                 </tr>
+
               </thead>
               <tbody></tbody>
               <tfoot class="bg-green-800 font-bold text-white">
                 <tr>
                   <th colspan="2" class="text-right">TOTAL</th>
                   <th class="text-right" id="foot-kunjungan">0</th>
-                  <th class="text-right" id="foot-sarana">0</th>
-                  <th class="text-right" id="foot-bhp">0</th>
-                  <th class="text-right" id="foot-dokter">0</th>
-                  <th class="text-right" id="foot-perawat">0</th>
+                  <th class="text-right" id="foot-biaya-kamar">0</th>
+
+                  <!-- TINDAKAN -->
+
+                  <th class="text-right" id="foot-tindakan-dr">0</th>
+                  <th class="text-right" id="foot-tindakan-pr">0</th>
                   <th class="text-right" id="foot-menejemen">0</th>
-                  <th class="text-right" id="foot-tindakan">0</th>
+
+                  <!-- FARMASI -->
                   <th class="text-right" id="foot-racikan">0</th>
                   <th class="text-right" id="foot-nonracikan">0</th>
-                  <th class="text-right" id="foot-operasi">0</th>
-                  <th class="text-right" id="foot-jasafarmasi">0</th>
+                  <th class="text-right" id="foot-resep-operasi">0</th>
+                  <th class="text-right" id="foot-jasa-farmasi">0</th>
                   <th class="text-right" id="foot-obat">0</th>
-                  <th class="text-right" id="foot-sarana-lab">0</th>
+
+                  <!-- LAB -->
+                  <th class="text-right" id="foot-material-lab">0</th>
                   <th class="text-right" id="foot-dokter-lab">0</th>
                   <th class="text-right" id="foot-petugas-lab">0</th>
                   <th class="text-right" id="foot-menejemen-lab">0</th>
                   <th class="text-right" id="foot-lab">0</th>
-                  <th class="text-right" id="foot-sarana-rad">0</th>
+
+                  <!-- RADIOLOGI -->
+                  <th class="text-right" id="foot-material-rad">0</th>
                   <th class="text-right" id="foot-dokter-rad">0</th>
                   <th class="text-right" id="foot-petugas-rad">0</th>
                   <th class="text-right" id="foot-menejemen-rad">0</th>
                   <th class="text-right" id="foot-radiologi">0</th>
-                  <th class="text-right" id="foot-grand">0</th>
+
+                  <!-- OPERASI & TOTAL -->
+                  <th class="text-right" id="foot-operasi">0</th>
+                  <th class="text-right " id="foot-grand">0</th>
                 </tr>
               </tfoot>
             </table>
@@ -181,173 +205,192 @@ $result_pj = mysqli_query($koneksi, $query_pj);
   </div>
 
   <script>
-    let table;
+  let table;
 
-    $(document).ready(function() {
-      // Set default ke bulan ini
-      const now = new Date();
-      const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-      $('#bulan').val(bulanIni);
+  $(document).ready(function() {
+    const now = new Date();
+    const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    $('#bulan').val(bulanIni);
 
-      // Initialize DataTable
-      table = $('#tabelBulanan').DataTable({
-        dom: '<"flex justify-between items-center mb-4"lB>rtip',
-        buttons: [{
-            extend: 'excel',
-            text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
-            title: 'Laporan Bulanan Per Kamar'
-          },
-          {
-            extend: 'pdfHtml5',
-            text: '<i class="fas fa-file-pdf mr-2"></i>Export PDF',
-            orientation: 'landscape',
-            pageSize: 'A4',
-            title: 'Laporan Bulanan Per Kamar',
-            customize: function(doc) {
-              doc.defaultStyle.fontSize = 7;
-              doc.styles.tableHeader.fontSize = 8;
-            }
-          }
-        ],
-        lengthMenu: [
-          [10, 25, 50, 100],
-          [10, 25, 50, 100]
-        ],
-        pageLength: 25,
-        scrollX: true,
-        autoWidth: false,
-        columns: [{
-            data: null,
-            render: (d, t, r, meta) => meta.row + 1
-          },
-          {
-            data: 'nm_poli'
-          },
-          {
-            data: 'jumlah_kunjungan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_material_tindakan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_bhp_tindakan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_dokter_tindakan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_perawat_tindakan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_menejemen_tindakan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_tindakan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'jumlah_resep_racikan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'jumlah_resep_non_racikan',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'jumlah_resep_operasi',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'jasa_farmasi',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_obat_ppn',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_material_lab',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_dokter_lab',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_petugas_lab',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_menejemen_lab',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_lab',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_material_radiologi',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_dokter_radiologi',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_petugas_radiologi',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_menejemen_radiologi',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'total_radiologi',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          },
-          {
-            data: 'grand_total',
-            render: $.fn.dataTable.render.number(',', '.', 0)
-          }
-        ],
-        language: {
-          processing: "Memuat data...",
-          lengthMenu: "Tampilkan _MENU_ data",
-          zeroRecords: "Data tidak ditemukan",
-          info: "Halaman _PAGE_ dari _PAGES_",
-          infoEmpty: "Tidak ada data",
-          search: "Cari:",
-          paginate: {
-            first: "Pertama",
-            last: "Terakhir",
-            next: "›",
-            previous: "‹"
+    table = $('#tabelBulanan').DataTable({
+
+      dom: '<"flex justify-between items-center mb-4"lB>rtip',
+      buttons: [{
+          extend: 'excel',
+          text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
+          title: 'Laporan Bulanan Per Kamar - RSUD MERAUKE'
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="fas fa-file-pdf mr-2"></i>Export PDF',
+          orientation: 'landscape',
+          pageSize: 'A3',
+          title: 'Laporan Bulanan Per Kamar - RSUD MERAUKE',
+          customize: function(doc) {
+            doc.defaultStyle.fontSize = 6;
+            doc.styles.tableHeader.fontSize = 7;
           }
         }
-      });
+      ],
+      lengthMenu: [
+        [10, 25, 50, -1],
+        [10, 25, 50, "Semua"]
+      ],
+      pageLength: 25,
+      processing: true,
+      scrollX: true,
+      columns: [{
+          data: null,
+          className: 'text-center',
+          render: (d, t, r, meta) => meta.row + 1
+        },
+        {
+          data: 'nama_gedung',
+          className: 'text-left font-semibold'
+        },
+        {
+          data: 'jumlah_kunjungan',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_biaya_kamar',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
 
-      // Load data pertama kali
-      loadData();
+        // TINDAKAN
+
+        {
+          data: 'total_tindakan_dr',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_tindakan_pr',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+
+        {
+          data: 'total_menejemen',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+
+        // FARMASI
+        {
+          data: 'jumlah_resep_racikan',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'jumlah_resep_non_racikan',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'jumlah_resep_operasi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_jasa_farmasi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_obat',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+
+        // LAB
+        {
+          data: 'total_material_lab',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_dokter_lab',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_petugas_lab',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_menejemen_lab',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_lab',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+
+        // RADIOLOGI
+        {
+          data: 'total_material_radiologi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_dokter_radiologi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_petugas_radiologi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_menejemen_radiologi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'total_radiologi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+
+        // OPERASI & GRAND TOTAL
+        {
+          data: 'total_operasi',
+          className: 'text-right',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        },
+        {
+          data: 'grand_total',
+          className: 'text-right font-bold',
+          render: $.fn.dataTable.render.number(',', '.', 0)
+        }
+      ]
     });
 
-    function loadData() {
-      const bulan = $('#bulan').val();
-      const kd_pj = $('#kd_pj').val();
+    loadData();
+  });
 
-      $.ajax({
-        url: '../api/get_monthly_report_ranap.php',
-        type: 'POST',
-        data: {
-          bulan,
-          kd_pj
-        },
-        success: function(response) {
+  function loadData() {
+    const bulan = $('#bulan').val();
+    const kd_pj = $('#kd_pj').val();
+
+    $.ajax({
+      url: '../api/get_monthly_report_ranap.php',
+      type: 'POST',
+      data: {
+        bulan,
+        kd_pj
+      },
+      success: function(response) {
+        console.log('Response:', response);
+
+        try {
           const res = JSON.parse(response);
 
           if (res.success) {
@@ -355,54 +398,72 @@ $result_pj = mysqli_query($koneksi, $query_pj);
             table.clear();
             table.rows.add(res.data);
             table.draw();
-
-            // Hitung footer
             updateFooter(res.data);
+          } else {
+            alert('Gagal memuat data');
           }
-        },
-        error: function(xhr) {
-          alert('Error loading data');
-          console.error(xhr.responseText);
+        } catch (e) {
+          console.error('Parse error:', e);
+          console.error('Raw response:', response);
+          alert('Error parsing data: ' + e.message);
         }
-      });
-    }
+      },
+      error: function(xhr) {
+        alert('Error loading data');
+        console.error('Status:', xhr.status);
+        console.error('Response:', xhr.responseText);
+      }
+    });
+  }
 
-    function updateFooter(data) {
-      const sum = (key) => data.reduce((a, b) => a + parseFloat(b[key] || 0), 0);
-      const fmt = (n) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  function updateFooter(data) {
+    const sum = (key) => data.reduce((a, b) => a + parseFloat(b[key] || 0), 0);
+    const fmt = (n) => Math.round(n).toLocaleString('id-ID');
 
-      $('#foot-kunjungan').text(sum('jumlah_kunjungan').toLocaleString('id-ID'));
-      $('#foot-sarana').text(fmt(sum('total_material_tindakan')));
-      $('#foot-bhp').text(fmt(sum('total_bhp_tindakan')));
-      $('#foot-dokter').text(fmt(sum('total_dokter_tindakan')));
-      $('#foot-perawat').text(fmt(sum('total_perawat_tindakan')));
-      $('#foot-menejemen').text(fmt(sum('total_menejemen_tindakan')));
-      $('#foot-tindakan').text(fmt(sum('total_tindakan')));
-      $('#foot-racikan').text(sum('jumlah_resep_racikan').toLocaleString('id-ID'));
-      $('#foot-nonracikan').text(sum('jumlah_resep_non_racikan').toLocaleString('id-ID'));
-      $('#foot-operasi').text(sum('jumlah_resep_operasi').toLocaleString('id-ID'));
-      $('#foot-jasafarmasi').text(fmt(sum('jasa_farmasi')));
-      $('#foot-obat').text(fmt(sum('total_obat_ppn')));
-      $('#foot-sarana-lab').text(fmt(sum('total_material_lab')));
-      $('#foot-dokter-lab').text(fmt(sum('total_dokter_lab')));
-      $('#foot-petugas-lab').text(fmt(sum('total_petugas_lab')));
-      $('#foot-menejemen-lab').text(fmt(sum('total_menejemen_lab')));
-      $('#foot-lab').text(fmt(sum('total_lab')));
-      $('#foot-sarana-rad').text(fmt(sum('total_material_radiologi')));
-      $('#foot-dokter-rad').text(fmt(sum('total_dokter_radiologi')));
-      $('#foot-petugas-rad').text(fmt(sum('total_petugas_radiologi')));
-      $('#foot-menejemen-rad').text(fmt(sum('total_menejemen_radiologi')));
-      $('#foot-radiologi').text(fmt(sum('total_radiologi')));
-      $('#foot-grand').text(fmt(sum('grand_total')));
-    }
+    $('#foot-kunjungan').text(fmt(sum('jumlah_kunjungan')));
+    $('#foot-biaya-kamar').text(fmt(sum('total_biaya_kamar')));
 
-    function resetFilter() {
-      const now = new Date();
-      const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-      $('#bulan').val(bulanIni);
-      $('#kd_pj').val('');
-      loadData();
-    }
+    // TINDAKAN
+    $('#foot-material').text(fmt(sum('total_material')));
+    $('#foot-bhp').text(fmt(sum('total_bhp')));
+    $('#foot-tindakan-dr').text(fmt(sum('total_tindakan_dr')));
+    $('#foot-tindakan-pr').text(fmt(sum('total_tindakan_pr')));
+    $('#foot-kso').text(fmt(sum('total_kso')));
+    $('#foot-menejemen').text(fmt(sum('total_menejemen')));
+
+    // FARMASI
+    $('#foot-racikan').text(fmt(sum('jumlah_resep_racikan')));
+    $('#foot-nonracikan').text(fmt(sum('jumlah_resep_non_racikan')));
+    $('#foot-resep-operasi').text(fmt(sum('jumlah_resep_operasi')));
+    $('#foot-jasa-farmasi').text(fmt(sum('total_jasa_farmasi')));
+    $('#foot-obat').text(fmt(sum('total_obat')));
+
+    // LAB
+    $('#foot-material-lab').text(fmt(sum('total_material_lab')));
+    $('#foot-dokter-lab').text(fmt(sum('total_dokter_lab')));
+    $('#foot-petugas-lab').text(fmt(sum('total_petugas_lab')));
+    $('#foot-menejemen-lab').text(fmt(sum('total_menejemen_lab')));
+    $('#foot-lab').text(fmt(sum('total_lab')));
+
+    // RADIOLOGI
+    $('#foot-material-rad').text(fmt(sum('total_material_radiologi')));
+    $('#foot-dokter-rad').text(fmt(sum('total_dokter_radiologi')));
+    $('#foot-petugas-rad').text(fmt(sum('total_petugas_radiologi')));
+    $('#foot-menejemen-rad').text(fmt(sum('total_menejemen_radiologi')));
+    $('#foot-radiologi').text(fmt(sum('total_radiologi')));
+
+    // OPERASI & GRAND
+    $('#foot-operasi').text(fmt(sum('total_operasi')));
+    $('#foot-grand').text(fmt(sum('grand_total')));
+  }
+
+  function resetFilter() {
+    const now = new Date();
+    const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    $('#bulan').val(bulanIni);
+    $('#kd_pj').val('');
+    loadData();
+  }
   </script>
 </body>
 
