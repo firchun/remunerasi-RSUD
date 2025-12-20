@@ -253,7 +253,7 @@ while ($row = mysqli_fetch_assoc($result)) {
       $total_jasa += $jasa_nilai;
 
       $daftar_tindakan[] = sprintf(
-        '<div class="tindakan-group"><strong>%s %s</strong><br>%s</div>',
+        '<div class="tindakan-group"><strong>%s %s</strong><br>%s<hr></div>',
         $tindakan['tgl_perawatan'],
         $tindakan['jam_rawat'],
         $tindakan['nm_perawatan']
