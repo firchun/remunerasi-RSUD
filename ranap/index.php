@@ -316,6 +316,7 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                   <th class="px-2  text-right">non-medis (Lab)</th>
                   <th class="px-2  text-right">Total (Lab)</th>
                   <!-- radiologi -->
+                  <th class="px-2  text-right">Dokter Radiologi</th>
                   <th class="px-2  text-right">Radiologi</th>
                   <th class="px-2  text-right">sarana (R)</th>
                   <th class="px-2  text-right">dokter (R)</th>
@@ -386,6 +387,7 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                   <th class="px-2  text-right">non-petugas (Lab)</th>
                   <th class="px-2  text-right">Total Lab</th>
                   <!-- radiologi -->
+                  <th class="px-2  text-right">Dokter Radiologi</th>
                   <th class="px-2  text-right">Radiologi</th>
                   <th class="px-2  text-right">sarana (radiologi)</th>
                   <th class="px-2  text-right">dokter (radiologi)</th>
@@ -405,7 +407,6 @@ $result_penjab = mysqli_query($koneksi, $query_penjab);
                   <th class="text-right">% Perawat</th>
                   <th class="text-right">% non-medis</th> -->
                 </tr>
-
               </tfoot>
             </table>
           </div>

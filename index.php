@@ -118,8 +118,8 @@ cek_login();
               <h3 class="text-xl font-bold text-gray-800">BPJS </h3>
               <p class="text-gray-600 text-sm mt-1">Data Total BPJS DIterima</p>
             </a>
-            <!-- BPJS Ralan -->
-            <a href="/bpjs/index.php"
+            <!-- cari petugas -->
+            <a href="/cari_petugas/index.php"
               class="bg-white shadow-lg rounded-xl p-6 w-72 text-center hover:shadow-xl transition duration-200">
               <div class="text-blue-500 text-4xl mb-3">
                 <i class="fa-solid fa-user-doctor"></i>

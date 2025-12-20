@@ -1040,7 +1040,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         ON t1.noorder = t3.noorder
     JOIN jns_perawatan_radiologi t2 
         ON t3.kd_jenis_prw = t2.kd_jenis_prw
-    WHERE t1.no_rawat = '$no_rawat'  AND t1.status = 'ranap'
+    WHERE t1.no_rawat = '$no_rawat' 
     
     ");
 
@@ -1054,6 +1054,33 @@ while ($row = mysqli_fetch_assoc($result)) {
         $row['total_petugas_radiologi'] = 0;
         $row['total_menejemen_radiologi'] = 0;
         $row['total_radiologi'] = 0;
+    }
+    // 1. Cek apakah ada Order/Permintaan Radiologi
+    $cek_permintaan_rad = mysqli_query($koneksi, "
+        SELECT no_rawat FROM permintaan_radiologi 
+        WHERE no_rawat = '$no_rawat' LIMIT 1
+    ");
+    $ada_order = (mysqli_num_rows($cek_permintaan_rad) > 0);
+
+    // 2. Cari Hasil Pemeriksaan & Nama Dokter
+    $dr_radiologi_query = mysqli_query($koneksi, "
+        SELECT dokter.nm_dokter 
+        FROM periksa_radiologi 
+        JOIN dokter ON periksa_radiologi.kd_dokter = dokter.kd_dokter 
+        WHERE periksa_radiologi.no_rawat = '$no_rawat' 
+        LIMIT 1
+    ");
+
+    if ($dr_radiologi_query && mysqli_num_rows($dr_radiologi_query) > 0) {
+        // JIKA SUDAH DIPERIKSA: Tampilkan Nama Dokter
+        $dr_rad_data = mysqli_fetch_assoc($dr_radiologi_query);
+        $row['nm_dokter_radiologi'] = $dr_rad_data['nm_dokter'];
+    } elseif ($ada_order) {
+        // JIKA ADA ORDER TAPI BELUM ADA HASIL: Tampilkan (belum ada hasil)
+        $row['nm_dokter_radiologi'] = '(belum ada hasil)';
+    } else {
+        // JIKA TIDAK ADA PERMINTAAN SAMA SEKALI: Tampilkan -
+        $row['nm_dokter_radiologi'] = '-';
     }
 
     // Get OBAT pulang total

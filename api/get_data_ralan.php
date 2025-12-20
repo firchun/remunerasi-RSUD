@@ -613,10 +613,6 @@ while ($row = mysqli_fetch_assoc($result)) {
     // ===============================
     // Get DOKTER RADIOLOGI
     // ===============================
-    // ===============================
-    // Get DOKTER RADIOLOGI (STATUS BERJENJANG)
-    // ===============================
-
     // 1. Cek apakah ada Order/Permintaan Radiologi
     $cek_permintaan_rad = mysqli_query($koneksi, "
         SELECT no_rawat FROM permintaan_radiologi 

@@ -546,6 +546,9 @@ $(document).ready(function() {
       },
       // radiologi
       {
+        data: 'nm_dokter_radiologi'
+      },
+      {
         data: 'tindakan_radiologi'
       },
       {
@@ -868,15 +871,15 @@ $(document).ready(function() {
       $(api.column(47).footer()).html(formatIDR(totals.totalLab));
 
       // Footer Radiologi
-      $(api.column(49).footer()).html(formatIDR(totals.saranaRad));
-      $(api.column(50).footer()).html(formatIDR(totals.drRad));
-      $(api.column(51).footer()).html(formatIDR(totals.petugasRad));
-      $(api.column(52).footer()).html(formatIDR(totals.manajemenRad));
-      $(api.column(53).footer()).html(formatIDR(totals.totalRad));
+      $(api.column(50).footer()).html(formatIDR(totals.saranaRad));
+      $(api.column(51).footer()).html(formatIDR(totals.drRad));
+      $(api.column(53).footer()).html(formatIDR(totals.petugasRad));
+      $(api.column(53).footer()).html(formatIDR(totals.manajemenRad));
+      $(api.column(54).footer()).html(formatIDR(totals.totalRad));
 
       // Final Totals
-      $(api.column(54).footer()).html(formatIDR(grandTotalBayar));
-      $(api.column(55).footer()).html(formatIDR(totals.totalBPJS));
+      $(api.column(55).footer()).html(formatIDR(grandTotalBayar));
+      $(api.column(56).footer()).html(formatIDR(totals.totalBPJS));
     }
   });
   table.columns().every(function(index) {
