@@ -5,9 +5,9 @@ error_reporting(E_ALL);
 
 require_once './config/conf.php';
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$basePath = '/remon';
-$path = trim(str_replace($basePath, '', $uri), '/');
+$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+$uriPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$path = trim(str_replace($basePath, '', $uriPath), '/');
 
 $routes = [
     'rajal'          => './views/rajal/index.php',

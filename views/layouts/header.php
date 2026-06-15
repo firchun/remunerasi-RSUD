@@ -10,12 +10,14 @@ $extraFooter = $extraFooter ?? '';
 $username = $_SESSION['username'] ?? 'User';
 $rootPath = $rootPath ?? '';
 
+$baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
 $uri = $_SERVER['REQUEST_URI'];
 function isActive($paths)
 {
   global $uri;
+  $segments = explode('/', trim(parse_url($uri, PHP_URL_PATH), '/'));
   foreach ((array)$paths as $p) {
-    if (strpos($uri, $p) !== false) return true;
+    if (in_array(trim($p, '/'), $segments)) return true;
   }
   return false;
 }
@@ -152,8 +154,8 @@ function isActive($paths)
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-1">Menu Utama</p>
 
-      <a href="<?= $rootPath ?>"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= empty($rootPath) && !isActive(['/rajal', '/ranap', '/bulanan-rajal', '/bulanan-ranap', '/bpjs', '/laporan-gabungan', '/cari-petugas', '/jasaraharja', '/tunsus']) ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus']) ? 'active text-white' : '' ?>">
         <i class="fas fa-home w-5 text-center text-emerald-300"></i>
         <span>Dashboard</span>
       </a>
@@ -161,62 +163,62 @@ function isActive($paths)
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Transaksi
       </p>
 
-      <a href="<?= $rootPath ?>rajal"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/rajal') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/rajal"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('rajal') ? 'active text-white' : '' ?>">
         <i class="fas fa-user-doctor w-5 text-center text-emerald-300"></i>
         <span>Rawat Jalan</span>
       </a>
 
-      <a href="<?= $rootPath ?>ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/ranap') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/ranap"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('ranap') ? 'active text-white' : '' ?>">
         <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
         <span>Rawat Inap</span>
       </a>
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Laporan</p>
 
-      <a href="<?= $rootPath ?>bulanan-rajal"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/bulanan-rajal') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/bulanan-rajal"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bulanan-rajal') ? 'active text-white' : '' ?>">
         <i class="fas fa-calendar-week w-5 text-center text-emerald-300"></i>
         <span>RALAN Per-Bulan</span>
       </a>
 
-      <a href="<?= $rootPath ?>bulanan-ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/bulanan-ranap') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/bulanan-ranap"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bulanan-ranap') ? 'active text-white' : '' ?>">
         <i class="fas fa-calendar-alt w-5 text-center text-emerald-300"></i>
         <span>RANAP Per-Bulan</span>
       </a>
 
-      <a href="<?= $rootPath ?>laporan-gabungan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/laporan-gabungan') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/laporan-gabungan"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('laporan-gabungan') ? 'active text-white' : '' ?>">
         <i class="fas fa-chart-pie w-5 text-center text-emerald-300"></i>
         <span>Laporan Gabungan</span>
       </a>
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Keuangan</p>
 
-      <a href="<?= $rootPath ?>bpjs"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/bpjs') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/bpjs"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bpjs') ? 'active text-white' : '' ?>">
         <i class="fas fa-money-bill-wave w-5 text-center text-emerald-300"></i>
         <span>BPJS</span>
       </a>
 
-      <a href="<?= $rootPath ?>jasaraharja"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/jasaraharja') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/jasaraharja"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('jasaraharja') ? 'active text-white' : '' ?>">
         <i class="fas fa-car w-5 text-center text-emerald-300"></i>
         <span>Jasa Raharja</span>
       </a>
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Lainnya</p>
 
-      <a href="<?= $rootPath ?>cari-petugas"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/cari-petugas') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/cari-petugas"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('cari-petugas') ? 'active text-white' : '' ?>">
         <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
         <span>Cari Paramedis/Dokter</span>
       </a>
 
-      <a href="<?= $rootPath ?>tunsus"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('/tunsus') ? 'active text-white' : '' ?>">
+      <a href="<?= $baseUrl ?>/tunsus"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('tunsus') ? 'active text-white' : '' ?>">
         <i class="fas fa-stethoscope w-5 text-center text-emerald-300"></i>
         <span>Tunjangan Khusus</span>
       </a>
@@ -231,7 +233,7 @@ function isActive($paths)
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-white truncate"><?= htmlspecialchars($username) ?></p>
         </div>
-        <a href="<?= $rootPath ?>config/logout.php" class="text-emerald-300/70 hover:text-white transition"
+        <a href="<?= $baseUrl ?>/config/logout.php" class="text-emerald-300/70 hover:text-white transition"
           title="Logout">
           <i class="fas fa-sign-out-alt"></i>
         </a>
@@ -262,7 +264,7 @@ function isActive($paths)
             <i class="far fa-calendar-alt mr-1"></i>
             <?= date('d/m/Y') ?>
           </span>
-          <a href="<?= $rootPath ?>config/logout.php"
+          <a href="<?= $baseUrl ?>/config/logout.php"
             class="flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition">
             <i class="fas fa-sign-out-alt"></i>
             <span class="hidden sm:inline">Logout</span>
