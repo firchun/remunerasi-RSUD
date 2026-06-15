@@ -203,7 +203,7 @@ require_once '../layouts/header.php';
 
       <h2 class="text-xl font-semibold mb-4">Upload CSV BPJS RAJAL</h2>
 
-      <form action="../api/upload_bpjs.php" method="POST" enctype="multipart/form-data">
+      <form action="<?= $baseUrl ?>/api/upload_bpjs.php" method="POST" enctype="multipart/form-data">
         <label class="block mb-3 text-sm font-medium">Pilih File CSV</label>
         <input type="file" name="file" accept=".csv" class="w-full border rounded p-2 mb-4" required>
 
@@ -239,7 +239,7 @@ require_once '../layouts/header.php';
       processing: true,
       serverSide: true,
       ajax: {
-        url: '../api/bpjs.php',
+        url: window.BASE_URL + '/api/bpjs.php',
         type: 'POST',
         data: function(d) {
           d.tgl1 = $('#tgl1').val();

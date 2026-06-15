@@ -290,7 +290,7 @@ require_once '../layouts/header.php';
     const kd_pj = $('#kd_pj').val();
 
     $.ajax({
-      url: '../api/get_monthly_report_ranap.php',
+      url: window.BASE_URL + '/api/get_monthly_report_ranap.php',
       type: 'POST',
       data: {
         bulan,

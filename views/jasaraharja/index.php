@@ -419,7 +419,7 @@ require_once '../layouts/header.php';
 
                 <!-- Action bar -->
                 <div class="action-bar">
-                    <a href="../api/export_jasaraharja.php?no_rawat=<?= urlencode($detail_no_rawat) ?>"
+                    <a href="<?= $baseUrl ?>/api/export_jasaraharja.php?no_rawat=<?= urlencode($detail_no_rawat) ?>"
                         class="btn btn-success">
                         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                             <path d="M6.5 1v8M3.5 6l3 3 3-3M1 11h11" stroke="#fff" stroke-width="1.4" stroke-linecap="round"

@@ -304,7 +304,7 @@ require_once '../layouts/header.php';
 
 
     $.ajax({
-      url: '../api/get_monthly_report.php',
+      url: window.BASE_URL + '/api/get_monthly_report.php',
       type: 'POST',
       data: {
         bulan,

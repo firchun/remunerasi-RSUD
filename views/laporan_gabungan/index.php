@@ -175,7 +175,7 @@ require_once '../layouts/header.php';
       $('#tableBody').html('<tr><td colspan="10" class="center" style="color:#6b7280;padding:24px">Memuat data...</td></tr>');
 
       $.ajax({
-        url: '../api/get_report_gabungan.php',
+        url: window.BASE_URL + '/api/get_report_gabungan.php',
         type: 'POST',
         data: { bulan_awal, bulan_akhir, kd_pj, jenis: currentJenis, kd_poli, kd_bangsal },
         success: function(response) {

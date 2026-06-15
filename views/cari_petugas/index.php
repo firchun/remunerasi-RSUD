@@ -132,7 +132,7 @@ require_once '../layouts/header.php';
     $('#tbodyManual').empty();
 
     $.ajax({
-      url: '../api/jasa_petugas.php',
+      url: window.BASE_URL + '/api/jasa_petugas.php',
       type: 'POST',
       data: {
         nama_petugas: nama,

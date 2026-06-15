@@ -51,100 +51,10 @@ function exportCSV() {
     filter_bulan: $('#filter_bulan').val() || '',
     filter_tahun: $('#filter_tahun').val() || new Date().getFullYear()
   });
-  window.open('../api/export_ranap.php?' + params.toString(), '_blank');
-}
-$('#filter_bulan, #filter_tahun').on('change', function() {
-  if ($('#filter_bulan').val()) {
-    $('#tgl1').val('');
-    $('#tgl2').val('');
-  }
-});
-$('#tgl1, #tgl2').on('change', function() {
-  if ($(this).val()) {
-    $('#filter_bulan').val('');
-  }
-});
-
-function loadDetailTindakan(no_rawat) {
-  fetch("../api/get_detail_tindakan_ranap.php?no_rawat=" + no_rawat)
-    .then(res => res.json())
-    .then(json => {
-
-      let tbody = document.querySelector("#tabelDetailTindakan tbody");
-      tbody.innerHTML = "";
-
-      if (!json.tindakan || json.tindakan.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="10" class="text-center py-3 text-gray-500">
-              Tidak ada data tindakan
-            </td>
-          </tr>`;
-        return;
-      }
-
-      json.tindakan.forEach((item, index) => {
-        tbody.innerHTML += `
-          <tr class="border-b">
-            <td class="text-center">${index + 1}</td>
-            <td class="px-1">${item.nm_perawatan}</td>
-            <td class="px-1">${item.nm_dokter}</td>
-            <td class="px-1">${item.nama_petugas ?? '-'}</td>
-            <td class="text-right px-1">${item.material}</td>
-            <td class="text-right px-1">${item.bhp}</td>
-            <td class="text-right px-1">${item.tarif_tindakandr}</td>
-            <td class="text-right px-1">${item.tarif_tindakanpr}</td>
-            <td class="text-right px-1">${item.menejemen}</td>
-            <td class="text-right px-1 font-bold">${item.total_byrdrpr}</td>
-          </tr>
-        `;
-      });
-
-    });
-}
-
-function loadDetailLab(no_rawat) {
-  fetch("../api/get_detail_lab_ranap.php?no_rawat=" + no_rawat)
-    .then(res => res.json())
-    .then(data => {
-
-      let tbody = document.querySelector("#tabelDetailLab tbody");
-      tbody.innerHTML = "";
-      if (!data || data.length === 0) {
-        $("#tabelDetailLab").addClass("hidden");
-        // Tidak ada obat
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="8" class="text-center text-gray-500 py-2">
-              Tidak ada lab
-            </td>
-          </tr>
-        `;
-        return;
-      } else {
-        $("#tabelDetailLab").removeClass("hidden");
-      }
-
-      data.forEach((item, index) => {
-        tbody.innerHTML += `
-          <tr class="border-b">
-            <td class="text-center">${index + 1}</td>
-            <td class="px-1">${item.nm_perawatan}</td>
-            <td class="px-1">${item.nm_dokter}</td>
-            <td class="text-right px-1">${item.tarif_perujuk}</td>
-            <td class="text-right px-1">${item.tarif_tindakan_dokter}</td>
-            <td class="text-right px-1">${item.tarif_tindakan_petugas}</td>
-            <td class="text-right px-1">${item.menejemen}</td>
-            <td class="text-right px-1">${item.biaya}</td>
-          </tr>
-        `;
-      });
-    });
-}
-
-function loadDetailObat(no_rawat) {
-
-  fetch("../api/get_detail_obat_ranap.php?no_rawat=" + no_rawat)
+  window.open(window.BASE_URL + '/api/export_ranap.php?' + params.toString(), '_blank');
+  fetch(window.BASE_URL + "/api/get_detail_tindakan_ranap.php?no_rawat=" + no_rawat)
+  fetch(window.BASE_URL + "/api/get_detail_lab_ranap.php?no_rawat=" + no_rawat)
+  fetch(window.BASE_URL + "/api/get_detail_obat_ranap.php?no_rawat=" + no_rawat)
     .then(res => res.json())
     .then(data => {
       let tbody = document.querySelector("#tabelDetailObat tbody");
@@ -276,7 +186,7 @@ $(document).ready(function() {
     autoWidth: false,
 
     ajax: {
-      url: '../api/get_data_ranap.php',
+       url: window.BASE_URL + '/api/get_data_ranap.php',
       type: 'POST',
       dataSrc: function(json) {
         console.log("RAW JSON:", json);
