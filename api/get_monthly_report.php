@@ -237,7 +237,7 @@ while ($row = mysqli_fetch_assoc($result)) {
   $row['grand_total'] =
     $row['total_tindakan'] +
     $row['total_obat_ppn'] +
-    $row['jasa_farmasi'] +
+    // $row['jasa_farmasi'] +
     $row['total_lab'] +
     $row['total_radiologi'];
 

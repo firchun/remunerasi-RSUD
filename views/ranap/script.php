@@ -37,6 +37,33 @@ $(document).on("click", ".openModal", function() {
   loadDetailLab(no_rawat);
   $("#modalRawat").removeClass("hidden");
 });
+// Tambahkan fungsi export
+function exportCSV() {
+  const params = new URLSearchParams({
+    tgl1: $('#tgl1').val(),
+    tgl2: $('#tgl2').val(),
+    kd_bangsal: $('#kd_bangsal').val(),
+    kd_pj: $('#kd_pj').val(),
+    filter_sep: $('#filter_sep').val(),
+    tcari: $('#tcari').val(),
+    gedung: $('#gedung').val(),
+    status_pulang: $('#status_pulang').val(),
+    filter_bulan: $('#filter_bulan').val() || '',
+    filter_tahun: $('#filter_tahun').val() || new Date().getFullYear()
+  });
+  window.open('../api/export_ranap.php?' + params.toString(), '_blank');
+}
+$('#filter_bulan, #filter_tahun').on('change', function() {
+  if ($('#filter_bulan').val()) {
+    $('#tgl1').val('');
+    $('#tgl2').val('');
+  }
+});
+$('#tgl1, #tgl2').on('change', function() {
+  if ($(this).val()) {
+    $('#filter_bulan').val('');
+  }
+});
 
 function loadDetailTindakan(no_rawat) {
   fetch("../api/get_detail_tindakan_ranap.php?no_rawat=" + no_rawat)
@@ -941,6 +968,8 @@ function resetFilter() {
   $('#gedung').val('');
   $('#gedung').val('');
   $('#filter_sep').val('semua');
+  $('#filter_bulan').val('');
+  $('#filter_tahun').val(new Date().getFullYear());
 
   loadData();
 }

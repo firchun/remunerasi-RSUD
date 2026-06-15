@@ -2,7 +2,7 @@
 require_once 'conf.php';
 
 session_start();
-$koneksi = bukakoneksi2();
+$koneksi = bukakoneksi();
 
 $username = mysqli_real_escape_string($koneksi, $_POST['username']);
 $password = mysqli_real_escape_string($koneksi, $_POST['password']);

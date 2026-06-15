@@ -6,26 +6,39 @@ error_reporting(E_ALL);
 set_time_limit(120);
 
 require_once '../config/conf.php';
-$koneksi  = bukakoneksi();
-$koneksi2 = bukakoneksi2();
+$koneksi = bukakoneksi();
 
 // Get DataTables parameters
-$draw   = $_POST['draw']   ?? 1;
-$start  = $_POST['start']  ?? 0;
+$draw = $_POST['draw'] ?? 1;
+$start = $_POST['start'] ?? 0;
 $length = $_POST['length'] ?? 25;
 $search = $_POST['search']['value'] ?? '';
 
 // Filters
-$tgl1          = $_POST['tgl1']          ?? '';
-$tgl2          = $_POST['tgl2']          ?? '';
-$kd_bangsal    = $_POST['kd_bangsal']    ?? '';
-$kd_dokter     = $_POST['kd_dokter']     ?? '';
-$nip           = $_POST['nip']           ?? '';
-$kd_pj         = $_POST['kd_pj']         ?? '';
-$tcari         = $_POST['tcari']         ?? '';
-$gedung        = $_POST['gedung']        ?? '';
+$tgl1 = $_POST['tgl1'] ?? '';
+$tgl2 = $_POST['tgl2'] ?? '';
+$kd_bangsal = $_POST['kd_bangsal'] ?? '';
+$kd_dokter = $_POST['kd_dokter'] ?? '';
+$nip = $_POST['nip'] ?? '';
+$kd_pj = $_POST['kd_pj'] ?? '';
+$tcari = $_POST['tcari'] ?? '';
+$gedung = $_POST['gedung'] ?? '';
 $filter_sep = $_POST['filter_sep'] ?? 'semua';
 $status_pulang = $_POST['status_pulang'] ?? 'belum_pulang';
+$filter_bulan = $_POST['filter_bulan'] ?? '';
+$filter_tahun = $_POST['filter_tahun'] ?? date('Y');
+
+// Hitung range tanggal dari bulan/tahun jika dipilih
+if (!empty($filter_bulan)) {
+    $b = intval($filter_bulan);
+    $y = intval($filter_tahun);
+    $hari_terakhir = cal_days_in_month(CAL_GREGORIAN, $b, $y);
+    $tgl1_format = sprintf("%04d-%02d-01 00:00:00", $y, $b);
+    $tgl2_format = sprintf("%04d-%02d-%02d 23:59:59", $y, $b, $hari_terakhir);
+    // Override tgl1/tgl2 agar filter tanggal yang sudah ada tetap bekerja
+    $tgl1 = $tgl1_format;
+    $tgl2 = $tgl2_format;
+}
 
 // Convert datetime-local → MYSQL
 $tgl1_format = !empty($tgl1) ? str_replace("T", " ", $tgl1) . ":00" : "";
@@ -39,6 +52,7 @@ $base = "
     FROM reg_periksa
     JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
     JOIN penjab ON reg_periksa.kd_pj = penjab.kd_pj
+    LEFT JOIN kamar_inap ON kamar_inap.no_rawat = reg_periksa.no_rawat
     LEFT JOIN rawat_inap_drpr ON rawat_inap_drpr.no_rawat = reg_periksa.no_rawat
     LEFT JOIN rawat_jl_drpr ON rawat_jl_drpr.no_rawat = reg_periksa.no_rawat
     LEFT JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
@@ -54,15 +68,20 @@ $base = "
 // ===============================
 
 // Date filter - berdasarkan tanggal registrasi atau tindakan
+// if (!empty($tgl1) && !empty($tgl2)) {
+//     $base .= " AND (
+//         CONCAT(reg_periksa.tgl_registrasi,' ',reg_periksa.jam_reg) 
+//         BETWEEN '$tgl1_format' AND '$tgl2_format'
+//         OR CONCAT(rawat_inap_drpr.tgl_perawatan,' ',rawat_inap_drpr.jam_rawat) 
+//         BETWEEN '$tgl1_format' AND '$tgl2_format'
+//     )";
+// }
 if (!empty($tgl1) && !empty($tgl2)) {
     $base .= " AND (
-        CONCAT(reg_periksa.tgl_registrasi,' ',reg_periksa.jam_reg) 
-        BETWEEN '$tgl1_format' AND '$tgl2_format'
-        OR CONCAT(rawat_inap_drpr.tgl_perawatan,' ',rawat_inap_drpr.jam_rawat) 
-        BETWEEN '$tgl1_format' AND '$tgl2_format'
+        CONCAT(kamar_inap.tgl_keluar,' ',kamar_inap.jam_keluar) 
+            BETWEEN '$tgl1_format' AND '$tgl2_format'
     )";
 }
-
 // Bangsal - check di kamar_inap
 if (!empty($kd_bangsal)) {
     $kd_bangsal_escaped = mysqli_real_escape_string($koneksi, $kd_bangsal);
@@ -172,7 +191,7 @@ SELECT
     reg_periksa.kd_poli,
     reg_periksa.jam_reg,
     pasien.nm_pasien,
-    -- Ambil daftar SEP sebagai string list (Gunakan Subquery)
+    -- Ambil daftar SEP 
     IFNULL((
         SELECT GROUP_CONCAT(DISTINCT no_sep SEPARATOR ' | ') 
         FROM bridging_sep 
@@ -272,9 +291,9 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     if ($tindakan_inap && mysqli_num_rows($tindakan_inap) > 0) {
         $data_ti = mysqli_fetch_assoc($tindakan_inap);
-        $row['total_menejemen']   = $data_ti['total_menejemen'] ?? 0;
-        $row['total_material']   = $data_ti['total_material'] ?? 0;
-        $row['total_bhp']        = $data_ti['total_bhp'] ?? 0;
+        $row['total_menejemen'] = $data_ti['total_menejemen'] ?? 0;
+        $row['total_material'] = $data_ti['total_material'] ?? 0;
+        $row['total_bhp'] = $data_ti['total_bhp'] ?? 0;
         $row['total_tindakan_dr'] = $data_ti['total_tindakan_dr'] ?? 0;
         $row['total_tindakan_pr'] = $data_ti['total_tindakan_pr'] ?? 0;
         $row['total_biaya_rawat'] = $data_ti['total_biaya_rawat'] ?? 0;
@@ -307,22 +326,22 @@ while ($row = mysqli_fetch_assoc($result)) {
     // PASTIKAN menggunakan variabel $tindakan_rajal, bukan $tindakan_inap
     if ($tindakan_rajal && mysqli_num_rows($tindakan_rajal) > 0) {
         $data_tr = mysqli_fetch_assoc($tindakan_rajal); // Beri nama berbeda, misal $data_tr
-        $row['total_rajal_menejemen']   = $data_tr['total_rajal_menejemen'] ?? 0;
-        $row['total_rajal_material']    = $data_tr['total_rajal_material'] ?? 0;
-        $row['total_rajal_bhp']         = $data_tr['total_rajal_bhp'] ?? 0;
+        $row['total_rajal_menejemen'] = $data_tr['total_rajal_menejemen'] ?? 0;
+        $row['total_rajal_material'] = $data_tr['total_rajal_material'] ?? 0;
+        $row['total_rajal_bhp'] = $data_tr['total_rajal_bhp'] ?? 0;
         $row['total_rajal_tindakan_dr'] = $data_tr['total_rajal_tindakan_dr'] ?? 0;
         $row['total_rajal_tindakan_pr'] = $data_tr['total_rajal_tindakan_pr'] ?? 0;
         $row['total_rajal_biaya_rawat'] = $data_tr['total_rajal_biaya_rawat'] ?? 0;
 
         $row['status_rajal_tindakan'] = ($row['total_rajal_biaya_rawat'] > 0) ? 'Sudah Ada Tindakan' : 'Tidak Ada Tindakan';
     } else {
-        $row['total_rajal_menejemen']   = 0;
-        $row['total_rajal_material']    = 0;
-        $row['total_rajal_bhp']         = 0;
+        $row['total_rajal_menejemen'] = 0;
+        $row['total_rajal_material'] = 0;
+        $row['total_rajal_bhp'] = 0;
         $row['total_rajal_tindakan_dr'] = 0;
         $row['total_rajal_tindakan_pr'] = 0;
         $row['total_rajal_biaya_rawat'] = 0;
-        $row['status_rajal_tindakan']   = 'Tidak Ada Tindakan';
+        $row['status_rajal_tindakan'] = 'Tidak Ada Tindakan';
     }
     // ===============================
     // Get RESEP - RACIKAN & NON RACIKAN & OPERASI
@@ -545,8 +564,8 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     $res_total_global = mysqli_query($koneksi, $sql_total_global);
     $data_global = mysqli_fetch_assoc($res_total_global);
-    $all_dr = (float)($data_global['total_dr'] ?? 0);
-    $all_pr = (float)($data_global['total_pr'] ?? 0);
+    $all_dr = (float) ($data_global['total_dr'] ?? 0);
+    $all_pr = (float) ($data_global['total_pr'] ?? 0);
 
     // =========================================================================
     // 2. HITUNG JASA TIAP KAMAR (HANYA DARI TABEL RAWAT INAP)
@@ -569,7 +588,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     while ($rk = mysqli_fetch_assoc($riwayat_kamar_result)) {
         $nm_bangsal = strtolower($rk['nm_bangsal']);
         $start_dt = $rk['tgl_masuk'] . ' ' . $rk['jam_masuk'];
-        $end_dt   = ($rk['tgl_keluar'] == '0000-00-00' || empty($rk['tgl_keluar'])) ? date('Y-m-d H:i:s') : $rk['tgl_keluar'] . ' ' . $rk['jam_keluar'];
+        $end_dt = ($rk['tgl_keluar'] == '0000-00-00' || empty($rk['tgl_keluar'])) ? date('Y-m-d H:i:s') : $rk['tgl_keluar'] . ' ' . $rk['jam_keluar'];
 
         // HANYA ambil dari rawat_inap_drpr untuk jasa kamar
         $sql_jasa_kamar = "
@@ -584,15 +603,15 @@ while ($row = mysqli_fetch_assoc($result)) {
         $res_kamar = mysqli_query($koneksi, $sql_jasa_kamar);
         $j_kamar = mysqli_fetch_assoc($res_kamar);
 
-        $dr_kmr = (float)($j_kamar['total_dr'] ?? 0);
-        $pr_kmr = (float)($j_kamar['total_pr'] ?? 0);
+        $dr_kmr = (float) ($j_kamar['total_dr'] ?? 0);
+        $pr_kmr = (float) ($j_kamar['total_pr'] ?? 0);
 
         $total_dr_kamar_saja += $dr_kmr;
         $total_pr_kamar_saja += $pr_kmr;
 
         $temp_kamar_html .= "<li>" . $nm_bangsal . "</li>";
-        $temp_dr_html    .= "<li>" . $nm_bangsal . " (" . number_format($dr_kmr, 0, ',', '.') . ")</li>";
-        $temp_pr_html    .= "<li>" . $nm_bangsal . " (" . number_format($pr_kmr, 0, ',', '.') . ")</li>";
+        $temp_dr_html .= "<li>" . $nm_bangsal . " (" . number_format($dr_kmr, 0, ',', '.') . ")</li>";
+        $temp_pr_html .= "<li>" . $nm_bangsal . " (" . number_format($pr_kmr, 0, ',', '.') . ")</li>";
     }
 
     // =========================================================================
@@ -611,13 +630,13 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     // Buat List Poli (Paling Atas)
     $list_poli_kamar = "<li>" . $nm_poli . "</li>" . $temp_kamar_html;
-    $list_poli_dr    = "<li>" . $nm_poli . " (" . number_format(max(0, $js_dr_awal_final), 0, ',', '.') . ")</li>" . $temp_dr_html;
-    $list_poli_pr    = "<li>" . $nm_poli . " (" . number_format(max(0, $js_pr_awal_final), 0, ',', '.') . ")</li>" . $temp_pr_html;
+    $list_poli_dr = "<li>" . $nm_poli . " (" . number_format(max(0, $js_dr_awal_final), 0, ',', '.') . ")</li>" . $temp_dr_html;
+    $list_poli_pr = "<li>" . $nm_poli . " (" . number_format(max(0, $js_pr_awal_final), 0, ',', '.') . ")</li>" . $temp_pr_html;
 
     // =========================================================================
     // 4. OUTPUT FINAL KE ARRAY DATATABLES
     // =========================================================================
-    $row['col_hanya_kamar']    = "<ul style='list-style:none; padding:0; margin:0;'>" . $list_poli_kamar . "</ul>";
+    $row['col_hanya_kamar'] = "<ul style='list-style:none; padding:0; margin:0;'>" . $list_poli_kamar . "</ul>";
     $row['col_tarif_dr_kamar'] = "<ul style='list-style:none; padding:0; margin:0;'>" . $list_poli_dr . "</ul>";
     $row['col_tarif_pr_kamar'] = "<ul style='list-style:none; padding:0; margin:0;'>" . $list_poli_pr . "</ul>";
     // ===============================
@@ -1115,19 +1134,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         $row['total_obat_dan_ppn'] = 0;
     }
 
-    // ===============================
-    // Get total BPJS dari koneksi2
-    // ===============================
-    $row['total_bpjs'] = 0;
-    if ($no_sep && $no_sep != '-') {
-        $no_sep_escaped = mysqli_real_escape_string($koneksi2, $no_sep);
-        $q2 = mysqli_query($koneksi2, "SELECT total_bpjs FROM inacbd WHERE no_sep = '$no_sep_escaped' LIMIT 1");
 
-        if ($q2 && mysqli_num_rows($q2) > 0) {
-            $r2 = mysqli_fetch_assoc($q2);
-            $row['total_bpjs'] = $r2['total_bpjs'];
-        }
-    }
 
     // ===============================
     // Calculate grand total - TERMASUK BIAYA KAMAR & OPERASI
@@ -1147,11 +1154,10 @@ while ($row = mysqli_fetch_assoc($result)) {
 // OUTPUT JSON
 // ===============================
 echo json_encode([
-    "draw"            => intval($draw),
-    "recordsTotal"    => intval($count_total),
+    "draw" => intval($draw),
+    "recordsTotal" => intval($count_total),
     "recordsFiltered" => intval($count_filtered),
-    "data"            => $data
+    "data" => $data
 ], JSON_UNESCAPED_UNICODE);
 
 mysqli_close($koneksi);
-mysqli_close($koneksi2);

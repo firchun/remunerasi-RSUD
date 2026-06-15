@@ -5,7 +5,6 @@ set_time_limit(180);
 
 require_once '../config/conf.php';
 $koneksi = bukakoneksi();
-$koneksi2 = bukakoneksi2();
 
 $bulan = $_POST['bulan'] ?? date('Y-m');
 $kd_pj = $_POST['kd_pj'] ?? '';
@@ -58,7 +57,7 @@ INNER JOIN kamar km ON ki.kd_kamar = km.kd_kamar
 INNER JOIN bangsal bs ON km.kd_bangsal = bs.kd_bangsal
 WHERE rp.status_lanjut = 'Ranap'
 /* Filter berdasarkan tgl masuk kamar, bukan tgl registrasi awal */
-AND ki.tgl_masuk BETWEEN '$tgl_awal' AND '$tgl_akhir'
+AND ki.tgl_keluar BETWEEN '$tgl_awal' AND '$tgl_akhir'
 " . (!empty($kd_pj) ? " AND rp.kd_pj = '" . mysqli_real_escape_string($koneksi, $kd_pj) . "'" : "") . "
 " . (!empty($gedung) ? " AND bs.nm_bangsal LIKE '%" . mysqli_real_escape_string($koneksi, $gedung) . "%'" : "") . "
 GROUP BY nama_gedung, rp.no_rawat";
@@ -299,7 +298,7 @@ foreach ($gedung_data as $key => $value) {
     $value['total_biaya_kamar'] +
     $value['total_tindakan'] +
     $value['total_obat'] +
-    $value['total_jasa_farmasi'] +
+    // $value['total_jasa_farmasi'] +
     $value['total_lab'] +
     $value['total_radiologi'] +
     $value['total_operasi'];
@@ -315,4 +314,3 @@ echo json_encode([
 ]);
 
 mysqli_close($koneksi);
-mysqli_close($koneksi2);

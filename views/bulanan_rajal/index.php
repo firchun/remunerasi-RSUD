@@ -1,0 +1,469 @@
+<?php
+require_once '../../config/conf.php';
+$koneksi = bukakoneksi();
+
+$query_poli = "SELECT * FROM poliklinik where status = '1' ORDER BY nm_poli";
+$result_poli = mysqli_query($koneksi, $query_poli);
+
+$query_pj = "SELECT * FROM penjab where status = '1' ORDER BY kd_pj";
+$result_pj = mysqli_query($koneksi, $query_pj);
+
+?>
+<?php
+$pageTitle = 'Laporan Bulanan RALAN - RSUD MERAUKE';
+$extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<style>
+.dt-button.buttons-excel.buttons-html5,
+.dt-button.buttons-pdf.buttons-html5 {
+  background-color: #16a34a !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: 0.25s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dt-button.buttons-pdf.buttons-html5 {
+  background-color: #dc2626 !important;
+}
+
+#tabelBulanan tbody td {
+  padding: 4px 6px !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+  height: auto;
+  border: 0.5px solid #d1d5db;
+  vertical-align: middle !important;
+  font-size: 14px !important;
+}
+
+#tabelBulanan tbody tr.lab-row {
+  background-color: #f0fdf4 !important;
+  font-weight: 600;
+}
+
+#tabelBulanan tbody tr.rad-row {
+  background-color: #ecfeff !important;
+  font-weight: 600;
+}
+
+#tabelBulanan tfoot tr th {
+  background-color: #166534 !important;
+  color: white !important;
+  border: 1px solid #065f46 !important;
+  padding: 8px 4px !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  font-size: 14px;
+}
+</style>';
+$rootPath = '../';
+require_once '../layouts/header.php';
+?>
+        <div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
+          <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
+            <i
+              class="fas fa-filter mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
+            Filter Periode
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Bulan & Tahun</label>
+              <input type="month" id="bulan"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Cara Bayar</label>
+              <select id="kd_pj"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">Semua Jenis</option>
+                <?php while ($row = mysqli_fetch_assoc($result_pj)): ?>
+                <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4 flex gap-2">
+            <button onclick="loadData()"
+              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition">
+              <i class="fas fa-search mr-2"></i>Tampilkan Data
+            </button>
+            <button onclick="resetFilter()"
+              class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
+              <i class="fas fa-redo mr-2"></i>Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-green-700 p-6">
+          <h3 id="periodeInfo" class="text-lg font-bold text-green-800 mb-4">
+            Periode: -
+          </h3>
+
+          <div class="overflow-x-auto">
+            <table id="tabelBulanan" class="display w-full">
+              <thead>
+                <!-- Baris Header Pertama (Merged) -->
+                <tr>
+                  <th rowspan="3">No</th>
+                  <th rowspan="3">Pelayanan</th>
+                  <th rowspan="3">Kunjungan</th>
+                </tr>
+                <!-- Baris Header Kedua -->
+                <tr>
+                  <th rowspan="2">Sarana</th>
+                  <th colspan="2">Jasa Pelayanan</th>
+                  <th rowspan="2">Non Medis</th>
+                  <th rowspan="2">Grand Total</th>
+                  <!-- <th rowspan="2">Total</th> -->
+                </tr>
+                <!-- Baris Header Ketiga -->
+                <tr>
+                  <th>Dokter</th>
+                  <th>Perawat</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="2" class="text-right">TOTAL</th>
+                  <th class="text-right" id="foot-kunjungan">0</th>
+                  <th class="text-right" id="foot-sarana">0</th>
+                  <th class="text-right" id="foot-dokter">0</th>
+                  <th class="text-right" id="foot-perawat">0</th>
+                  <th class="text-right" id="foot-menejemen">0</th>
+                  <th class="text-right" id="foot-tindakan">0</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+  <script>
+  let table;
+
+  $(document).ready(function() {
+    // Set default ke bulan ini
+    const now = new Date();
+    const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    $('#bulan').val(bulanIni);
+
+    // Initialize DataTable
+    table = $('#tabelBulanan').DataTable({
+      dom: '<"flex justify-between items-center mb-4"lB>rtip',
+      buttons: [{
+          extend: 'excel',
+          text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
+          title: 'Laporan Bulanan Per Poliklinik',
+          exportOptions: {
+            orthogonal: 'export'
+          }
+        },
+        {
+          extend: 'pdfHtml5',
+          text: '<i class="fas fa-file-pdf mr-2"></i>Export PDF',
+          orientation: 'landscape',
+          pageSize: 'A4',
+          title: 'Laporan Bulanan Per Poliklinik',
+          customize: function(doc) {
+            doc.defaultStyle.fontSize = 7;
+            doc.styles.tableHeader.fontSize = 8;
+            doc.styles.tableHeader.fillColor = '#166534';
+          }
+        }
+      ],
+      lengthMenu: [
+        [10, 25, 50, 100],
+        [10, 25, 50, 100]
+      ],
+      pageLength: 50,
+      scrollX: true,
+      autoWidth: false,
+      paging: false,
+      ordering: false,
+      searching: true,
+      info: false,
+      columns: [{
+          data: 'no',
+          className: 'text-center'
+        },
+        {
+          data: 'nm_poli',
+          className: 'text-left'
+        },
+        {
+          data: 'jumlah_kunjungan',
+          render: function(data, type) {
+            if (type === 'display') {
+              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+            }
+            return data;
+          },
+          className: 'text-right'
+        },
+        {
+          data: 'total_material_tindakan',
+          render: function(data, type) {
+            if (type === 'display') {
+              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+            }
+            return data;
+          },
+          className: 'text-right'
+        },
+
+        {
+          data: 'total_dokter_tindakan',
+          render: function(data, type) {
+            if (type === 'display') {
+              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+            }
+            return data;
+          },
+          className: 'text-right'
+        },
+        {
+          data: 'total_perawat_tindakan',
+          render: function(data, type) {
+            if (type === 'display') {
+              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+            }
+            return data;
+          },
+          className: 'text-right'
+        },
+        {
+          data: 'total_menejemen_tindakan',
+          render: function(data, type) {
+            if (type === 'display') {
+              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+            }
+            return data;
+          },
+          className: 'text-right'
+        },
+        {
+          data: 'total_tindakan',
+          render: function(data, type) {
+            if (type === 'display') {
+              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+            }
+            return data;
+          },
+          className: 'text-right'
+        },
+        // {
+        //   data: 'grand_total',
+        //   render: function(data, type) {
+        //     if (type === 'display') {
+        //       return data ?  $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+        //     }
+        //     return data;
+        //   },
+        //   className: 'text-right'
+        // }
+      ],
+      // createdRow: function(row, data) {
+      //   if (data.rowType === 'lab') {
+      //     $(row).addClass('lab-row');
+      //   } else if (data.rowType === 'rad') {
+      //     $(row).addClass('rad-row');
+      //   }
+      // }
+    });
+
+    // Load data pertama kali
+    loadData();
+  });
+
+  function loadData() {
+    const bulan = $('#bulan').val();
+    const kd_pj = $('#kd_pj').val();
+
+
+    $.ajax({
+      url: '../api/get_monthly_report.php',
+      type: 'POST',
+      data: {
+        bulan,
+        kd_pj
+      },
+      success: function(response) {
+        const res = JSON.parse(response);
+
+        if (res.success) {
+          $('#periodeInfo').text('Periode: ' + res.periode);
+
+          // Transform data
+          const transformedData = [];
+          let counter = 1;
+
+          // Variabel untuk akumulasi Lab dan Radiologi
+          let totalLabData = {
+            material: 0,
+            dokter: 0,
+            petugas: 0,
+            menejemen: 0,
+            total: 0
+          };
+
+          let totalRadData = {
+            material: 0,
+            dokter: 0,
+            petugas: 0,
+            menejemen: 0,
+            total: 0
+          };
+
+          // Total seluruh kunjungan
+          const totalKunjunganSemua = res.data.reduce((sum, item) => {
+            return sum + parseInt(item.jumlah_kunjungan || 0);
+          }, 0);
+
+          // Tarif farmasi
+          const TARIF_FARMASI = 15000;
+
+          // Grand total farmasi
+          const totalFarmasi = totalKunjunganSemua * TARIF_FARMASI;
+
+          // Tambahkan semua data ruangan/poliklinik
+          res.data.forEach((item) => {
+            transformedData.push({
+              no: counter++,
+              nm_poli: item.nm_poli,
+              jumlah_kunjungan: item.jumlah_kunjungan,
+              total_material_tindakan: item.total_material_tindakan,
+              total_dokter_tindakan: item.total_dokter_tindakan,
+              total_perawat_tindakan: item.total_perawat_tindakan,
+              total_menejemen_tindakan: item.total_menejemen_tindakan,
+              total_tindakan: item.total_tindakan,
+              grand_total: item.grand_total,
+              rowType: 'main'
+            });
+
+            // Akumulasi data Lab
+            totalLabData.material += parseFloat(item.total_material_lab || 0);
+            totalLabData.dokter += parseFloat(item.total_dokter_lab || 0);
+            totalLabData.petugas += parseFloat(item.total_petugas_lab || 0);
+            totalLabData.menejemen += parseFloat(item.total_menejemen_lab || 0);
+            totalLabData.total += parseFloat(item.total_lab || 0);
+
+            // Akumulasi data Radiologi
+            totalRadData.material += parseFloat(item.total_material_radiologi || 0);
+            totalRadData.dokter += parseFloat(item.total_dokter_radiologi || 0);
+            totalRadData.petugas += parseFloat(item.total_petugas_radiologi || 0);
+            totalRadData.menejemen += parseFloat(item.total_menejemen_radiologi || 0);
+            totalRadData.total += parseFloat(item.total_radiologi || 0);
+          });
+
+          // Tambahkan baris Laboratorium (total)
+          transformedData.push({
+            no: counter++,
+            nm_poli: 'LABORATORIUM',
+            jumlah_kunjungan: null,
+            total_material_tindakan: totalLabData.material,
+            total_dokter_tindakan: totalLabData.dokter,
+            total_perawat_tindakan: totalLabData.petugas,
+            total_menejemen_tindakan: totalLabData.menejemen,
+            total_tindakan: totalLabData.total,
+            grand_total: null,
+            rowType: 'lab'
+          });
+
+          // Tambahkan baris Radiologi (total)
+          transformedData.push({
+            no: counter++,
+            nm_poli: 'RADIOLOGI',
+            jumlah_kunjungan: null,
+            total_material_tindakan: totalRadData.material,
+            total_dokter_tindakan: totalRadData.dokter,
+            total_perawat_tindakan: totalRadData.petugas,
+            total_menejemen_tindakan: totalRadData.menejemen,
+            total_tindakan: totalRadData.total,
+            grand_total: null,
+            rowType: 'rad'
+          });
+          // Tambahkan baris farmasi (total)
+          transformedData.push({
+            no: counter++,
+            nm_poli: 'FARMASI',
+            jumlah_kunjungan: totalKunjunganSemua,
+            total_material_tindakan: null,
+            total_dokter_tindakan: null,
+            total_perawat_tindakan: null,
+            total_menejemen_tindakan: null,
+            total_tindakan: totalFarmasi,
+            grand_total: totalFarmasi,
+            rowType: 'far'
+          });
+
+          table.clear();
+          table.rows.add(transformedData);
+          table.draw();
+
+          // Hitung footer (termasuk Lab dan Rad)
+          updateFooter(res.data, totalLabData, totalRadData);
+        } else if (res.error) {
+          alert('Error: ' + res.error);
+        }
+      },
+      error: function(xhr) {
+        alert('Error loading data: ' + xhr.statusText);
+        console.error(xhr.responseText);
+      }
+    });
+  }
+
+  function updateFooter(data, totalLabData, totalRadData, totalFarmasi) {
+    const sum = (key) => data.reduce((a, b) => a + parseFloat(b[key] || 0), 0);
+    const fmt = (n) => Math.round(n).toLocaleString('id-ID');
+
+    const totalKunjungan = sum('jumlah_kunjungan');
+    const totalSarana = sum('total_material_tindakan') + totalLabData.material + totalRadData.material;
+    const totalDokter = sum('total_dokter_tindakan') + totalLabData.dokter + totalRadData.dokter;
+    const totalPerawat = sum('total_perawat_tindakan') + totalLabData.petugas + totalRadData.petugas;
+    const totalMenejemen = sum('total_menejemen_tindakan') + totalLabData.menejemen + totalRadData.menejemen;
+    const totalTindakan = sum('total_tindakan') + totalLabData.total + totalRadData.total + (sum('jumlah_kunjungan') *
+      15000);
+    const totalGrand = sum('grand_total');
+
+    $('#foot-kunjungan').text(totalKunjungan.toLocaleString('id-ID'));
+    $('#foot-sarana').text(fmt(totalSarana));
+    $('#foot-dokter').text(fmt(totalDokter));
+    $('#foot-perawat').text(fmt(totalPerawat));
+    $('#foot-menejemen').text(fmt(totalMenejemen));
+    $('#foot-tindakan').text(fmt(totalTindakan));
+    $('#foot-grand').text(fmt(totalGrand));
+  }
+
+  function resetFilter() {
+    const now = new Date();
+    const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    $('#bulan').val(bulanIni);
+    $('#kd_pj').val('');
+    loadData();
+  }
+  </script>
+<?php require_once '../layouts/footer.php'; ?>

@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 
 require_once '../config/conf.php';
 $koneksi = bukakoneksi();
-$koneksi2 = bukakoneksi2();
 
 $no_rawat = $_GET['no_rawat'] ?? '';
 
@@ -235,4 +234,3 @@ echo json_encode([
 ], JSON_UNESCAPED_UNICODE);
 
 mysqli_close($koneksi);
-mysqli_close($koneksi2);

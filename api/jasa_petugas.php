@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 
 require_once '../config/conf.php';
 $koneksi = bukakoneksi();
-$koneksi2 = bukakoneksi2();
 
 // Get DataTables parameters
 $draw = $_POST['draw'] ?? 1;
@@ -292,4 +291,3 @@ echo json_encode([
 ], JSON_UNESCAPED_UNICODE);
 
 mysqli_close($koneksi);
-mysqli_close($koneksi2);

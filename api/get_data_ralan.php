@@ -6,7 +6,6 @@ error_reporting(E_ALL);
 
 require_once '../config/conf.php';
 $koneksi = bukakoneksi();
-$koneksi2 = bukakoneksi2();
 
 // Get DataTables parameters
 $draw   = $_POST['draw']   ?? 1;
@@ -23,6 +22,7 @@ $kd_poli   = $_POST['kd_poli']   ?? '';
 $kd_pj     = $_POST['kd_pj']     ?? '';
 $tcari     = $_POST['tcari']     ?? '';
 $status    = $_POST['status']    ?? '';
+$filter_sep = $_POST['filter_sep'] ?? 'semua';
 
 // Convert datetime-local → MYSQL
 $tgl1_formatted = !empty($tgl1) ? str_replace("T", " ", $tgl1) . ":00" : "";
@@ -43,6 +43,8 @@ $base = "
     LEFT JOIN petugas ON rawat_jl_drpr.nip = petugas.nip
     WHERE 1=1
     AND reg_periksa.status_lanjut = 'Ralan'
+    AND reg_periksa.stts != 'Batal'
+    AND reg_periksa.stts != 'Belum'
     AND EXISTS (
         SELECT 1 FROM poliklinik p 
         WHERE p.kd_poli = reg_periksa.kd_poli
@@ -53,9 +55,8 @@ $base = "
         SELECT 1 
         FROM kamar_inap ki
         WHERE ki.no_rawat = reg_periksa.no_rawat
+        )
     )
-
-)
 ";
 
 // ===============================
@@ -92,6 +93,28 @@ if (!empty($kd_pj)) {
     $base .= " AND reg_periksa.kd_pj = '$kd_pj'";
 }
 
+// Filter SEP - DIPERBAIKI
+if ($filter_sep == 'ada') {
+    $base .= " 
+        AND EXISTS (
+            SELECT 1 FROM bridging_sep bs
+            WHERE bs.no_rawat = reg_periksa.no_rawat
+            AND bs.no_sep IS NOT NULL 
+            AND bs.no_sep != '' 
+            AND bs.no_sep != '-'
+        )
+    ";
+} elseif ($filter_sep == 'tidak_ada') {
+    $base .= " 
+        AND NOT EXISTS (
+            SELECT 1 FROM bridging_sep bs
+            WHERE bs.no_rawat = reg_periksa.no_rawat
+            AND bs.no_sep IS NOT NULL 
+            AND bs.no_sep != '' 
+            AND bs.no_sep != '-'
+        )
+    ";
+}
 // Cari manual (tcari)
 if (!empty($tcari)) {
     $base .= " AND (
@@ -115,6 +138,7 @@ if (!empty($search)) {
         OR bridging_sep.no_sep LIKE '%$search%'
     )";
 }
+
 
 // ===============================
 // MAIN QUERY - ACUAN reg_periksa
@@ -334,17 +358,17 @@ while ($row = mysqli_fetch_assoc($result)) {
     // ===============================
     // FORMAT OUTPUT
     // ===============================
-    $row['daftar_resep_racikan'] = !empty($resep_racikan_list)
-        ? "<ul><li>- " . implode("</li><li>- ", $resep_racikan_list) . "</li></ul>"
-        : '-';
+    // $row['daftar_resep_racikan'] = !empty($resep_racikan_list)
+    //     ? "<ul><li>- " . implode("</li><li>- ", $resep_racikan_list) . "</li></ul>"
+    //     : '-';
 
-    $row['daftar_resep_non_racikan'] = !empty($resep_non_racikan_list)
-        ? "<ul><li>- " . implode("</li><li>- ", $resep_non_racikan_list) . "</li></ul>"
-        : '-';
+    // $row['daftar_resep_non_racikan'] = !empty($resep_non_racikan_list)
+    //     ? "<ul><li>- " . implode("</li><li>- ", $resep_non_racikan_list) . "</li></ul>"
+    //     : '-';
 
-    $row['daftar_resep_operasi'] = !empty($resep_operasi_list)
-        ? "<ul><li>- " . implode("</li><li>- ", $resep_operasi_list) . "</li></ul>"
-        : '-';
+    // $row['daftar_resep_operasi'] = !empty($resep_operasi_list)
+    //     ? "<ul><li>- " . implode("</li><li>- ", $resep_operasi_list) . "</li></ul>"
+    //     : '-';
 
     $row['jumlah_resep_racikan'] = $total_racikan;
     $row['jumlah_resep_non_racikan'] = $total_non_racikan;
@@ -673,16 +697,8 @@ while ($row = mysqli_fetch_assoc($result)) {
         $row['total_obat_dan_ppn'] = 0;
     }
 
-    // Get total BPJS dari koneksi2 - HANYA jika no_sep ada dan bukan '-'
+    // total_bpjs dinonaktifkan (DB koneksi2 dihapus)
     $row['total_bpjs'] = 0;
-    if ($no_sep && $no_sep != '-') {
-        $q2 = mysqli_query($koneksi2, "SELECT total_bpjs FROM inacbd WHERE no_sep = '$no_sep' LIMIT 1");
-
-        if ($q2 && mysqli_num_rows($q2) > 0) {
-            $r2 = mysqli_fetch_assoc($q2);
-            $row['total_bpjs'] = $r2['total_bpjs'];
-        }
-    }
 
     // Calculate grand total
     $row['grand_total'] =
@@ -703,4 +719,3 @@ echo json_encode([
 ]);
 
 mysqli_close($koneksi);
-mysqli_close($koneksi2);

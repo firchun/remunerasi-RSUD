@@ -1,124 +1,103 @@
 <?php
-require_once '../config/conf.php';
+require_once '../../config/conf.php';
 $koneksi = bukakoneksi();
 
 $query_pj = "SELECT * FROM penjab WHERE status = '1' ORDER BY kd_pj";
 $result_pj = mysqli_query($koneksi, $query_pj);
 ?>
-<!DOCTYPE html>
-<html lang="id">
+<?php
+$pageTitle = 'Data BPJS - RSUD MERAUKE';
+$extraHead = <<<'EOT'
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<style>
+.dt-button.buttons-excel.buttons-html5 {
+  background-color: #16a34a !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: 0.25s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Laporan Data BPJS - RSUD MERAUKE</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-  <style>
-  .dt-button.buttons-excel.buttons-html5 {
-    background-color: #16a34a !important;
-    color: white !important;
-    border: none !important;
-    padding: 12px 20px !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    cursor: pointer;
-    transition: 0.25s ease-in-out;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
+.dt-button.buttons-excel.buttons-html5:hover {
+  background-color: #15803d !important;
+}
 
-  .dt-button.buttons-excel.buttons-html5:hover {
-    background-color: #15803d !important;
-  }
+#tableBPJS tbody td {
+  padding: 8px 12px !important;
+  line-height: 1.4 !important;
+  border: 0.5px solid #d1d5db;
+  vertical-align: middle !important;
+}
 
-  #tableBPJS tbody td {
-    padding: 8px 12px !important;
-    line-height: 1.4 !important;
-    border: 0.5px solid #d1d5db;
-    vertical-align: middle !important;
-  }
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
+}
 
-  .status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
-    white-space: nowrap;
-  }
+.status-ada {
+  background-color: #d4edda;
+  color: #155724;
+}
 
-  .status-ada {
-    background-color: #d4edda;
-    color: #155724;
-  }
+.status-tidak-ada {
+  background-color: #f8d7da;
+  color: #721c24;
+}
 
-  .status-tidak-ada {
-    background-color: #f8d7da;
-    color: #721c24;
-  }
+.status-ranap {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
 
-  .status-ranap {
-    background-color: #d1ecf1;
-    color: #0c5460;
-  }
+.status-ralan {
+  background-color: #fff3cd;
+  color: #856404;
+}
 
-  .status-ralan {
-    background-color: #fff3cd;
-    color: #856404;
-  }
+.info-card {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-  .info-card {
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-    color: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+.info-card h3 {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+}
 
-  .info-card h3 {
-    font-size: 14px;
-    opacity: 0.9;
-    margin-bottom: 8px;
-  }
-
-  .info-card p {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  </style>
-</head>
-
-<body class="bg-gray-100">
-  <div class="flex h-screen overflow-hidden">
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <header class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/60 shadow-sm">
-        <div class="flex items-center px-4 py-3">
-          <a href="../index.php">
-            <img src="https://absenrsudmerauke.rifill.id/assetsdata/img/logorsud.png" alt="Logo RSUD Merauke"
-              class="w-16 h-16 mr-4">
-          </a>
-          <div>
-            <h2 class="text-xl font-bold text-green-800">
-              Laporan Data BPJS - RSUD MERAUKE
-            </h2>
-            <p class="text-sm text-gray-600">Monitoring dan Analisis Data Klaim BPJS</p>
-          </div>
-        </div>
-      </header>
-
-      <main class="flex-1 overflow-y-auto px-6 pb-6 pt-[100px]">
+.info-card p {
+  font-size: 24px;
+  font-weight: bold;
+}
+</style>
+EOT;
+$rootPath = '../';
+require_once '../layouts/header.php';
+?>
         <div class="flex justify-end my-3">
           <button class="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
             onclick="document.getElementById('modalUpload').classList.remove('hidden')">
@@ -219,9 +198,6 @@ $result_pj = mysqli_query($koneksi, $query_pj);
             </table>
           </div>
         </div>
-      </main>
-    </div>
-  </div>
   <div id="modalUpload" class="hidden fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center px-4">
     <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-lg">
 
@@ -398,6 +374,4 @@ $result_pj = mysqli_query($koneksi, $query_pj);
     table.ajax.reload();
   }
   </script>
-</body>
-
-</html>
+<?php require_once '../layouts/footer.php'; ?>

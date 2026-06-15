@@ -1,8 +1,9 @@
 <?php
-require_once '../config/conf.php';
+// Fitur upload BPJS dinonaktifkan (koneksi DB lokal dihapus)
+header('Content-Type: application/json');
+echo json_encode(['success' => false, 'message' => 'Fitur upload BPJS tidak tersedia.']);
+exit;
 
-// Koneksi DB2
-$konektor2 = bukakoneksi2();
 
 // Cek apakah file diupload
 if (!isset($_FILES['file'])) {

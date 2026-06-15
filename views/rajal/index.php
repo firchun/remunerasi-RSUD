@@ -1,5 +1,5 @@
 <?php
-require_once '../config/conf.php';
+require_once '../../config/conf.php';
 $koneksi = bukakoneksi();
 
 $query_poli = "SELECT * FROM poliklinik where status = '1' ORDER BY nm_poli";
@@ -9,115 +9,21 @@ $query_pj = "SELECT * FROM penjab where status = '1' ORDER BY kd_pj";
 $result_pj = mysqli_query($koneksi, $query_pj);
 
 ?>
-<!DOCTYPE html>
-<html lang="id">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Remunerasi RALAN RSUD MERAUKE</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-  <style>
-  #tabelTindakan td,
-  #tabelTindakan th {
-    color: #1f2937 !important;
-  }
-
-  table.dataTable.stripe tbody tr.odd,
-  table.dataTable.stripe tbody tr.even {
-    color: #1f2937 !important;
-  }
-
-  table {
-    color: #1f2937 !important;
-  }
-
-  table.dataTable.hover tbody tr:hover {
-    color: #1f2937 !important;
-  }
-
-  #tabelTindakan th,
-  #tabelTindakan td {
-    white-space: nowrap;
-  }
-
-  #tabelTindakan tbody td {
-    padding: 2px 4px !important;
-    margin: 0 !important;
-    line-height: 1.4 !important;
-    height: auto;
-    border: 0.5px solid #d1d5db;
-    vertical-align: top !important;
-    text-align: left !important;
-  }
-
-  table.dataTable {
-    width: auto !important;
-  }
-
-  .dt-buttons {
-    margin-bottom: 10px;
-  }
-
-  .dt-button.buttons-excel.buttons-html5 {
-    background-color: #16a34a !important;
-    color: white !important;
-    border: none !important;
-    padding: 16px 20px !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    cursor: pointer;
-    transition: 0.25s ease-in-out;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .dt-button.buttons-pdf.buttons-html5 {
-    background-color: rgb(250, 40, 40) !important;
-    color: white !important;
-    border: none !important;
-    padding: 16px 20px !important;
-    border-radius: 8px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    cursor: pointer;
-    transition: 0.25s ease-in-out;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  </style>
-</head>
-
-<body class="bg-gray-100">
-  <div class="flex h-screen overflow-hidden">
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <header class="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/60 shadow-sm">
-        <div class="flex items-center px-4 py-3">
-          <a href="../index.php">
-            <img src="https://absenrsudmerauke.rifill.id/assetsdata/img/logorsud.png" alt="Logo RSUD Merauke"
-              class="w-16 h-16 mr-4">
-          </a>
-          <div>
-            <h2 class="text-xl font-bold text-green-800">
-              Remunerasi Tindakan RALAN - RSUD MERAUKE
-            </h2>
-            <p class="text-sm text-green-600">
-              Monitoring tindakan rawat jalan yang ditangani oleh dokter dan petugas
-            </p>
-          </div>
-
-        </div>
-      </header>
-
-      <main class="flex-1 overflow-y-auto px-6 pb-6 pt-[100px]">
-
+<?php
+$pageTitle = 'Rawat Jalan - RSUD MERAUKE';
+$extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<style>
+  table.dataTable td, table.dataTable th { color: #1f2937 !important; }
+  #tabelTindakan th, #tabelTindakan td { white-space: nowrap; }
+  #tabelTindakan tbody td { padding: 2px 4px !important; margin: 0 !important; line-height: 1.4 !important; height: auto; border: 0.5px solid #d1d5db; vertical-align: top !important; text-align: left !important; }
+  table.dataTable { width: auto !important; }
+  .dt-buttons { margin-bottom: 10px; }
+</style>';
+$rootPath = '../';
+require_once '../layouts/header.php';
+?>
 
         <div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
 
@@ -146,6 +52,37 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                 <input type="datetime-local" id="tgl2"
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Atau Pilih Bulan</label>
+                <div class="flex gap-2">
+                  <select id="filter_bulan"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">-- Pilih Bulan --</option>
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                  </select>
+                  <select id="filter_tahun"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <?php
+                    $tahun_sekarang = date('Y');
+                    for ($y = $tahun_sekarang; $y >= $tahun_sekarang - 5; $y--) {
+                      echo "<option value='$y'" . ($y == $tahun_sekarang ? " selected" : "") . ">$y</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">* Jika dipilih, akan menimpa filter tanggal di atas</p>
+              </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Poliklinik</label>
@@ -153,7 +90,7 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   <option value="">Semua Poliklinik</option>
                   <?php while ($row = mysqli_fetch_assoc($result_poli)): ?>
-                  <option value="<?= $row['kd_poli'] ?>"><?= $row['nm_poli'] ?></option>
+                    <option value="<?= $row['kd_poli'] ?>"><?= $row['nm_poli'] ?></option>
                   <?php endwhile; ?>
                 </select>
               </div>
@@ -163,8 +100,17 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   <option value="">Semua Jenis</option>
                   <?php while ($row = mysqli_fetch_assoc($result_pj)): ?>
-                  <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
+                    <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
                   <?php endwhile; ?>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status SEP</label>
+                <select id="filter_sep"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="semua" selected>Semua Data</option>
+                  <option value="ada">Ada SEP</option>
+                  <option value="tidak_ada">Tidak Ada SEP</option>
                 </select>
               </div>
 
@@ -182,6 +128,10 @@ $result_pj = mysqli_query($koneksi, $query_pj);
               <button onclick="resetFilter()"
                 class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
                 <i class="fas fa-redo mr-2"></i>Reset
+              </button>
+              <button onclick="exportCSV()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition">
+                <i class="fas fa-file-csv mr-2"></i>Export CSV (Semua Data)
               </button>
             </div>
           </div>
@@ -221,11 +171,11 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                   <th class="px-2  text-right">Total (Operasi)</th>
                   <!-- obat -->
                   <th class="text-right">Racikan (Obat)</th>
-                  <th class="px-2  text-right">No.resep racikan</th>
+                  <!-- <th class="px-2  text-right">No.resep racikan</th> -->
                   <th class="text-right">Non-racikan (obat)</th>
-                  <th class="px-2  text-right">No.resep non-racikan</th>
+                  <!-- <th class="px-2  text-right">No.resep non-racikan</th> -->
                   <th class="text-right">Operasi (obat)</th>
-                  <th class="px-2  text-right">No.resep Operasi</th>
+                  <!-- <th class="px-2  text-right">No.resep Operasi</th> -->
                   <th class="text-right">Jasa Farmasi</th>
                   <th class="px-2  text-right">Total Obat</th>
                   <!-- lab -->
@@ -280,9 +230,9 @@ $result_pj = mysqli_query($koneksi, $query_pj);
                   <th class="text-right px-2"></th>
                   <th class="text-right px-2"></th>
                   <th class="text-right px-2"></th>
-                  <th class="text-right px-2"></th>
-                  <th class="text-right px-2"></th>
-                  <th class="text-right px-2"></th>
+                  <!-- <th class="text-right px-2"></th> -->
+                  <!-- <th class="text-right px-2"></th> -->
+                  <!-- <th class="text-right px-2"></th> -->
                   <th class="text-right px-2"></th>
                   <th class="px-2"></th>
                   <th class="text-right px-2"></th>
@@ -298,11 +248,6 @@ $result_pj = mysqli_query($koneksi, $query_pj);
             </table>
           </div>
         </div>
-      </main>
-    </div>
-  </div>
-  <?php include 'modal.php' ?>
-  <?php include 'script.php' ?>
-</body>
-
-</html>
+<?php include 'modal.php' ?>
+<?php include 'script.php' ?>
+<?php require_once '../layouts/footer.php'; ?>

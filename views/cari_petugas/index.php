@@ -1,17 +1,9 @@
 <?php
-require_once '../config/conf.php';
+require_once '../../config/conf.php';
 $koneksi = bukakoneksi();
-?>
-<!DOCTYPE html>
-<html lang="id">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pencarian Tindakan - RSUD MERAUKE</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+$pageTitle = 'Cari Paramedis/Dokter - RSUD MERAUKE';
+$extraHead = '
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
   /* Custom scrollbar agar lebih tipis dan modern */
   ::-webkit-scrollbar {
@@ -43,22 +35,10 @@ $koneksi = bukakoneksi();
   table.dataTable {
     width: auto !important;
   }
-  </style>
-</head>
-
-<body class="bg-gray-100 text-gray-800">
-  <div class="flex flex-col h-screen">
-    <header class="bg-white/60 backdrop-blur-md shadow-sm p-4 flex items-center gap-4">
-      <a href="../index.php">
-        <img src="https://absenrsudmerauke.rifill.id/assetsdata/img/logorsud.png" class="w-12 h-12">
-      </a>
-      <div>
-        <h2 class="text-xl font-bold text-green-800 leading-tight">Pencarian Jasa Petugas/Dokter</h2>
-        <p class="text-xs text-green-600">RSUD MERAUKE</p>
-      </div>
-    </header>
-
-    <main class="flex-1 overflow-y-auto p-4 md:p-6">
+  </style>';
+$rootPath = '../';
+require_once '../layouts/header.php';
+?>
       <div class="bg-white rounded-2xl border border-green-200 p-5 mb-6 shadow-sm">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
@@ -127,10 +107,7 @@ $koneksi = bukakoneksi();
         <i class="fas fa-circle-notch fa-spin text-4xl text-green-600"></i>
         <p class="mt-2 text-gray-500 italic">Mengambil data dari server...</p>
       </div>
-    </main>
-  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script>
   function formatRupiah(angka) {
     return new Intl.NumberFormat('id-ID', {
@@ -229,6 +206,4 @@ $koneksi = bukakoneksi();
     $('#bulan').val(`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`);
   });
   </script>
-</body>
-
-</html>
+<?php require_once '../layouts/footer.php'; ?>

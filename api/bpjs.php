@@ -1,13 +1,16 @@
 <?php
+// Fitur BPJS dinonaktifkan (DB lokal inacbd tidak tersedia)
+header('Content-Type: application/json');
+$draw = $_POST['draw'] ?? 1;
+echo json_encode([
+  "draw" => intval($draw),
+  "recordsTotal" => 0,
+  "recordsFiltered" => 0,
+  "data" => [],
+  "info" => "Fitur BPJS tidak tersedia"
+]);
+exit;
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-set_time_limit(120);
-
-require_once '../config/conf.php';
-$koneksi  = bukakoneksi();  // Database SIMRS
-$koneksi2 = bukakoneksi2(); // Database INACBG (inacbd)
 
 // Get DataTables parameters
 $draw   = $_POST['draw']   ?? 1;
