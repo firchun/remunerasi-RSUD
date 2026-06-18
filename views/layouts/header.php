@@ -32,7 +32,9 @@ function isActive($paths)
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-  <script>window.BASE_URL = '<?= $baseUrl ?>';</script>
+  <script>
+    window.BASE_URL = '<?= $baseUrl ?>';
+  </script>
   <?= $extraHead ?>
   <style>
     ::-webkit-scrollbar {
@@ -156,13 +158,14 @@ function isActive($paths)
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-1">Menu Utama</p>
 
       <a href="<?= $baseUrl ?>/"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus']) ? 'active text-white' : '' ?>">
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white         <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-ranap']) ? 'active text-white' : '' ?>">
         <i class="fas fa-home w-5 text-center text-emerald-300"></i>
         <span>Dashboard</span>
       </a>
 
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Transaksi
+      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Tindakan
       </p>
+
 
       <a href="<?= $baseUrl ?>/rajal"
         class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('rajal') ? 'active text-white' : '' ?>">
@@ -170,10 +173,29 @@ function isActive($paths)
         <span>Rawat Jalan</span>
       </a>
 
+
+
       <a href="<?= $baseUrl ?>/ranap"
         class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('ranap') ? 'active text-white' : '' ?>">
         <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
         <span>Rawat Inap</span>
+      </a>
+      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Perhitungan
+      </p>
+      <a href="<?= $baseUrl ?>/hitung-jasa-ralan"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ralan') ? 'active text-white' : '' ?>">
+        <i class="fas fa-calculator w-5 text-center text-emerald-300"></i>
+        <span>Hitung Jasa Ralan</span>
+      </a>
+      <a href="<?= $baseUrl ?>/hitung-jasa-ranap"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ranap') ? 'active text-white' : '' ?>">
+        <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
+        <span>Hitung Jasa Ranap</span>
+      </a>
+      <a href="<?= $baseUrl ?>/bpjs-verifikasi"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bpjs-verifikasi') ? 'active text-white' : '' ?>">
+        <i class="fas fa-file-invoice w-5 text-center text-emerald-300"></i>
+        <span>BPJS Verifikasi</span>
       </a>
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Laporan</p>
@@ -198,11 +220,6 @@ function isActive($paths)
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Keuangan</p>
 
-      <a href="<?= $baseUrl ?>/bpjs"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bpjs') ? 'active text-white' : '' ?>">
-        <i class="fas fa-money-bill-wave w-5 text-center text-emerald-300"></i>
-        <span>BPJS</span>
-      </a>
 
       <a href="<?= $baseUrl ?>/jasaraharja"
         class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('jasaraharja') ? 'active text-white' : '' ?>">

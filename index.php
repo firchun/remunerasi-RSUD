@@ -19,6 +19,9 @@ $routes = [
     'jasaraharja'    => './views/jasaraharja/index.php',
     'laporan-gabungan' => './views/laporan_gabungan/index.php',
     'tunsus'         => './views/tunsus.php',
+    'hitung-jasa-ralan' => './views/hitung_jasa_ralan/index.php',
+    'hitung-jasa-ranap' => './views/hitung_jasa_ranap/index.php',
+    'bpjs-verifikasi'   => './views/bpjs_verifikasi/index.php',
 ];
 
 if ($path !== '' && isset($routes[$path])) {

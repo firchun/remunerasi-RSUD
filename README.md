@@ -40,7 +40,17 @@ remon/
 │   ├── get_report_gabungan.php
 │   ├── jasa_petugas.php
 │   ├── upload_bpjs.php
-│   └── upload_bpjs_ranap.php
+│   ├── upload_bpjs_ranap.php
+│   ├── upload_bpjs_verifikasi.php  # Upload PDF BPJS Verifikasi
+│   ├── save_bpjs_verifikasi.php    # Simpan hasil OCR
+│   ├── get_bpjs_verifikasi.php     # Ambil data BPJS Verifikasi
+│   ├── delete_bpjs_verifikasi.php  # Hapus data BPJS Verifikasi
+│   ├── get_data_hitung_jasa_ralan.php  # DataTables Hitung Jasa Ralan
+│   ├── export_hitung_jasa_ralan.php    # Export Excel Hitung Jasa Ralan
+│   ├── get_data_hitung_jasa_ranap.php  # DataTables Hitung Jasa Ranap
+│   └── export_hitung_jasa_ranap.php    # Export Excel Hitung Jasa Ranap
+├── scripts/                    # Utility scripts
+│   └── parse_bpjs_pdf.py       # OCR parser untuk PDF BPJS (Tesseract)
 ├── config/                    # Konfigurasi & autoload
 │   ├── app.php                # BASE_URL, APP_NAME, TIMEZONE
 │   ├── autoload.php           # PSR-0-like autoloader
@@ -63,6 +73,9 @@ remon/
 ├── vendor/                    # Composer dependencies
 └── views/                     # Semua file tampilan
     ├── bpjs/index.php         # Data BPJS
+    ├── bpjs_verifikasi/index.php # BPJS Verifikasi (upload PDF + OCR)
+    ├── hitung_jasa_ralan/index.php # Hitung Jasa Rawat Jalan
+    ├── hitung_jasa_ranap/index.php # Hitung Jasa Rawat Inap
     ├── bulanan_rajal/index.php # Laporan bulanan rawat jalan
     ├── bulanan_ranap/index.php # Laporan bulanan rawat inap
     ├── cari_petugas/index.php # Cari data paramedis/dokter
@@ -108,6 +121,9 @@ index.php (router)
 | `/remon/rajal` | `views/rajal/index.php` |
 | `/remon/ranap` | `views/ranap/index.php` |
 | `/remon/bpjs` | `views/bpjs/index.php` |
+| `/remon/bpjs-verifikasi` | `views/bpjs_verifikasi/index.php` |
+| `/remon/hitung-jasa-ralan` | `views/hitung_jasa_ralan/index.php` |
+| `/remon/hitung-jasa-ranap` | `views/hitung_jasa_ranap/index.php` |
 | `/remon/bulanan-rajal` | `views/bulanan_rajal/index.php` |
 | `/remon/bulanan-ranap` | `views/bulanan_ranap/index.php` |
 | `/remon/cari-petugas` | `views/cari_petugas/index.php` |
@@ -179,6 +195,14 @@ Semua endpoint mengembalikan JSON dan dipanggil dari JavaScript (DataTables / Ch
 | `api/jasa_petugas.php` | `views/cari_petugas/index.php` |
 | `api/upload_bpjs.php` | `views/rajal/modal.php`, `views/ranap/modal.php`, `views/bpjs/index.php` |
 | `api/upload_bpjs_ranap.php` | `views/rajal/modal.php`, `views/ranap/modal.php`, `views/bpjs/index.php` |
+| `api/upload_bpjs_verifikasi.php` | `views/bpjs_verifikasi/index.php` |
+| `api/save_bpjs_verifikasi.php` | `views/bpjs_verifikasi/index.php` |
+| `api/get_bpjs_verifikasi.php` | `views/bpjs_verifikasi/index.php` |
+| `api/delete_bpjs_verifikasi.php` | `views/bpjs_verifikasi/index.php` |
+| `api/get_data_hitung_jasa_ralan.php` | `views/hitung_jasa_ralan/index.php` |
+| `api/export_hitung_jasa_ralan.php` | `views/hitung_jasa_ralan/index.php` |
+| `api/get_data_hitung_jasa_ranap.php` | `views/hitung_jasa_ranap/index.php` |
+| `api/export_hitung_jasa_ranap.php` | `views/hitung_jasa_ranap/index.php` |
 
 ## Fitur per Modul
 
@@ -191,6 +215,9 @@ Semua endpoint mengembalikan JSON dan dipanggil dari JavaScript (DataTables / Ch
 | **RANAP Per-Bulan** | Rekapitulasi pendapatan rawat inap per bulan per bangsal |
 | **Laporan Gabungan** | Gabungan Ralan/Ranap + Lab + Radiologi + Farmasi |
 | **BPJS** | Data total BPJS diterima, upload CSV |
+| **BPJS Verifikasi** | Upload PDF verifikasi BPJS (scanned), OCR otomatis via Tesseract, preview & edit data, simpan ke database |
+| **Hitung Jasa Ralan** | Perhitungan jasa rawat jalan: integrasi Total BPJS, 44% multiplier, kolom % + Jumlah per petugas, export Excel multi-sheet per poli |
+| **Hitung Jasa Ranap** | Perhitungan jasa rawat inap (berdasarkan tgl_keluar): sama dengan Ralan + Sisa BPJS, filter grup bangsal, export Excel per bangsal |
 | **Cari Paramedis/Dokter** | Cari data tindakan paramedis/dokter berdasarkan periode |
 | **Jasa Raharja** | Tagihan Jasa Raharja per pasien, export |
 | **Tunjangan Susila** | Laporan usulan tunjangan khusus dokter spesialis DTPK (PHPExcel) |
@@ -202,3 +229,5 @@ Semua endpoint mengembalikan JSON dan dipanggil dari JavaScript (DataTables / Ch
 - CSS/JS global via CDN (Tailwind, Font Awesome, jQuery, Chart.js, DataTables)
 - Layout tunggal di `views/layouts/header.php` dan `views/layouts/footer.php`
 - `$rootPath` diset sesuai kebutuhan: `''` untuk dashboard, `'../'` untuk modul
+- OCR BPJS Verifikasi menggunakan **Tesseract** (CLI) via Python `pytesseract` + `pdf2image` — lihat `scripts/parse_bpjs_pdf.py`
+- Hitung Jasa Ralan/Ranap menggunakan perhitungan sementara: `(persen/100) × (total_bpjs × 0.44)` — belum final

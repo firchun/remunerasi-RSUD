@@ -23,14 +23,18 @@ try {
     $poli_filter = '';
     if (!empty($kd_poli)) {
         $poli_vals = explode(',', $kd_poli);
-        $poli_escaped = array_map(function($v) use ($koneksi) { return "'" . mysqli_real_escape_string($koneksi, trim($v)) . "'"; }, $poli_vals);
+        $poli_escaped = array_map(function ($v) use ($koneksi) {
+            return "'" . mysqli_real_escape_string($koneksi, trim($v)) . "'";
+        }, $poli_vals);
         $poli_filter = 'AND rp.kd_poli IN (' . implode(',', $poli_escaped) . ')';
     }
 
     $bangsal_filter = '';
     if (!empty($kd_bangsal)) {
         $bangsal_vals = explode(',', $kd_bangsal);
-        $bangsal_escaped = array_map(function($v) use ($koneksi) { return "'" . mysqli_real_escape_string($koneksi, trim($v)) . "'"; }, $bangsal_vals);
+        $bangsal_escaped = array_map(function ($v) use ($koneksi) {
+            return "'" . mysqli_real_escape_string($koneksi, trim($v)) . "'";
+        }, $bangsal_vals);
         $bangsal_filter = 'AND km.kd_bangsal IN (' . implode(',', $bangsal_escaped) . ')';
     }
 
@@ -79,17 +83,30 @@ try {
                     'nama_unit' => $nama_gedung,
                     'jumlah_kunjungan' => 0,
                     'total_biaya_kamar' => 0,
-                    'total_material' => 0, 'total_bhp' => 0,
-                    'total_tindakan_dr' => 0, 'total_tindakan_pr' => 0,
-                    'total_kso' => 0, 'total_menejemen' => 0,
+                    'total_material' => 0,
+                    'total_bhp' => 0,
+                    'total_tindakan_dr' => 0,
+                    'total_tindakan_pr' => 0,
+                    'total_kso' => 0,
+                    'total_menejemen' => 0,
                     'total_tindakan' => 0,
-                    'jumlah_resep_racikan' => 0, 'jumlah_resep_non_racikan' => 0, 'jumlah_resep_operasi' => 0,
-                    'total_obat' => 0, 'total_jasa_farmasi' => 0,
-                    'total_material_lab' => 0, 'total_dokter_lab' => 0,
-                    'total_petugas_lab' => 0, 'total_menejemen_lab' => 0, 'total_lab' => 0,
-                    'total_material_radiologi' => 0, 'total_dokter_radiologi' => 0,
-                    'total_petugas_radiologi' => 0, 'total_menejemen_radiologi' => 0, 'total_radiologi' => 0,
-                    'total_operasi' => 0, 'grand_total' => 0
+                    'jumlah_resep_racikan' => 0,
+                    'jumlah_resep_non_racikan' => 0,
+                    'jumlah_resep_operasi' => 0,
+                    'total_obat' => 0,
+                    'total_jasa_farmasi' => 0,
+                    'total_material_lab' => 0,
+                    'total_dokter_lab' => 0,
+                    'total_petugas_lab' => 0,
+                    'total_menejemen_lab' => 0,
+                    'total_lab' => 0,
+                    'total_material_radiologi' => 0,
+                    'total_dokter_radiologi' => 0,
+                    'total_petugas_radiologi' => 0,
+                    'total_menejemen_radiologi' => 0,
+                    'total_radiologi' => 0,
+                    'total_operasi' => 0,
+                    'grand_total' => 0
                 ];
             }
 
@@ -106,7 +123,7 @@ try {
                 FROM rawat_inap_drpr drpr JOIN jns_perawatan_inap jns ON drpr.kd_jenis_prw=jns.kd_jenis_prw
                 WHERE drpr.no_rawat = '$no_rawat'");
             if ($ti && $d = mysqli_fetch_assoc($ti)) {
-                $g =& $gedung_data[$key];
+                $g = &$gedung_data[$key];
                 $g['total_material'] += floatval($d['m'] ?? 0);
                 $g['total_bhp'] += floatval($d['b'] ?? 0);
                 $g['total_tindakan_dr'] += floatval($d['dr'] ?? 0);
@@ -128,7 +145,7 @@ try {
                     elseif ($cn && $cn['ada'] > 0) $gedung_data[$key]['jumlah_resep_non_racikan']++;
                 }
             }
-            $gedung_data[$key]['total_jasa_farmasi'] = 
+            $gedung_data[$key]['total_jasa_farmasi'] =
                 $gedung_data[$key]['jumlah_resep_racikan'] * 25000 +
                 $gedung_data[$key]['jumlah_resep_non_racikan'] * 15000 +
                 $gedung_data[$key]['jumlah_resep_operasi'] * 35000;
@@ -153,7 +170,7 @@ try {
                 COALESCE(SUM(t2.bagian_rs),0) AS m, COALESCE(SUM(t2.tarif_tindakan_dokter),0) AS dr,
                 COALESCE(SUM(t2.tarif_tindakan_petugas),0) AS pr, COALESCE(SUM(t2.menejemen),0) AS mn,
                 COALESCE(SUM(t2.total_byr),0) AS tot
-                FROM permintaan_radiologi t1
+                FROM periksa_radiologi t1
                 JOIN permintaan_pemeriksaan_radiologi t3 ON t1.noorder=t3.noorder
                 JOIN jns_perawatan_radiologi t2 ON t3.kd_jenis_prw=t2.kd_jenis_prw
                 WHERE t1.no_rawat='$no_rawat' AND t1.status='ranap'");
@@ -184,7 +201,6 @@ try {
             $gedung_data[$k]['grand_total'] = $v['total_biaya_kamar'] + $v['total_tindakan'] + $v['total_obat'] + $v['total_lab'] + $v['total_radiologi'] + $v['total_operasi'];
         }
         $data = array_values($gedung_data);
-
     } else {
         $where = "WHERE rp.status_lanjut = 'Ralan'
             AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'
@@ -221,10 +237,90 @@ try {
         $data = [];
 
         while ($row = mysqli_fetch_assoc($result)) {
+            $row['jenis_rawat'] = 'Rajal';
             $row['total_obat_ppn'] = $row['total_obat'] * 1.11;
             $row['jasa_farmasi'] = (int)$row['jumlah_pasien_resep'] * 15000;
             $row['grand_total'] = $row['total_tindakan'] + $row['total_obat_ppn'] + $row['jasa_farmasi'] + $row['total_lab'] + $row['total_radiologi'];
             $row['nama_unit'] = $row['nm_poli'];
+            $data[] = $row;
+        }
+
+        $query_ranap = "SELECT
+            DATE_FORMAT(ki.tgl_keluar, '%Y-%m') AS bulan,
+            pl.kd_poli, pl.nm_poli, rp.no_rawat
+            FROM reg_periksa rp
+            JOIN poliklinik pl ON rp.kd_poli = pl.kd_poli
+            INNER JOIN kamar_inap ki ON rp.no_rawat = ki.no_rawat
+            WHERE rp.status_lanjut = 'Ranap'
+            AND ki.tgl_keluar BETWEEN '$tgl_awal' AND '$tgl_akhir'
+            $pj_filter
+            $poli_filter
+            GROUP BY bulan, pl.kd_poli, pl.nm_poli, rp.no_rawat
+            ORDER BY pl.nm_poli, bulan";
+
+        $result_ranap = mysqli_query($koneksi, $query_ranap);
+        if (!$result_ranap) throw new Exception('Query ranap per poli gagal: ' . mysqli_error($koneksi));
+
+        $poli_data = [];
+
+        while ($row = mysqli_fetch_assoc($result_ranap)) {
+            $bulan = $row['bulan'];
+            $nm_poli = $row['nm_poli'];
+            $key = $bulan . '|' . $nm_poli;
+            $no_rawat = mysqli_real_escape_string($koneksi, $row['no_rawat']);
+
+            if (!isset($poli_data[$key])) {
+                $poli_data[$key] = [
+                    'bulan' => $bulan,
+                    'nama_unit' => $nm_poli,
+                    'jumlah_kunjungan' => 0,
+                    'total_tindakan' => 0,
+                    'total_obat' => 0,
+                    'jumlah_pasien_resep' => 0,
+                    'total_lab' => 0,
+                    'total_radiologi' => 0,
+                ];
+            }
+
+            $poli_data[$key]['jumlah_kunjungan']++;
+
+            $ti = mysqli_query($koneksi, "SELECT IFNULL(SUM(jns.total_byrdrpr),0) AS tot FROM rawat_inap_drpr drpr JOIN jns_perawatan_inap jns ON drpr.kd_jenis_prw=jns.kd_jenis_prw WHERE drpr.no_rawat='$no_rawat'");
+            if ($ti && $d = mysqli_fetch_assoc($ti)) $poli_data[$key]['total_tindakan'] += floatval($d['tot']);
+
+            $ob = mysqli_query($koneksi, "SELECT IFNULL(SUM(total),0) AS tot FROM detail_pemberian_obat WHERE no_rawat='$no_rawat' AND status='Ranap'");
+            if ($ob && $od = mysqli_fetch_assoc($ob)) $poli_data[$key]['total_obat'] += floatval($od['tot']);
+
+            $rs = mysqli_query($koneksi, "SELECT COUNT(DISTINCT no_rawat) AS cnt FROM resep_obat WHERE no_rawat='$no_rawat' AND status='ranap'");
+            if ($rs && $rd = mysqli_fetch_assoc($rs)) $poli_data[$key]['jumlah_pasien_resep'] += intval($rd['cnt']);
+
+            $lb = mysqli_query($koneksi, "SELECT IFNULL(SUM(biaya),0) AS tot FROM periksa_lab WHERE no_rawat='$no_rawat' AND status='Ranap'");
+            if ($lb && $ld = mysqli_fetch_assoc($lb)) $poli_data[$key]['total_lab'] += floatval($ld['tot']);
+
+            $rd2 = mysqli_query($koneksi, "SELECT COALESCE(SUM(t2.total_byr),0) AS tot FROM permintaan_radiologi t1 JOIN permintaan_pemeriksaan_radiologi t3 ON t1.noorder=t3.noorder JOIN jns_perawatan_radiologi t2 ON t3.kd_jenis_prw=t2.kd_jenis_prw WHERE t1.no_rawat='$no_rawat' AND t1.status='ranap'");
+            if ($rd2 && $rrd = mysqli_fetch_assoc($rd2)) $poli_data[$key]['total_radiologi'] += floatval($rrd['tot']);
+        }
+
+        foreach ($data as $rajal) {
+            $key = $rajal['bulan'] . '|' . $rajal['nama_unit'];
+            if (!isset($poli_data[$key])) {
+                $poli_data[$key] = [
+                    'bulan' => $rajal['bulan'],
+                    'nama_unit' => $rajal['nama_unit'],
+                    'jumlah_kunjungan' => 0,
+                    'total_tindakan' => 0,
+                    'total_obat' => 0,
+                    'jumlah_pasien_resep' => 0,
+                    'total_lab' => 0,
+                    'total_radiologi' => 0,
+                ];
+            }
+        }
+
+        foreach ($poli_data as $row) {
+            $row['jenis_rawat'] = 'Ranap';
+            $row['total_obat_ppn'] = $row['total_obat'] * 1.11;
+            $row['jasa_farmasi'] = (int)$row['jumlah_pasien_resep'] * 15000;
+            $row['grand_total'] = $row['total_tindakan'] + $row['total_obat_ppn'] + $row['jasa_farmasi'] + $row['total_lab'] + $row['total_radiologi'];
             $data[] = $row;
         }
     }
@@ -266,7 +362,6 @@ try {
     ]);
 
     mysqli_close($koneksi);
-
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,

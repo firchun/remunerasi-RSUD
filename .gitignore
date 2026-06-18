@@ -3,3 +3,6 @@
 /vendor/
 /lampp
 *.xlsx
+__pycache__/
+*.pdf
+/uploads/

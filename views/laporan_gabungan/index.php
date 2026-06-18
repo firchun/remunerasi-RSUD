@@ -105,6 +105,7 @@ require_once '../layouts/header.php';
                 <tr>
                   <th class="center" style="width:50px">No</th>
                   <th class="left" id="header-unit">Poliklinik</th>
+                  <th class="left">Jenis Rawat</th>
                   <th class="left">Bulan</th>
                   <th class="num" style="width:90px">Pasien</th>
                   <th class="num">Tindakan</th>
@@ -118,7 +119,7 @@ require_once '../layouts/header.php';
               <tbody id="tableBody"></tbody>
               <tfoot>
                 <tr>
-                  <th colspan="3" class="center">TOTAL</th>
+                  <th colspan="4" class="center">TOTAL</th>
                   <th class="num" id="foot-pasien">0</th>
                   <th class="num" id="foot-tindakan">0</th>
                   <th class="num" id="foot-obat">0</th>
@@ -172,7 +173,7 @@ require_once '../layouts/header.php';
       const kd_poli = ($('#kd_poli').val() || []).join(',');
       const kd_bangsal = ($('#kd_bangsal').val() || []).join(',');
 
-      $('#tableBody').html('<tr><td colspan="10" class="center" style="color:#6b7280;padding:24px">Memuat data...</td></tr>');
+      $('#tableBody').html('<tr><td colspan="11" class="center" style="color:#6b7280;padding:24px">Memuat data...</td></tr>');
 
       $.ajax({
         url: window.BASE_URL + '/api/get_report_gabungan.php',
@@ -193,6 +194,9 @@ require_once '../layouts/header.php';
               const ua = (a.nama_unit || a.nm_poli || '').toLowerCase();
               const ub = (b.nama_unit || b.nm_poli || '').toLowerCase();
               if (ua !== ub) return ua.localeCompare(ub);
+              const ja = (a.jenis_rawat || '');
+              const jb = (b.jenis_rawat || '');
+              if (ja !== jb) return ja < jb ? -1 : 1;
               return (a.bulan || '').localeCompare(b.bulan || '');
             });
 
@@ -212,6 +216,7 @@ require_once '../layouts/header.php';
               html += '<tr>' +
                 '<td class="center">' + (counter++) + '</td>' +
                 '<td class="left" style="font-weight:600">' + unit + '</td>' +
+                '<td class="center">' + (item.jenis_rawat || '-') + '</td>' +
                 '<td class="left">' + namaBulan + '</td>' +
                 '<td class="num">' + fmt(pasien) + '</td>' +
                 '<td class="num">' + fmt(t) + '</td>' +
