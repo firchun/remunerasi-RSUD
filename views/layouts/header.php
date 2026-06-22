@@ -3,6 +3,12 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    $loginUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/login.php';
+    header("Location: " . $loginUrl);
+    exit;
+}
+
 $pageTitle = $pageTitle ?? 'Remunerasi RSUD MERAUKE';
 $extraHead = $extraHead ?? '';
 $extraFooter = $extraFooter ?? '';

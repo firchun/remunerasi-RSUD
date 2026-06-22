@@ -15,7 +15,7 @@ $pageTitle = 'Rawat Jalan - RSUD MERAUKE';
 $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <style>
-  table.dataTable td, table.dataTable th { color: #1f2937 !important; }
+  table.dataTable td { color: #1f2937 !important; } table.dataTable thead th { color: #ffffff !important; }
   #tabelTindakan th, #tabelTindakan td { white-space: nowrap; }
   #tabelTindakan tbody td { padding: 2px 4px !important; margin: 0 !important; line-height: 1.4 !important; height: auto; border: 0.5px solid #d1d5db; vertical-align: top !important; text-align: left !important; }
   table.dataTable { width: auto !important; }

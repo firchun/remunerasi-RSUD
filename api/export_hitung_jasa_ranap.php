@@ -450,10 +450,12 @@ while (true) {
             ];
         }
         $selisih[$bangsalKey]['total']++;
-        if ($row['no_sep'] !== '-' && !empty($row['no_sep']) && $total_bpjs > 0) {
+        $punya_sep = ($row['no_sep'] !== '-' && !empty($row['no_sep']));
+        
+        if ($punya_sep && isset($bpjs_lookup[$row['no_sep']])) {
             $selisih[$bangsalKey]['berhasil']++;
             $used_seps[$row['no_sep']] = true;
-        } else {
+        } else if ($punya_sep && !isset($bpjs_lookup[$row['no_sep']])) {
             $selisih[$bangsalKey]['tidak_berhasil']++;
             $selisih[$bangsalKey]['sisa_bpjs'] += $total_bpjs;
             $selisih[$bangsalKey]['sisa_rs'] += $row['total_jasa'];

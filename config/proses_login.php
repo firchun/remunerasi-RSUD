@@ -1,37 +1,33 @@
 <?php
 require_once 'conf.php';
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 $koneksi = bukakoneksi();
 
 $username = mysqli_real_escape_string($koneksi, $_POST['username']);
 $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
-// Enkripsi MD5
-$md5_pass = md5($password);
+// Cek user di tabel admin dengan AES_ENCRYPT
+$sql = "SELECT AES_DECRYPT(usere, 'nur') as username_decrypted 
+        FROM admin 
+        WHERE usere = AES_ENCRYPT('$username','nur') 
+        AND passworde = AES_ENCRYPT('$password','windi') 
+        LIMIT 1";
 
-// Cek user
-$q = mysqli_query(
-  $koneksi,
-  "SELECT * FROM users WHERE username='$username' LIMIT 1"
-);
+$q = mysqli_query($koneksi, $sql);
 
-if (mysqli_num_rows($q) == 0) {
-  header("Location: ../login.php?error=Username tidak ditemukan");
+if (!$q || mysqli_num_rows($q) == 0) {
+  header("Location: ../login.php?error=Username atau password salah");
   exit;
 }
 
 $user = mysqli_fetch_assoc($q);
 
-// VERIFIKASI MENGGUNAKAN MD5
-if ($md5_pass !== $user['password']) {
-  header("Location: ../login.php?error=Password salah");
-  exit;
-}
-
 // Simpan session
-$_SESSION['user_id'] = $user['id'];
-$_SESSION['username'] = $user['username'];
+$_SESSION['user_id'] = $username;
+$_SESSION['username'] = $username;
 
 header("Location: ../index.php");
 exit;

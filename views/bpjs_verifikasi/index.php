@@ -6,7 +6,7 @@ $pageTitle = 'BPJS Verifikasi - RSUD MERAUKE';
 $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <style>
-  table.dataTable td, table.dataTable th { color: #1f2937 !important; }
+  table.dataTable td { color: #1f2937 !important; } table.dataTable thead th { color: #ffffff !important; }
   #tabelData th, #tabelData td { white-space: nowrap; }
   #tabelData tbody td { padding: 2px 4px !important; line-height: 1.4 !important; border: 0.5px solid #d1d5db; }
   .editable-cell { cursor: text; min-height: 24px; }

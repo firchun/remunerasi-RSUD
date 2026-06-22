@@ -17,22 +17,26 @@ require_once '../layouts/header.php';
 ?>
 <div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
   <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
-    <i class="fas fa-file-invoice mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
+    <i
+      class="fas fa-file-invoice mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
     Filter Pencarian
   </h3>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
-      <select id="filter_bulan" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+      <select id="filter_bulan"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
         <?php for ($m = 1; $m <= 12; $m++): ?>
-          <option value="<?= $m ?>" <?= $m == date('m') ? 'selected' : '' ?>><?= date('F', mktime(0, 0, 0, $m, 1)) ?></option>
+          <option value="<?= $m ?>" <?= $m == date('m') ? 'selected' : '' ?>><?= date('F', mktime(0, 0, 0, $m, 1)) ?>
+          </option>
         <?php endfor; ?>
       </select>
     </div>
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-      <select id="filter_tahun" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+      <select id="filter_tahun"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
         <?php for ($y = date('Y'); $y >= date('Y') - 5; $y--): ?>
           <option value="<?= $y ?>" <?= $y == date('Y') ? 'selected' : '' ?>><?= $y ?></option>
         <?php endfor; ?>
@@ -43,7 +47,8 @@ require_once '../layouts/header.php';
     <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition">
       <i class="fas fa-search mr-2"></i>Cari Data
     </button>
-    <button onclick="resetFilter()" class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
+    <button onclick="resetFilter()"
+      class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
       <i class="fas fa-redo mr-2"></i>Reset
     </button>
   </div>
@@ -52,9 +57,9 @@ require_once '../layouts/header.php';
 <div class="bg-white rounded-2xl border border-green-700 p-6">
   <div class="overflow-x-auto">
     <table id="tabelKepatuhan" class="display w-full">
-      <thead class="bg-green-800 text-white">
-        <tr>
-          <th class="px-2 text-left">No</th>
+      <thead class="bg-green-800">
+        <tr class="text-white">
+          <th class="px-2 text-left text-white">No</th>
           <th class="px-2 text-left">Nama Poliklinik</th>
           <th class="px-2 text-right" style="background:#166534;color:#fff">Total Pasien</th>
           <th class="px-2 text-right" style="background:#166534;color:#fff">Pasien BPJS</th>
@@ -106,17 +111,17 @@ require_once '../layouts/header.php';
     pageLength: 25,
     autoWidth: false,
     columns: [
-      { data: null, className: 'text-center', render: function(data, type, row, meta) { return meta.row + 1; } },
+      { data: null, className: 'text-center', render: function (data, type, row, meta) { return meta.row + 1; } },
       { data: 'nm_poli' },
-      { data: 'total_pasien', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
-      { data: 'pasien_bpjs', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
-      { data: 'surat_kontrol', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
-      { data: 'sep_terbit', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
-      { data: 'terlayani', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
-      { data: 'belum_dilayani', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
-      { data: 'batal_periksa', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
-      { data: 'pct_sep', className: 'num', render: function(v) { return (v || 0).toFixed(2) + '%'; } },
-      { data: 'pct_surat_kontrol', className: 'num', render: function(v) { return (v || 0).toFixed(2) + '%'; } },
+      { data: 'total_pasien', className: 'num', render: function (v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'pasien_bpjs', className: 'num', render: function (v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'surat_kontrol', className: 'num', render: function (v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'sep_terbit', className: 'num', render: function (v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'terlayani', className: 'num', render: function (v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'belum_dilayani', className: 'num', render: function (v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'batal_periksa', className: 'num', render: function (v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'pct_sep', className: 'num', render: function (v) { return (v || 0).toFixed(2) + '%'; } },
+      { data: 'pct_surat_kontrol', className: 'num', render: function (v) { return (v || 0).toFixed(2) + '%'; } },
     ],
     order: [
       [2, 'desc']
@@ -136,7 +141,7 @@ require_once '../layouts/header.php';
         previous: "Sebelumnya"
       }
     },
-    footerCallback: function(row, data, start, end, display) {
+    footerCallback: function (row, data, start, end, display) {
       const api = this.api();
       const sumData = (prop) => data.map(r => parseInt(r[prop]) || 0).reduce((a, b) => a + b, 0);
       const fmt = (x) => Math.round(x).toLocaleString('id-ID');
@@ -156,7 +161,7 @@ require_once '../layouts/header.php';
     }
   };
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     table = $('#tabelKepatuhan').DataTable(tableConfig);
   });
 
@@ -168,10 +173,10 @@ require_once '../layouts/header.php';
       ajax: {
         url: window.BASE_URL + '/api/get_data_kepatuhan_bpjs.php',
         type: 'POST',
-        dataSrc: function(json) {
+        dataSrc: function (json) {
           return json.data || json;
         },
-        data: function(d) {
+        data: function (d) {
           d.bulan = $('#filter_bulan').val();
           d.tahun = $('#filter_tahun').val();
           d.search_value = d.search.value;
