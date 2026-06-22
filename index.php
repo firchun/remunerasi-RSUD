@@ -20,8 +20,16 @@ $routes = [
     'laporan-gabungan' => './views/laporan_gabungan/index.php',
     'tunsus'         => './views/tunsus.php',
     'hitung-jasa-ralan' => './views/hitung_jasa_ralan/index.php',
+    'hitung-jasa-dokter-ralan' => './views/hitung_jasa_dokter_ralan/index.php',
+    'hitung-jasa-dokter-ralan/detail' => './views/hitung_jasa_dokter_ralan/detail.php',
+    'hitung-jasa-dokter-ranap' => './views/hitung_jasa_dokter_ranap/index.php',
+    'hitung-jasa-dokter-ranap/detail' => './views/hitung_jasa_dokter_ranap/detail.php',
     'hitung-jasa-ranap' => './views/hitung_jasa_ranap/index.php',
     'bpjs-verifikasi'   => './views/bpjs_verifikasi/index.php',
+    'kepatuhan-ralan'   => './views/kepatuhan_ralan/index.php',
+    'kepatuhan-penunjang-ralan' => './views/kepatuhan_penunjang_ralan/index.php',
+    'kepatuhan-bpjs'            => './views/kepatuhan_bpjs/index.php',
+    'kepatuhan-remunerasi'      => './views/kepatuhan_remunerasi/index.php',
 ];
 
 if ($path !== '' && isset($routes[$path])) {

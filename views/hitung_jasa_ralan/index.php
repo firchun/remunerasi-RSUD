@@ -204,38 +204,327 @@ require_once '../layouts/header.php';
 
 <script>
   let table;
+  const tableConfig = {
+    processing: true,
+    scrollY: "500px",
+    scrollX: true,
+    scrollCollapse: true,
+    dom: '<"flex justify-between items-center mb-4"lB>rtip',
+    buttons: [{
+        extend: 'excel',
+        text: 'Export Excel',
+        filename: 'hitung_jasa_ralan'
+      },
+      {
+        extend: 'pdfHtml5',
+        text: 'Export PDF',
+        orientation: 'landscape',
+        pageSize: 'A4',
+        customize: function(doc) {
+          doc.defaultStyle.fontSize = 5;
+          doc.styles.tableHeader.fontSize = 8;
+        }
+      }
+    ],
+    lengthMenu: [
+      [10, 25, 50, 100, 300, 1000, 5000, 10000],
+      [10, 25, 50, 100, 300, 1000, 5000, 10000]
+    ],
+    pageLength: 25,
+    autoWidth: false,
+    columns: [{
+        data: null,
+        className: 'text-center',
+        render: function(data, type, row, meta) {
+          return meta.row + 1;
+        }
+      },
+      {
+        data: 'no_rawat',
+        className: 'text-blue-600 font-semibold'
+      },
+      {
+        data: 'no_sep'
+      },
+      {
+        data: 'total_bpjs',
+        className: 'num',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'kolom_44',
+        className: 'num',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'no_rkm_medis'
+      },
+      {
+        data: 'nm_pasien'
+      },
+      {
+        data: 'nm_poli'
+      },
+      {
+        data: 'nm_dokter'
+      },
+      {
+        data: 'tgl_registrasi'
+      },
+
+      {
+        data: 'total_tindakan_dr',
+        className: 'num'
+      },
+      {
+        data: 'total_tindakan_pr',
+        className: 'num'
+      },
+      {
+        data: 'total_menejemen_tindakan',
+        className: 'num'
+      },
+      {
+        data: 'jasa_tindakan',
+        className: 'num font-bold',
+        createdCell: function(td) {
+          $(td).css('background', '#fefce8');
+        }
+      },
+      {
+        data: 'total_non_medis',
+        className: 'num',
+        createdCell: function(td) {
+          $(td).css('background', '#fefce8');
+        }
+      },
+
+      {
+        data: 'jasa_farmasi',
+        className: 'num',
+        createdCell: function(td) {
+          $(td).css('background', '#fffbeb');
+        }
+      },
+
+      {
+        data: 'total_dokter_lab',
+        className: 'num'
+      },
+      {
+        data: 'total_petugas_lab',
+        className: 'num'
+      },
+      {
+        data: 'total_menejemen_lab',
+        className: 'num'
+      },
+      {
+        data: 'jasa_lab',
+        className: 'num font-bold',
+        createdCell: function(td) {
+          $(td).css('background', '#f0f9ff');
+        }
+      },
+
+      {
+        data: 'total_dokter_radiologi',
+        className: 'num'
+      },
+      {
+        data: 'total_petugas_radiologi',
+        className: 'num'
+      },
+      {
+        data: 'total_menejemen_radiologi',
+        className: 'num'
+      },
+      {
+        data: 'jasa_radiologi',
+        className: 'num font-bold',
+        createdCell: function(td) {
+          $(td).css('background', '#f5f3ff');
+        }
+      },
+
+      {
+        data: 'total_jasa',
+        className: 'num font-bold',
+        createdCell: function(td) {
+          $(td).css('background', '#fef2f2').css('font-weight', '900');
+        }
+      },
+
+      {
+        data: 'persen_dpjp',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_dpjp',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'persen_perawat',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_perawat',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'persen_farmasi',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_farmasi',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'persen_dokter_lab',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_dokter_lab',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'persen_analis_lab',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_analis_lab',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'persen_dokter_radiologi',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_dokter_radiologi',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'persen_radiografer',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_radiografer',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+      {
+        data: 'persen_non_medis',
+        className: 'num text-xs',
+        render: function(v) {
+          return v ? v.toFixed(2) : '0';
+        }
+      },
+      {
+        data: 'jumlah_non_medis',
+        className: 'num text-xs',
+        render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      },
+    ],
+    order: [
+      [9, 'desc']
+    ],
+    language: {
+      processing: "Memuat data...",
+      lengthMenu: "Tampilkan _MENU_ data per halaman",
+      zeroRecords: "Data tidak ditemukan",
+      info: "Menampilkan halaman _PAGE_ dari _PAGES_",
+      infoEmpty: "Tidak ada data tersedia",
+      infoFiltered: "(difilter dari _MAX_ total data)",
+      search: "Cari:",
+      paginate: {
+        first: "Pertama",
+        last: "Terakhir",
+        next: "Selanjutnya",
+        previous: "Sebelumnya"
+      }
+    },
+    footerCallback: function(row, data, start, end, display) {
+      const api = this.api();
+      const sumData = (prop) => data.map(r => parseFloat(r[prop]) || 0).reduce((a, b) => a + b, 0);
+      const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
+      const pct = (num, den) => den > 0 ? (num / den * 100).toFixed(2) : '0';
+
+      const st2 = (p) => sumData(p);
+      const sj2 = st2('total_jasa');
+
+      $(api.column(10).footer()).html(fmt(sumData('total_tindakan_dr')));
+      $(api.column(11).footer()).html(fmt(sumData('total_tindakan_pr')));
+      $(api.column(12).footer()).html(fmt(sumData('total_menejemen_tindakan')));
+      $(api.column(13).footer()).html(fmt(sumData('jasa_tindakan')));
+      $(api.column(14).footer()).html(fmt(sumData('total_non_medis')));
+      $(api.column(15).footer()).html(fmt(sumData('jasa_farmasi')));
+      $(api.column(16).footer()).html(fmt(sumData('total_dokter_lab')));
+      $(api.column(17).footer()).html(fmt(sumData('total_petugas_lab')));
+      $(api.column(18).footer()).html(fmt(sumData('total_menejemen_lab')));
+      $(api.column(19).footer()).html(fmt(sumData('jasa_lab')));
+      $(api.column(20).footer()).html(fmt(sumData('total_dokter_radiologi')));
+      $(api.column(21).footer()).html(fmt(sumData('total_petugas_radiologi')));
+      $(api.column(22).footer()).html(fmt(sumData('total_menejemen_radiologi')));
+      $(api.column(23).footer()).html(fmt(sumData('jasa_radiologi')));
+      $(api.column(24).footer()).html(fmt(sumData('total_jasa')));
+      $(api.column(3).footer()).html(fmt(sumData('total_bpjs')));
+      $(api.column(4).footer()).html(fmt(sumData('kolom_44')));
+
+      $(api.column(25).footer()).html(pct(st2('total_tindakan_dr'), sj2));
+      $(api.column(26).footer()).html(fmt(sumData('jumlah_dpjp')));
+      $(api.column(27).footer()).html(pct(st2('total_tindakan_pr'), sj2));
+      $(api.column(28).footer()).html(fmt(sumData('jumlah_perawat')));
+      $(api.column(29).footer()).html(pct(st2('jasa_farmasi'), sj2));
+      $(api.column(30).footer()).html(fmt(sumData('jumlah_farmasi')));
+      $(api.column(31).footer()).html(pct(st2('total_dokter_lab'), sj2));
+      $(api.column(32).footer()).html(fmt(sumData('jumlah_dokter_lab')));
+      $(api.column(33).footer()).html(pct(st2('total_petugas_lab'), sj2));
+      $(api.column(34).footer()).html(fmt(sumData('jumlah_analis_lab')));
+      $(api.column(35).footer()).html(pct(st2('total_dokter_radiologi'), sj2));
+      $(api.column(36).footer()).html(fmt(sumData('jumlah_dokter_radiologi')));
+      $(api.column(37).footer()).html(pct(st2('total_petugas_radiologi'), sj2));
+      $(api.column(38).footer()).html(fmt(sumData('jumlah_radiografer')));
+      $(api.column(39).footer()).html(pct(st2('total_non_medis'), sj2));
+      $(api.column(40).footer()).html(fmt(sumData('jumlah_non_medis')));
+    }
+  };
 
   $(document).ready(function() {
-    table = $('#tabelJasa').DataTable({
-      processing: true,
-      serverSide: true,
-      scrollY: "500px",
-      scrollX: true,
-      scrollCollapse: true,
-      dom: '<"flex justify-between items-center mb-4"lB>rtip',
-      buttons: [{
-          extend: 'excel',
-          text: 'Export Excel',
-          filename: 'hitung_jasa_ralan'
-        },
-        {
-          extend: 'pdfHtml5',
-          text: 'Export PDF',
-          orientation: 'landscape',
-          pageSize: 'A4',
-          customize: function(doc) {
-            doc.defaultStyle.fontSize = 5;
-            doc.styles.tableHeader.fontSize = 8;
-          }
-        }
-      ],
-      lengthMenu: [
-        [10, 25, 50, 100, 300, 1000, 5000, 10000],
-        [10, 25, 50, 100, 300, 1000, 5000, 10000]
-      ],
-      pageLength: 25,
-      autoWidth: false,
+    table = $('#tabelJasa').DataTable(tableConfig);
+  });
 
+  function loadData() {
+    if (table) table.destroy();
+    table = $('#tabelJasa').DataTable({
+      ...tableConfig,
+      serverSide: true,
       ajax: {
         url: window.BASE_URL + '/api/get_data_hitung_jasa_ralan.php',
         type: 'POST',
@@ -251,294 +540,8 @@ require_once '../layouts/header.php';
           d.tcari = '';
           d.search_value = d.search.value;
         }
-      },
-      columns: [{
-          data: null,
-          className: 'text-center',
-          render: function(data, type, row, meta) {
-            return meta.row + 1;
-          }
-        },
-        {
-          data: 'no_rawat',
-          className: 'text-blue-600 font-semibold'
-        },
-        {
-          data: 'no_sep'
-        },
-        {
-          data: 'total_bpjs',
-          className: 'num',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'kolom_44',
-          className: 'num',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'no_rkm_medis'
-        },
-        {
-          data: 'nm_pasien'
-        },
-        {
-          data: 'nm_poli'
-        },
-        {
-          data: 'nm_dokter'
-        },
-        {
-          data: 'tgl_registrasi'
-        },
-
-        {
-          data: 'total_tindakan_dr',
-          className: 'num'
-        },
-        {
-          data: 'total_tindakan_pr',
-          className: 'num'
-        },
-        {
-          data: 'total_menejemen_tindakan',
-          className: 'num'
-        },
-        {
-          data: 'jasa_tindakan',
-          className: 'num font-bold',
-          createdCell: function(td) {
-            $(td).css('background', '#fefce8');
-          }
-        },
-        {
-          data: 'total_non_medis',
-          className: 'num',
-          createdCell: function(td) {
-            $(td).css('background', '#fefce8');
-          }
-        },
-
-        {
-          data: 'jasa_farmasi',
-          className: 'num',
-          createdCell: function(td) {
-            $(td).css('background', '#fffbeb');
-          }
-        },
-
-        {
-          data: 'total_dokter_lab',
-          className: 'num'
-        },
-        {
-          data: 'total_petugas_lab',
-          className: 'num'
-        },
-        {
-          data: 'total_menejemen_lab',
-          className: 'num'
-        },
-        {
-          data: 'jasa_lab',
-          className: 'num font-bold',
-          createdCell: function(td) {
-            $(td).css('background', '#f0f9ff');
-          }
-        },
-
-        {
-          data: 'total_dokter_radiologi',
-          className: 'num'
-        },
-        {
-          data: 'total_petugas_radiologi',
-          className: 'num'
-        },
-        {
-          data: 'total_menejemen_radiologi',
-          className: 'num'
-        },
-        {
-          data: 'jasa_radiologi',
-          className: 'num font-bold',
-          createdCell: function(td) {
-            $(td).css('background', '#f5f3ff');
-          }
-        },
-
-        {
-          data: 'total_jasa',
-          className: 'num font-bold',
-          createdCell: function(td) {
-            $(td).css('background', '#fef2f2').css('font-weight', '900');
-          }
-        },
-
-        {
-          data: 'persen_dpjp',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_dpjp',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'persen_perawat',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_perawat',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'persen_farmasi',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_farmasi',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'persen_dokter_lab',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_dokter_lab',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'persen_analis_lab',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_analis_lab',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'persen_dokter_radiologi',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_dokter_radiologi',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'persen_radiografer',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_radiografer',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-        {
-          data: 'persen_non_medis',
-          className: 'num text-xs',
-          render: function(v) {
-            return v ? v.toFixed(2) : '0';
-          }
-        },
-        {
-          data: 'jumlah_non_medis',
-          className: 'num text-xs',
-          render: function(v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
-        },
-      ],
-      order: [
-        [9, 'desc']
-      ],
-      language: {
-        processing: "Memuat data...",
-        lengthMenu: "Tampilkan _MENU_ data per halaman",
-        zeroRecords: "Data tidak ditemukan",
-        info: "Menampilkan halaman _PAGE_ dari _PAGES_",
-        infoEmpty: "Tidak ada data tersedia",
-        infoFiltered: "(difilter dari _MAX_ total data)",
-        search: "Cari:",
-        paginate: {
-          first: "Pertama",
-          last: "Terakhir",
-          next: "Selanjutnya",
-          previous: "Sebelumnya"
-        }
-      },
-      footerCallback: function(row, data, start, end, display) {
-        const api = this.api();
-        const sumData = (prop) => data.map(r => parseFloat(r[prop]) || 0).reduce((a, b) => a + b, 0);
-        const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
-        const pct = (num, den) => den > 0 ? (num / den * 100).toFixed(2) : '0';
-
-        const st2 = (p) => sumData(p);
-        const sj2 = st2('total_jasa');
-
-        $(api.column(10).footer()).html(fmt(sumData('total_tindakan_dr')));
-        $(api.column(11).footer()).html(fmt(sumData('total_tindakan_pr')));
-        $(api.column(12).footer()).html(fmt(sumData('total_menejemen_tindakan')));
-        $(api.column(13).footer()).html(fmt(sumData('jasa_tindakan')));
-        $(api.column(14).footer()).html(fmt(sumData('total_non_medis')));
-        $(api.column(15).footer()).html(fmt(sumData('jasa_farmasi')));
-        $(api.column(16).footer()).html(fmt(sumData('total_dokter_lab')));
-        $(api.column(17).footer()).html(fmt(sumData('total_petugas_lab')));
-        $(api.column(18).footer()).html(fmt(sumData('total_menejemen_lab')));
-        $(api.column(19).footer()).html(fmt(sumData('jasa_lab')));
-        $(api.column(20).footer()).html(fmt(sumData('total_dokter_radiologi')));
-        $(api.column(21).footer()).html(fmt(sumData('total_petugas_radiologi')));
-        $(api.column(22).footer()).html(fmt(sumData('total_menejemen_radiologi')));
-        $(api.column(23).footer()).html(fmt(sumData('jasa_radiologi')));
-        $(api.column(24).footer()).html(fmt(sumData('total_jasa')));
-        $(api.column(3).footer()).html(fmt(sumData('total_bpjs')));
-        $(api.column(4).footer()).html(fmt(sumData('kolom_44')));
-
-        $(api.column(25).footer()).html(pct(st2('total_tindakan_dr'), sj2));
-        $(api.column(26).footer()).html(fmt(sumData('jumlah_dpjp')));
-        $(api.column(27).footer()).html(pct(st2('total_tindakan_pr'), sj2));
-        $(api.column(28).footer()).html(fmt(sumData('jumlah_perawat')));
-        $(api.column(29).footer()).html(pct(st2('jasa_farmasi'), sj2));
-        $(api.column(30).footer()).html(fmt(sumData('jumlah_farmasi')));
-        $(api.column(31).footer()).html(pct(st2('total_dokter_lab'), sj2));
-        $(api.column(32).footer()).html(fmt(sumData('jumlah_dokter_lab')));
-        $(api.column(33).footer()).html(pct(st2('total_petugas_lab'), sj2));
-        $(api.column(34).footer()).html(fmt(sumData('jumlah_analis_lab')));
-        $(api.column(35).footer()).html(pct(st2('total_dokter_radiologi'), sj2));
-        $(api.column(36).footer()).html(fmt(sumData('jumlah_dokter_radiologi')));
-        $(api.column(37).footer()).html(pct(st2('total_petugas_radiologi'), sj2));
-        $(api.column(38).footer()).html(fmt(sumData('jumlah_radiografer')));
-        $(api.column(39).footer()).html(pct(st2('total_non_medis'), sj2));
-        $(api.column(40).footer()).html(fmt(sumData('jumlah_non_medis')));
       }
     });
-  });
-
-  function loadData() {
-    table.ajax.reload();
   }
 
   function resetFilter() {

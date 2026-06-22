@@ -1,0 +1,182 @@
+<?php
+require_once '../../config/conf.php';
+$koneksi = bukakoneksi();
+
+$pageTitle = 'Kepatuhan Remunerasi Rawat Jalan - RSUD MERAUKE';
+$extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<style>
+  table.dataTable td, table.dataTable th { color: #1f2937 !important; }
+  #tabelKepatuhan th, #tabelKepatuhan td { white-space: nowrap; }
+  #tabelKepatuhan tbody td { padding: 2px 4px !important; margin: 0 !important; line-height: 1.4 !important; height: auto; border: 0.5px solid #d1d5db; vertical-align: top !important; }
+  table.dataTable { width: auto !important; }
+  .dt-buttons { margin-bottom: 10px; }
+  .bg-red-soft { background: #dc2626; color: #fff; }
+  .bg-amber-soft { background: #b45309; color: #fff; }
+  .bg-orange-soft { background: #ea580c; color: #fff; }
+</style>';
+$rootPath = '../';
+require_once '../layouts/header.php';
+?>
+<div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
+  <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
+    <i class="fas fa-coins mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
+    Filter Pencarian
+  </h3>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
+      <select id="filter_bulan" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+        <?php for ($m = 1; $m <= 12; $m++): ?>
+          <option value="<?= $m ?>" <?= $m == date('m') ? 'selected' : '' ?>><?= date('F', mktime(0, 0, 0, $m, 1)) ?></option>
+        <?php endfor; ?>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+      <select id="filter_tahun" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+        <?php for ($y = date('Y'); $y >= date('Y') - 5; $y--): ?>
+          <option value="<?= $y ?>" <?= $y == date('Y') ? 'selected' : '' ?>><?= $y ?></option>
+        <?php endfor; ?>
+      </select>
+    </div>
+  </div>
+  <div class="mt-4 flex gap-2">
+    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition">
+      <i class="fas fa-search mr-2"></i>Cari Data
+    </button>
+    <button onclick="resetFilter()" class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
+      <i class="fas fa-redo mr-2"></i>Reset
+    </button>
+  </div>
+</div>
+
+<div class="bg-white rounded-2xl border border-green-700 p-6">
+  <div class="overflow-x-auto">
+    <table id="tabelKepatuhan" class="display w-full">
+      <thead class="bg-green-800 text-white">
+        <tr>
+          <th class="px-2 text-left">No</th>
+          <th class="px-2 text-left">Nama Poliklinik</th>
+          <th class="px-2 text-right" style="background:#166534;color:#fff">Pasien BPJS</th>
+          <th class="px-2 text-right" style="background:#dc2626;color:#fff">Tanpa SEP</th>
+          <th class="px-2 text-right" style="background:#b45309;color:#fff">Resep Tanpa SEP</th>
+          <th class="px-2 text-right" style="background:#ea580c;color:#fff">Tanpa Tindakan</th>
+          <th class="px-2 text-right" style="background:#b45309;color:#fff">Resep Tanpa Tindakan</th>
+          <th class="px-2 text-right" style="background:#1d4ed8;color:#fff">Tidak Dilayani</th>
+          <th class="px-2 text-right" style="background:#991b1b;color:#fff">Status Salah</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot class="bg-green-800 font-bold text-white">
+        <tr>
+          <th colspan="2" class="text-right px-2">TOTAL AKHIR :</th>
+          <th class="text-right px-2"></th>
+          <th class="text-right px-2"></th>
+          <th class="text-right px-2"></th>
+          <th class="text-right px-2"></th>
+          <th class="text-right px-2"></th>
+          <th class="text-right px-2"></th>
+          <th class="text-right px-2"></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<script>
+  let table;
+  const tableConfig = {
+    processing: true,
+    scrollY: "500px",
+    scrollX: true,
+    scrollCollapse: true,
+    dom: '<"flex justify-between items-center mb-4"lB>rtip',
+    buttons: [{
+      extend: 'excel',
+      text: 'Export Excel',
+      filename: 'kepatuhan_remunerasi'
+    }],
+    lengthMenu: [
+      [10, 25, 50, 100, 300, 1000, 5000],
+      [10, 25, 50, 100, 300, 1000, 5000]
+    ],
+    pageLength: 25,
+    autoWidth: false,
+    columns: [
+      { data: null, className: 'text-center', render: function(data, type, row, meta) { return meta.row + 1; } },
+      { data: 'nm_poli' },
+      { data: 'jumlah_pasien_bpjs', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'tanpa_sep', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'resep_tanpa_sep', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'tanpa_tindakan', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'resep_tanpa_tindakan', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'pasien_tidak_dilayani', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
+      { data: 'status_salah', className: 'num', render: function(v) { return (v || 0).toLocaleString('id-ID'); } },
+    ],
+    order: [
+      [2, 'desc']
+    ],
+    language: {
+      processing: "Memuat data...",
+      lengthMenu: "Tampilkan _MENU_ data per halaman",
+      zeroRecords: "Data tidak ditemukan",
+      info: "Menampilkan halaman _PAGE_ dari _PAGES_",
+      infoEmpty: "Tidak ada data tersedia",
+      infoFiltered: "(difilter dari _MAX_ total data)",
+      search: "Cari:",
+      paginate: {
+        first: "Pertama",
+        last: "Terakhir",
+        next: "Selanjutnya",
+        previous: "Sebelumnya"
+      }
+    },
+    footerCallback: function(row, data, start, end, display) {
+      const api = this.api();
+      const sumData = (prop) => data.map(r => parseInt(r[prop]) || 0).reduce((a, b) => a + b, 0);
+      const fmt = (x) => Math.round(x).toLocaleString('id-ID');
+
+      $(api.column(2).footer()).html(fmt(sumData('jumlah_pasien_bpjs')));
+      $(api.column(3).footer()).html(fmt(sumData('tanpa_sep')));
+      $(api.column(4).footer()).html(fmt(sumData('resep_tanpa_sep')));
+      $(api.column(5).footer()).html(fmt(sumData('tanpa_tindakan')));
+      $(api.column(6).footer()).html(fmt(sumData('resep_tanpa_tindakan')));
+      $(api.column(7).footer()).html(fmt(sumData('pasien_tidak_dilayani')));
+      $(api.column(8).footer()).html(fmt(sumData('status_salah')));
+    }
+  };
+
+  $(document).ready(function() {
+    table = $('#tabelKepatuhan').DataTable(tableConfig);
+  });
+
+  function loadData() {
+    if (table) table.destroy();
+    table = $('#tabelKepatuhan').DataTable({
+      ...tableConfig,
+      serverSide: true,
+      ajax: {
+        url: window.BASE_URL + '/api/get_data_kepatuhan_remunerasi.php',
+        type: 'POST',
+        dataSrc: function(json) {
+          return json.data || json;
+        },
+        data: function(d) {
+          d.bulan = $('#filter_bulan').val();
+          d.tahun = $('#filter_tahun').val();
+          d.search_value = d.search.value;
+        }
+      }
+    });
+  }
+
+  function resetFilter() {
+    const now = new Date();
+    $('#filter_bulan').val(String(now.getMonth() + 1));
+    $('#filter_tahun').val(String(now.getFullYear()));
+    loadData();
+  }
+</script>
+<?php require_once '../layouts/footer.php'; ?>

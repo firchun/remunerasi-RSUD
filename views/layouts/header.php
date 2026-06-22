@@ -16,8 +16,9 @@ function isActive($paths)
 {
   global $uri;
   $segments = explode('/', trim(parse_url($uri, PHP_URL_PATH), '/'));
-  foreach ((array)$paths as $p) {
-    if (in_array(trim($p, '/'), $segments)) return true;
+  foreach ((array) $paths as $p) {
+    if (in_array(trim($p, '/'), $segments))
+      return true;
   }
   return false;
 }
@@ -158,7 +159,7 @@ function isActive($paths)
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-1">Menu Utama</p>
 
       <a href="<?= $baseUrl ?>/"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white         <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-ranap']) ? 'active text-white' : '' ?>">
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white         <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi']) ? 'active text-white' : '' ?>">
         <i class="fas fa-home w-5 text-center text-emerald-300"></i>
         <span>Dashboard</span>
       </a>
@@ -180,22 +181,62 @@ function isActive($paths)
         <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
         <span>Rawat Inap</span>
       </a>
+      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Kepatuhan
+      </p>
+      <a href="<?= $baseUrl ?>/kepatuhan-ralan"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-ralan') ? 'active text-white' : '' ?>">
+        <i class="fas fa-clipboard-check w-5 text-center text-emerald-300"></i>
+        <span>Kepatuhan Rawat Jalan</span>
+      </a>
+      <a href="<?= $baseUrl ?>/kepatuhan-penunjang-ralan"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-penunjang-ralan') ? 'active text-white' : '' ?>">
+        <i class="fas fa-flask w-5 text-center text-emerald-300"></i>
+        <span>Kepatuhan Penunjang Ralan</span>
+      </a>
+      <a href="<?= $baseUrl ?>/kepatuhan-bpjs"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-bpjs') ? 'active text-white' : '' ?>">
+        <i class="fas fa-file-invoice w-5 text-center text-emerald-300"></i>
+        <span>Kepatuhan BPJS</span>
+      </a>
+      <a href="<?= $baseUrl ?>/kepatuhan-remunerasi"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-remunerasi') ? 'active text-white' : '' ?>">
+        <i class="fas fa-coins w-5 text-center text-emerald-300"></i>
+        <span>Kepatuhan Remunerasi</span>
+      </a>
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Perhitungan
+        Ralan
       </p>
       <a href="<?= $baseUrl ?>/hitung-jasa-ralan"
         class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ralan') ? 'active text-white' : '' ?>">
         <i class="fas fa-calculator w-5 text-center text-emerald-300"></i>
         <span>Hitung Jasa Ralan</span>
       </a>
+      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ralan"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ralan') ? 'active text-white' : '' ?>">
+        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
+        <span>Jasa Dokter Ralan</span>
+      </a>
+
+      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Perhitungan
+        Ranap
+      </p>
       <a href="<?= $baseUrl ?>/hitung-jasa-ranap"
         class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ranap') ? 'active text-white' : '' ?>">
         <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
         <span>Hitung Jasa Ranap</span>
       </a>
+      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ranap"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ranap') ? 'active text-white' : '' ?>">
+        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
+        <span>Jasa Dokter Ranap</span>
+      </a>
+      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data
+        Umpan Balik
+      </p>
       <a href="<?= $baseUrl ?>/bpjs-verifikasi"
         class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bpjs-verifikasi') ? 'active text-white' : '' ?>">
         <i class="fas fa-file-invoice w-5 text-center text-emerald-300"></i>
-        <span>BPJS Verifikasi</span>
+        <span>Umbal BPJS</span>
       </a>
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Laporan</p>

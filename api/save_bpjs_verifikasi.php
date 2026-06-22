@@ -11,6 +11,7 @@ if (!$input || !isset($input['bulan']) || !isset($input['tahun']) || !isset($inp
 
 $bulan = (int)$input['bulan'];
 $tahun = (int)$input['tahun'];
+$jenis = $input['jenis'] ?? '';
 $filename = $input['filename'] ?? '';
 $rows = $input['rows'];
 
@@ -23,11 +24,12 @@ $koneksi = bukakoneksi();
 
 $bulan_esc = mysqli_real_escape_string($koneksi, $bulan);
 $tahun_esc = mysqli_real_escape_string($koneksi, $tahun);
+$jenis_esc = mysqli_real_escape_string($koneksi, $jenis);
 $filename_esc = mysqli_real_escape_string($koneksi, $filename);
 $data_json = mysqli_real_escape_string($koneksi, json_encode($rows));
 
-$sql = "INSERT INTO bpjs_verifikasi (filename, bulan, tahun, data)
-        VALUES ('$filename_esc', '$bulan_esc', '$tahun_esc', '$data_json')";
+$sql = "INSERT INTO bpjs_verifikasi (filename, bulan, tahun, jenis, data)
+        VALUES ('$filename_esc', '$bulan_esc', '$tahun_esc', '$jenis_esc', '$data_json')";
 
 if (mysqli_query($koneksi, $sql)) {
     $id = mysqli_insert_id($koneksi);

@@ -24,7 +24,7 @@ require_once '../layouts/header.php';
     Filter & Upload
   </h3>
 
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
       <select id="filter_bulan" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
@@ -40,6 +40,13 @@ require_once '../layouts/header.php';
         <option value="10">Oktober</option>
         <option value="11">November</option>
         <option value="12">Desember</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Jenis</label>
+      <select id="filter_jenis" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+        <option value="ralan">Ralan</option>
+        <option value="ranap">Ranap</option>
       </select>
     </div>
     <div>
@@ -105,6 +112,7 @@ require_once '../layouts/header.php';
           <th class="px-3 py-2 text-left">File</th>
           <th class="px-3 py-2 text-left">Bulan</th>
           <th class="px-3 py-2 text-left">Tahun</th>
+          <th class="px-3 py-2 text-left">Jenis</th>
           <th class="px-3 py-2 text-right">Jumlah Data</th>
           <th class="px-3 py-2 text-left">Tanggal Upload</th>
           <th class="px-3 py-2 text-center">Aksi</th>
@@ -280,6 +288,7 @@ function simpanData() {
 
   const bulan = document.getElementById('filter_bulan').value;
   const tahun = document.getElementById('filter_tahun').value;
+  const jenis = document.getElementById('filter_jenis').value;
   const btn = document.getElementById('btnSimpan');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
@@ -291,6 +300,7 @@ function simpanData() {
     data: JSON.stringify({
       bulan: parseInt(bulan),
       tahun: parseInt(tahun),
+      jenis: jenis,
       filename: currentFilename,
       rows: currentRows
     }),
@@ -325,6 +335,7 @@ function batalPreview() {
 function loadData() {
   const bulan = document.getElementById('filter_bulan').value;
   const tahun = document.getElementById('filter_tahun').value;
+  const jenis = document.getElementById('filter_jenis').value;
 
   if (tableTersimpan) {
     tableTersimpan.destroy();
@@ -334,7 +345,7 @@ function loadData() {
   $.ajax({
     url: BASE_URL + '/api/get_bpjs_verifikasi.php',
     type: 'GET',
-    data: { bulan, tahun },
+    data: { bulan, tahun, jenis },
     dataType: 'json',
     success: function(res) {
       if (res.success) {
@@ -356,6 +367,7 @@ function loadData() {
             <td class="px-3 py-2 border">${d.filename}</td>
             <td class="px-3 py-2 border">${namaBulan[d.bulan] || d.bulan}</td>
             <td class="px-3 py-2 border">${d.tahun}</td>
+            <td class="px-3 py-2 border uppercase">${d.jenis || '-'}</td>
             <td class="px-3 py-2 border text-right">${rowCount}</td>
             <td class="px-3 py-2 border">${d.created_at}</td>
             <td class="px-3 py-2 border text-center">

@@ -1,4 +1,5 @@
 <?php
+set_time_limit(120);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -6,20 +7,20 @@ error_reporting(E_ALL);
 require_once '../config/conf.php';
 $koneksi = bukakoneksi();
 
-$draw   = $_POST['draw']   ?? 1;
-$start  = $_POST['start']  ?? 0;
+$draw = $_POST['draw'] ?? 1;
+$start = $_POST['start'] ?? 0;
 $length = $_POST['length'] ?? 25;
 $search = $_POST['search']['value'] ?? '';
 
-$bulan     = $_POST['bulan'] ?? date('m');
-$tahun     = $_POST['tahun'] ?? date('Y');
-$kd_poli   = $_POST['kd_poli'] ?? '';
-$kd_pj     = $_POST['kd_pj'] ?? '';
-$tcari     = $_POST['tcari'] ?? '';
+$bulan = $_POST['bulan'] ?? date('m');
+$tahun = $_POST['tahun'] ?? date('Y');
+$kd_dokter = $_POST['kd_dokter'] ?? '';
+$kd_pj = $_POST['kd_pj'] ?? '';
+$tcari = $_POST['tcari'] ?? '';
 $filter_sep = $_POST['filter_sep'] ?? 'semua';
 
 $bulan_padded = str_pad($bulan, 2, '0', STR_PAD_LEFT);
-$tgl_awal  = "$tahun-$bulan_padded-01 00:00:00";
+$tgl_awal = "$tahun-$bulan_padded-01 00:00:00";
 $tgl_akhir = date("Y-m-t 23:59:59", strtotime($tgl_awal));
 
 $base = "
@@ -50,8 +51,8 @@ $base .= " AND (
     BETWEEN '$tgl_awal' AND '$tgl_akhir'
 )";
 
-if (!empty($kd_poli)) {
-    $base .= " AND reg_periksa.kd_poli = '$kd_poli'";
+if (!empty($kd_dokter)) {
+    $base .= " AND reg_periksa.kd_dokter = '$kd_dokter'";
 }
 
 if (!empty($kd_pj)) {
@@ -253,30 +254,46 @@ while ($row = mysqli_fetch_assoc($result)) {
     $total_racikan = 0;
     $total_non_racikan = 0;
     $total_resep_operasi = 0;
-    if ($resep_result) while ($rs = mysqli_fetch_assoc($resep_result)) {
-        $nr = mysqli_real_escape_string($koneksi, $rs['no_resep']);
-        if (substr($rs['no_resep'], 0, 2) === 'OK') {
-            $total_resep_operasi++;
-        } else {
-            $cr = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS ada FROM resep_dokter_racikan WHERE no_resep='$nr' LIMIT 1"));
-            $cn = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS ada FROM resep_dokter WHERE no_resep='$nr' LIMIT 1"));
-            if ($cr && $cr['ada'] > 0) $total_racikan++;
-            elseif ($cn && $cn['ada'] > 0) $total_non_racikan++;
+    if ($resep_result)
+        while ($rs = mysqli_fetch_assoc($resep_result)) {
+            $nr = mysqli_real_escape_string($koneksi, $rs['no_resep']);
+            if (substr($rs['no_resep'], 0, 2) === 'OK') {
+                $total_resep_operasi++;
+            } else {
+                $cr = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS ada FROM resep_dokter_racikan WHERE no_resep='$nr' LIMIT 1"));
+                $cn = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) AS ada FROM resep_dokter WHERE no_resep='$nr' LIMIT 1"));
+                if ($cr && $cr['ada'] > 0)
+                    $total_racikan++;
+                elseif ($cn && $cn['ada'] > 0)
+                    $total_non_racikan++;
+            }
         }
-    }
     $row['jumlah_resep_racikan'] = $total_racikan;
     $row['jumlah_resep_non_racikan'] = $total_non_racikan;
     $row['jumlah_resep_operasi'] = $total_resep_operasi;
 
     $jasa_obat = 0;
-    if ($total_racikan > 0) $jasa_obat = 25000;
-    elseif ($total_non_racikan > 0) $jasa_obat = 15000;
+    if ($total_racikan > 0)
+        $jasa_obat = 25000;
+    elseif ($total_non_racikan > 0)
+        $jasa_obat = 15000;
     $jasa_operasi = $total_resep_operasi > 0 ? 35000 : 0;
     $row['jasa_farmasi'] = $jasa_obat + $jasa_operasi;
+
+    // Konsul / Tindakan Lain
+    $konsul_list = ['RJ00769','RJ00768','RJ00764','RJ00644','RJ00012','RJ00011','RJ00010','RJ00009','RJ000008','RJ000007','RJ000003'];
+    $kd_result = mysqli_query($koneksi, "SELECT kd_jenis_prw FROM rawat_jl_drpr WHERE no_rawat='$no_rawat'");
+    $row['jumlah_konsul'] = 0;
+    $row['jumlah_tindakan_lain'] = 0;
+    if ($kd_result) while ($k = mysqli_fetch_assoc($kd_result)) {
+        if (in_array($k['kd_jenis_prw'], $konsul_list)) $row['jumlah_konsul']++;
+        else $row['jumlah_tindakan_lain']++;
+    }
 
     $row['total_non_medis'] = $row['total_menejemen_tindakan'] + $row['total_menejemen_lab'] + $row['total_menejemen_radiologi'];
 
     $row['total_jasa'] = $row['jasa_tindakan'] + $row['jasa_farmasi'] + $row['jasa_lab'] + $row['jasa_radiologi'];
+    $row['nominal_rs'] = $row['jasa_tindakan'] + ($row['total_obat'] ?? 0) + $row['jasa_farmasi'] + $row['jasa_lab'] + $row['jasa_radiologi'];
 
     $tj = $row['total_jasa'];
     $row['persen_dpjp'] = $tj > 0 ? round($row['total_tindakan_dr'] / $tj * 100, 2) : 0;

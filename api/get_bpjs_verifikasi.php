@@ -4,13 +4,20 @@ header('Content-Type: application/json');
 
 $bulan = isset($_GET['bulan']) ? (int)$_GET['bulan'] : 0;
 $tahun = isset($_GET['tahun']) ? (int)$_GET['tahun'] : 0;
+$jenis = isset($_GET['jenis']) ? $_GET['jenis'] : '';
 
 $koneksi = bukakoneksi();
 
-$where = '';
+$where_clauses = [];
 if ($bulan && $tahun) {
-    $where = "WHERE bulan = '$bulan' AND tahun = '$tahun'";
+    $where_clauses[] = "bulan = '$bulan' AND tahun = '$tahun'";
 }
+if ($jenis) {
+    $jenis_esc = mysqli_real_escape_string($koneksi, $jenis);
+    $where_clauses[] = "jenis = '$jenis_esc'";
+}
+
+$where = count($where_clauses) > 0 ? "WHERE " . implode(' AND ', $where_clauses) : '';
 
 $sql = "SELECT * FROM bpjs_verifikasi $where ORDER BY created_at DESC";
 $result = mysqli_query($koneksi, $sql);

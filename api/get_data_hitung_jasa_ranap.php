@@ -143,7 +143,7 @@ $tq = mysqli_query($koneksi, "SELECT no_rawat,
     IFNULL(SUM(jns.total_byrdrpr), 0) AS total_biaya_rawat
     FROM rawat_inap_drpr drpr
     JOIN jns_perawatan_inap jns ON drpr.kd_jenis_prw = jns.kd_jenis_prw
-    WHERE drpr.no_rawat IN ($in) GROUP BY no_rawat");
+    WHERE drpr.no_rawat IN ($in) AND drpr.kd_jenis_prw NOT IN ('RI01330','RI01331','RI01332','RI01337','RI00267','RI000276','RI00345','RI00751','RI01314','RI01315','RI01316','RI01317','RI01306','RI01307','RI01308','RI01309','RI00724','RI01918','RI01326','RI01327','RI01328','RI01329','RI00805','RI01373','RI01374','RI01375','RI01376','RI01365','RI01366','RI01367','RI01368','RI00778','RI01396','RI01385','RI01386','RI01387','RI01388') GROUP BY no_rawat");
 if ($tq) while ($t = mysqli_fetch_assoc($tq)) $tindakanMap[$t['no_rawat']] = $t;
 
 // ── Batch: lab ──────────────────────────────────────────────────────
@@ -195,7 +195,8 @@ if (!empty($resepIds)) {
 
 // ── Batch: BPJS lookup ──────────────────────────────────────────────
 $bpjs_lookup = [];
-$bpjs_result = mysqli_query($koneksi, "SELECT data FROM bpjs_verifikasi ORDER BY created_at DESC");
+$bulan_int = (int)$bulan;
+$bpjs_result = mysqli_query($koneksi, "SELECT data FROM bpjs_verifikasi WHERE bulan = '$bulan_int' AND tahun = '$tahun' AND jenis = 'ranap' ORDER BY created_at DESC");
 while ($brow = mysqli_fetch_assoc($bpjs_result)) {
     $drows = json_decode($brow['data'], true);
     if (is_array($drows)) {
