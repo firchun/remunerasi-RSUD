@@ -49,7 +49,7 @@ if (isset($_SESSION['user_id'])) {
       </div>
       <?php endif; ?>
 
-      <form action="/config/proses_login.php" method="POST" class="space-y-4" novalidate>
+      <form action="config/proses_login.php" method="POST" class="space-y-4" novalidate>
 
         <label class="block">
           <span class="text-sm font-medium text-slate-600">Username</span>
