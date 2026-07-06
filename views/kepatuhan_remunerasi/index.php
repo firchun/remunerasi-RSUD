@@ -4,7 +4,13 @@ $koneksi = bukakoneksi();
 
 $pageTitle = 'Kepatuhan Remunerasi Rawat Jalan - RSUD MERAUKE';
 $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 <style>
   table.dataTable td { color: #1f2937 !important; } table.dataTable thead th { color: #ffffff !important; }
   #tabelKepatuhan th, #tabelKepatuhan td { white-space: nowrap; }
@@ -96,7 +102,37 @@ require_once '../layouts/header.php';
     buttons: [{
       extend: 'excel',
       text: 'Export Excel',
-      filename: 'kepatuhan_remunerasi'
+      filename: function() {
+        let bulan = $('#filter_bulan option:selected').text();
+        let tahun = $('#filter_tahun option:selected').text();
+        return 'Kepatuhan_Remunerasi_' + bulan + '_' + tahun;
+      },
+      title: function() {
+        let bulan = $('#filter_bulan option:selected').text();
+        let tahun = $('#filter_tahun option:selected').text();
+        return 'Laporan Kepatuhan Remunerasi Rawat Jalan - ' + bulan + ' ' + tahun;
+      }
+    },
+    {
+      extend: 'pdfHtml5',
+      text: 'Export PDF',
+      filename: function() {
+        let bulan = $('#filter_bulan option:selected').text();
+        let tahun = $('#filter_tahun option:selected').text();
+        return 'Kepatuhan_Remunerasi_' + bulan + '_' + tahun;
+      },
+      orientation: 'landscape',
+      pageSize: 'A4',
+      title: function() {
+        let bulan = $('#filter_bulan option:selected').text();
+        let tahun = $('#filter_tahun option:selected').text();
+        return 'Laporan Kepatuhan Remunerasi Rawat Jalan - ' + bulan + ' ' + tahun;
+      },
+      customize: function(doc) {
+        doc.defaultStyle.fontSize = 8;
+        doc.styles.tableHeader.fontSize = 9;
+        doc.styles.tableHeader.fillColor = '#166534';
+      }
     }],
     lengthMenu: [
       [10, 25, 50, 100, 300, 1000, 5000],

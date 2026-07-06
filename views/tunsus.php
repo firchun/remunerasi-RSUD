@@ -57,7 +57,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 'get_dokter_list') {
 // EXPORT EXCEL PER DOKTER
 // ============================================================
 if (isset($_GET['ajax']) && $_GET['ajax'] == 'export_excel') {
-    require 'vendor/autoload.php';
+    require __DIR__ . '/../vendor/autoload.php';
 
 
 

@@ -7,13 +7,21 @@ require_once '../config/conf.php';
 $koneksi = bukakoneksi();
 
 // Get parameters
-$bulan = $_POST['bulan'] ?? date('Y-m');
+$filter_type = $_POST['filter_type'] ?? 'bulan';
 $kd_pj = $_POST['kd_pj'] ?? '';
 
-// Parse bulan untuk filter
-list($tahun, $bln) = explode('-', $bulan);
-$tgl_awal = "$tahun-$bln-01 00:00:00";
-$tgl_akhir = date("Y-m-t 23:59:59", strtotime($tgl_awal));
+if ($filter_type === 'tahun') {
+  $tahun = $_POST['tahun'] ?? date('Y');
+  $tgl_awal = "$tahun-01-01 00:00:00";
+  $tgl_akhir = "$tahun-12-31 23:59:59";
+  $periode_label = $tahun;
+} else {
+  $bulan = $_POST['bulan'] ?? date('Y-m');
+  list($tahun, $bln) = explode('-', $bulan);
+  $tgl_awal = "$tahun-$bln-01 00:00:00";
+  $tgl_akhir = date("Y-m-t 23:59:59", strtotime($tgl_awal));
+  $periode_label = date('F Y', strtotime($tgl_awal));
+}
 
 // Base WHERE condition
 $where = "WHERE reg_periksa.status_lanjut = 'Ralan'
@@ -246,7 +254,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 echo json_encode([
   "success" => true,
-  "periode" => date('F Y', strtotime($tgl_awal)),
+  "periode" => $periode_label,
   "data" => $data
 ]);
 

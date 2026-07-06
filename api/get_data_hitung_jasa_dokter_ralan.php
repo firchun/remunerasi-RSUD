@@ -158,7 +158,7 @@ if (!$result) {
 }
 
 $bpjs_lookup = [];
-$bulan_int = (int)$bulan;
+$bulan_int = (int) $bulan;
 $bpjs_result = mysqli_query($koneksi, "
     SELECT data FROM bpjs_verifikasi
     WHERE bulan = '$bulan_int' AND tahun = '$tahun' AND jenis = 'ralan'
@@ -281,14 +281,17 @@ while ($row = mysqli_fetch_assoc($result)) {
     $row['jasa_farmasi'] = $jasa_obat + $jasa_operasi;
 
     // Konsul / Tindakan Lain
-    $konsul_list = ['RJ00769','RJ00768','RJ00764','RJ00644','RJ00012','RJ00011','RJ00010','RJ00009','RJ000008','RJ000007','RJ000003'];
+    $konsul_list = ['RJ00769', 'RJ00768', 'RJ00764', 'RJ00644', 'RJ00012', 'RJ00011', 'RJ00010', 'RJ00009', 'RJ000008', 'RJ000007', 'RJ000003'];
     $kd_result = mysqli_query($koneksi, "SELECT kd_jenis_prw FROM rawat_jl_drpr WHERE no_rawat='$no_rawat'");
     $row['jumlah_konsul'] = 0;
     $row['jumlah_tindakan_lain'] = 0;
-    if ($kd_result) while ($k = mysqli_fetch_assoc($kd_result)) {
-        if (in_array($k['kd_jenis_prw'], $konsul_list)) $row['jumlah_konsul']++;
-        else $row['jumlah_tindakan_lain']++;
-    }
+    if ($kd_result)
+        while ($k = mysqli_fetch_assoc($kd_result)) {
+            if (in_array($k['kd_jenis_prw'], $konsul_list))
+                $row['jumlah_konsul']++;
+            else
+                $row['jumlah_tindakan_lain']++;
+        }
 
     $row['total_non_medis'] = $row['total_menejemen_tindakan'] + $row['total_menejemen_lab'] + $row['total_menejemen_radiologi'];
 

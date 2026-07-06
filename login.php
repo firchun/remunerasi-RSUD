@@ -20,11 +20,11 @@ if (isset($_SESSION['user_id'])) {
   <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-  /* Small custom shadow to mimic original look but keep Tailwind utilities primary */
-  .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(6px);
-  }
+    /* Small custom shadow to mimic original look but keep Tailwind utilities primary */
+    .glass {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(6px);
+    }
   </style>
 </head>
 
@@ -44,9 +44,9 @@ if (isset($_SESSION['user_id'])) {
       </header>
 
       <?php if (isset($_GET['error'])): ?>
-      <div class="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
-        <?= htmlspecialchars($_GET['error']) ?>
-      </div>
+        <div class="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700">
+          <?= htmlspecialchars($_GET['error']) ?>
+        </div>
       <?php endif; ?>
 
       <form action="config/proses_login.php" method="POST" class="space-y-4" novalidate>
@@ -67,8 +67,6 @@ if (isset($_SESSION['user_id'])) {
               class="block w-full rounded-lg border border-slate-200 bg-white py-3 px-4 text-slate-700 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300" />
           </div>
         </label>
-
-
 
         <button type="submit"
           class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 py-3 px-4 font-medium text-white shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
@@ -92,8 +90,8 @@ if (isset($_SESSION['user_id'])) {
   </main>
 
   <script>
-  // set year
-  document.getElementById('year').textContent = new Date().getFullYear();
+    // set year
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 

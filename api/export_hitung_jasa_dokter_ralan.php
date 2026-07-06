@@ -20,15 +20,15 @@ if (class_exists(MemoryCompact::class)) {
 
 $koneksi = bukakoneksi();
 
-$bulan     = $_GET['bulan'] ?? date('m');
-$tahun     = $_GET['tahun'] ?? date('Y');
+$bulan = $_GET['bulan'] ?? date('m');
+$tahun = $_GET['tahun'] ?? date('Y');
 $kd_dokter = $_GET['kd_dokter'] ?? '';
-$kd_pj     = $_GET['kd_pj'] ?? '';
-$tcari     = $_GET['tcari'] ?? '';
+$kd_pj = $_GET['kd_pj'] ?? '';
+$tcari = $_GET['tcari'] ?? '';
 $filter_sep = $_GET['filter_sep'] ?? 'semua';
 
 $bulan_padded = str_pad($bulan, 2, '0', STR_PAD_LEFT);
-$tgl_awal  = "$tahun-$bulan_padded-01 00:00:00";
+$tgl_awal = "$tahun-$bulan_padded-01 00:00:00";
 $tgl_akhir = date("Y-m-t 23:59:59", strtotime($tgl_awal));
 
 $base = "
@@ -173,7 +173,8 @@ while (true) {
         ORDER BY dokter.nm_dokter, reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC
         LIMIT $offset, $batch
     ");
-    if (!$id_q || mysqli_num_rows($id_q) === 0) break;
+    if (!$id_q || mysqli_num_rows($id_q) === 0)
+        break;
 
     $ids = [];
     $dokterMap = [];
@@ -210,7 +211,8 @@ while (true) {
     ORDER BY MIN(dokter.nm_dokter), reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC
     ");
 
-    if (!$q) break;
+    if (!$q)
+        break;
 
     // ─── bulk lab ──────────────────────────────────────────────────────────────
     $labMap = [];
@@ -220,7 +222,9 @@ while (true) {
         SUM(IFNULL(jns_perawatan_lab.menejemen,0)) AS total_menejemen_lab
         FROM periksa_lab JOIN jns_perawatan_lab ON periksa_lab.kd_jenis_prw = jns_perawatan_lab.kd_jenis_prw
         WHERE periksa_lab.no_rawat IN ($in) GROUP BY no_rawat");
-    if ($lr) while ($l = mysqli_fetch_assoc($lr)) $labMap[$l['no_rawat']] = $l;
+    if ($lr)
+        while ($l = mysqli_fetch_assoc($lr))
+            $labMap[$l['no_rawat']] = $l;
 
     // ─── bulk rad ──────────────────────────────────────────────────────────────
     $radMap = [];
@@ -232,49 +236,62 @@ while (true) {
         JOIN permintaan_pemeriksaan_radiologi t3 ON t1.noorder = t3.noorder
         JOIN jns_perawatan_radiologi t2 ON t3.kd_jenis_prw = t2.kd_jenis_prw
         WHERE t1.no_rawat IN ($in) AND t1.status = 'ralan' GROUP BY t1.no_rawat");
-    if ($rr) while ($r = mysqli_fetch_assoc($rr)) $radMap[$r['no_rawat']] = $r;
+    if ($rr)
+        while ($r = mysqli_fetch_assoc($rr))
+            $radMap[$r['no_rawat']] = $r;
 
     // ─── bulk obat ─────────────────────────────────────────────────────────────
     $obatMap = [];
     $or = mysqli_query($koneksi, "SELECT no_rawat, SUM(IFNULL(total,0)) AS total_obat
         FROM detail_pemberian_obat WHERE no_rawat IN ($in) AND status = 'Ralan' GROUP BY no_rawat");
-    if ($or) while ($o = mysqli_fetch_assoc($or)) $obatMap[$o['no_rawat']] = floatval($o['total_obat']);
+    if ($or)
+        while ($o = mysqli_fetch_assoc($or))
+            $obatMap[$o['no_rawat']] = floatval($o['total_obat']);
 
     // ─── bulk konsul / tindakan ────────────────────────────────────────────────
-    $konsulList = ['RJ00769','RJ00768','RJ00764','RJ00644','RJ00012','RJ00011','RJ00010','RJ00009','RJ000008','RJ000007','RJ000003'];
+    $konsulList = ['RJ00769', 'RJ00768', 'RJ00764', 'RJ00644', 'RJ00012', 'RJ00011', 'RJ00010', 'RJ00009', 'RJ000008', 'RJ000007', 'RJ000003'];
     $konsulMap = [];
     $kr = mysqli_query($koneksi, "SELECT no_rawat, kd_jenis_prw FROM rawat_jl_drpr WHERE no_rawat IN ($in)");
-    if ($kr) while ($k = mysqli_fetch_assoc($kr)) {
-        $nrk = $k['no_rawat'];
-        if (!isset($konsulMap[$nrk])) $konsulMap[$nrk] = ['konsul' => 0, 'tindakan_lain' => 0];
-        if (in_array($k['kd_jenis_prw'], $konsulList)) $konsulMap[$nrk]['konsul']++;
-        else $konsulMap[$nrk]['tindakan_lain']++;
-    }
+    if ($kr)
+        while ($k = mysqli_fetch_assoc($kr)) {
+            $nrk = $k['no_rawat'];
+            if (!isset($konsulMap[$nrk]))
+                $konsulMap[$nrk] = ['konsul' => 0, 'tindakan_lain' => 0];
+            if (in_array($k['kd_jenis_prw'], $konsulList))
+                $konsulMap[$nrk]['konsul']++;
+            else
+                $konsulMap[$nrk]['tindakan_lain']++;
+        }
 
     // ─── bulk resep ────────────────────────────────────────────────────────────
     $resepMap = [];
     $rsr = mysqli_query($koneksi, "SELECT no_rawat, no_resep FROM resep_obat
         WHERE no_rawat IN ($in) AND tgl_perawatan != '0000-00-00' AND status = 'ralan'");
     $resepIds = [];
-    if ($rsr) while ($rs = mysqli_fetch_assoc($rsr)) {
-        $resepMap[$rs['no_rawat']][] = $rs['no_resep'];
-        $resepIds[] = "'" . mysqli_real_escape_string($koneksi, $rs['no_resep']) . "'";
-    }
+    if ($rsr)
+        while ($rs = mysqli_fetch_assoc($rsr)) {
+            $resepMap[$rs['no_rawat']][] = $rs['no_resep'];
+            $resepIds[] = "'" . mysqli_real_escape_string($koneksi, $rs['no_resep']) . "'";
+        }
 
     $racikanSet = [];
     $nonRacikanSet = [];
     if (!empty($resepIds)) {
         $rin = implode(',', $resepIds);
         $crr = mysqli_query($koneksi, "SELECT DISTINCT no_resep FROM resep_dokter_racikan WHERE no_resep IN ($rin)");
-        if ($crr) while ($c = mysqli_fetch_assoc($crr)) $racikanSet[$c['no_resep']] = true;
+        if ($crr)
+            while ($c = mysqli_fetch_assoc($crr))
+                $racikanSet[$c['no_resep']] = true;
         $cnr = mysqli_query($koneksi, "SELECT DISTINCT no_resep FROM resep_dokter WHERE no_resep IN ($rin)");
-        if ($cnr) while ($c = mysqli_fetch_assoc($cnr)) $nonRacikanSet[$c['no_resep']] = true;
+        if ($cnr)
+            while ($c = mysqli_fetch_assoc($cnr))
+                $nonRacikanSet[$c['no_resep']] = true;
     }
 
     // ─── bpjs lookup ───────────────────────────────────────────────────────────
     if (!isset($bpjs_lookup)) {
         $bpjs_lookup = [];
-        $bulan_int = (int)$bulan;
+        $bulan_int = (int) $bulan;
         $bpjs_result = mysqli_query($koneksi, "
             SELECT data FROM bpjs_verifikasi
             WHERE bulan = '$bulan_int' AND tahun = '$tahun' AND jenis = 'ralan'
@@ -326,15 +343,17 @@ while (true) {
             }
         }
         $jasa_obat = 0;
-        if ($total_racikan > 0) $jasa_obat = 25000;
-        elseif ($total_non_racikan > 0) $jasa_obat = 15000;
+        if ($total_racikan > 0)
+            $jasa_obat = 25000;
+        elseif ($total_non_racikan > 0)
+            $jasa_obat = 15000;
         $row['jasa_farmasi'] = $jasa_obat + ($total_resep_operasi > 0 ? 35000 : 0);
 
         $row['total_non_medis'] = $row['total_menejemen_tindakan'] + $row['total_menejemen_lab'] + $row['total_menejemen_radiologi'];
         $row['total_jasa'] = $row['jasa_tindakan'] + $row['jasa_farmasi'] + $row['jasa_lab'] + $row['jasa_radiologi'];
 
         $tj = $row['total_jasa'];
-        $pct = fn($v) => $tj > 0 ? round($v / $tj * 100, 2)  : '0';
+        $pct = fn($v) => $tj > 0 ? round($v / $tj * 100, 2) : '0';
 
         $total_bpjs = $bpjs_lookup[$row['no_sep']] ?? 0;
         $kolom_44 = $total_bpjs * 0.44;
@@ -367,9 +386,12 @@ while (true) {
             $rekap[$dokterKey] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         }
         $rekap[$dokterKey][0]++;
-        if ($is_bpjs) $rekap[$dokterKey][1]++;
-        else $rekap[$dokterKey][2]++;
-        if ($total_bpjs > 0) $rekap[$dokterKey][3]++;
+        if ($is_bpjs)
+            $rekap[$dokterKey][1]++;
+        else
+            $rekap[$dokterKey][2]++;
+        if ($total_bpjs > 0)
+            $rekap[$dokterKey][3]++;
         $rekap[$dokterKey][4] += $kd['konsul'];
         $rekap[$dokterKey][5] += $kd['tindakan_lain'];
         $rekap[$dokterKey][6] += $total_bpjs;

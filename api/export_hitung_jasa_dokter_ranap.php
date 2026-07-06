@@ -40,7 +40,7 @@ $base = "
     LEFT JOIN rawat_inap_drpr ON rawat_inap_drpr.no_rawat = reg_periksa.no_rawat
         AND rawat_inap_drpr.kd_jenis_prw NOT IN ('RI01330','RI01331','RI01332','RI01337','RI00267','RI000276','RI00345','RI00751','RI01314','RI01315','RI01316','RI01317','RI01306','RI01307','RI01308','RI01309','RI00724','RI01918','RI01326','RI01327','RI01328','RI01329','RI00805','RI01373','RI01374','RI01375','RI01376','RI01365','RI01366','RI01367','RI01368','RI00778','RI01396','RI01385','RI01386','RI01387','RI01388')
     LEFT JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
-    LEFT JOIN dokter ON reg_periksa.kd_dokter = dokter.kd_dokter
+    LEFT JOIN dokter ON rawat_inap_drpr.kd_dokter = dokter.kd_dokter
     LEFT JOIN kamar_inap ON kamar_inap.no_rawat = reg_periksa.no_rawat AND kamar_inap.stts_pulang != 'Pindah Kamar'
     LEFT JOIN kamar ON kamar_inap.kd_kamar = kamar.kd_kamar
     LEFT JOIN bangsal ON kamar.kd_bangsal = bangsal.kd_bangsal
@@ -56,7 +56,7 @@ $base .= " AND (
 )";
 
 if (!empty($kd_dokter)) {
-    $base .= " AND reg_periksa.kd_dokter = '$kd_dokter'";
+    $base .= " AND rawat_inap_drpr.kd_dokter = '$kd_dokter'";
 }
 
 if (!empty($kd_pj)) {
@@ -203,7 +203,7 @@ while (true) {
         pasien.nm_pasien,
         penjab.png_jawab,
         bridging_sep.no_sep,
-        reg_periksa.kd_dokter
+        rawat_inap_drpr.kd_dokter
     ORDER BY MIN(dokter.nm_dokter), reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC
     ");
 

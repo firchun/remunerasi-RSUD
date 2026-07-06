@@ -19,9 +19,11 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
 <style>
 .dt-button.buttons-excel.buttons-html5,
-.dt-button.buttons-pdf.buttons-html5 {
+.dt-button.buttons-pdf.buttons-html5,
+.dt-button.buttons-colvis {
   background-color: #16a34a !important;
   color: white !important;
   border: none !important;
@@ -38,6 +40,55 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
 
 .dt-button.buttons-pdf.buttons-html5 {
   background-color: #dc2626 !important;
+}
+
+.dt-button.buttons-colvis {
+  background-color: #2563eb !important;
+}
+
+.dt-button.buttons-colvis:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Fix DataTables ColVis dropdown styling under Tailwind */
+div.dt-button-collection {
+  position: absolute !important;
+  background-color: white !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  padding: 0.5rem !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  min-width: 180px !important;
+}
+
+div.dt-button-collection button.dt-button {
+  background: none !important;
+  color: #374151 !important;
+  border: none !important;
+  padding: 8px 12px !important;
+  text-align: left !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  transition: background-color 0.2s !important;
+}
+
+div.dt-button-collection button.dt-button:hover {
+  background-color: #f3f4f6 !important;
+}
+
+div.dt-button-collection button.dt-button.active {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  font-weight: 600 !important;
 }
 
 #tabelBulanan tbody td {
@@ -86,11 +137,33 @@ require_once '../layouts/header.php';
             Filter Periode
           </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Filter</label>
+              <select id="filter_type" onchange="toggleFilterType()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="bulan">Per Bulan</option>
+                <option value="tahun">Per Tahun</option>
+              </select>
+            </div>
+
+            <div id="container-bulan">
               <label class="block text-sm font-medium text-gray-700 mb-2">Bulan & Tahun</label>
               <input type="month" id="bulan"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <div id="container-tahun" class="hidden">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+              <select id="tahun"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <?php
+                $currentYear = date('Y');
+                for ($y = $currentYear; $y >= $currentYear - 5; $y--) {
+                  echo "<option value=\"$y\">$y</option>";
+                }
+                ?>
+              </select>
             </div>
 
             <div>
@@ -128,6 +201,7 @@ require_once '../layouts/header.php';
                 <!-- Baris Header Pertama (Merged) -->
                 <tr>
                   <th rowspan="3">No</th>
+                  <th rowspan="3">Tahun</th>
                   <th rowspan="3">Pelayanan</th>
                   <th rowspan="3">Kunjungan</th>
                 </tr>
@@ -148,7 +222,7 @@ require_once '../layouts/header.php';
               <tbody></tbody>
               <tfoot>
                 <tr>
-                  <th colspan="2" class="text-right">TOTAL</th>
+                  <th colspan="3" class="text-right">TOTAL</th>
                   <th class="text-right" id="foot-kunjungan">0</th>
                   <th class="text-right" id="foot-sarana">0</th>
                   <th class="text-right" id="foot-dokter">0</th>
@@ -164,6 +238,17 @@ require_once '../layouts/header.php';
   <script>
   let table;
 
+  function toggleFilterType() {
+    const filterType = $('#filter_type').val();
+    if (filterType === 'tahun') {
+      $('#container-bulan').addClass('hidden');
+      $('#container-tahun').removeClass('hidden');
+    } else {
+      $('#container-bulan').removeClass('hidden');
+      $('#container-tahun').addClass('hidden');
+    }
+  }
+
   $(document).ready(function() {
     // Set default ke bulan ini
     const now = new Date();
@@ -178,6 +263,7 @@ require_once '../layouts/header.php';
           text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
           title: 'Laporan Bulanan Per Poliklinik',
           exportOptions: {
+            columns: ':visible',
             orthogonal: 'export'
           }
         },
@@ -187,11 +273,18 @@ require_once '../layouts/header.php';
           orientation: 'landscape',
           pageSize: 'A4',
           title: 'Laporan Bulanan Per Poliklinik',
+          exportOptions: {
+            columns: ':visible'
+          },
           customize: function(doc) {
             doc.defaultStyle.fontSize = 7;
             doc.styles.tableHeader.fontSize = 8;
             doc.styles.tableHeader.fillColor = '#166534';
           }
+        },
+        {
+          extend: 'colvis',
+          text: '<i class="fas fa-columns mr-2"></i>Pilih Kolom'
         }
       ],
       lengthMenu: [
@@ -207,6 +300,10 @@ require_once '../layouts/header.php';
       info: false,
       columns: [{
           data: 'no',
+          className: 'text-center'
+        },
+        {
+          data: 'tahun',
           className: 'text-center'
         },
         {
@@ -299,7 +396,9 @@ require_once '../layouts/header.php';
   });
 
   function loadData() {
+    const filter_type = $('#filter_type').val();
     const bulan = $('#bulan').val();
+    const tahun = $('#tahun').val();
     const kd_pj = $('#kd_pj').val();
 
 
@@ -307,7 +406,9 @@ require_once '../layouts/header.php';
       url: window.BASE_URL + '/api/get_monthly_report.php',
       type: 'POST',
       data: {
+        filter_type,
         bulan,
+        tahun,
         kd_pj
       },
       success: function(response) {
@@ -319,6 +420,7 @@ require_once '../layouts/header.php';
           // Transform data
           const transformedData = [];
           let counter = 1;
+          const selectedTahun = $('#filter_type').val() === 'tahun' ? $('#tahun').val() : $('#bulan').val().split('-')[0];
 
           // Variabel untuk akumulasi Lab dan Radiologi
           let totalLabData = {
@@ -352,6 +454,7 @@ require_once '../layouts/header.php';
           res.data.forEach((item) => {
             transformedData.push({
               no: counter++,
+              tahun: selectedTahun,
               nm_poli: item.nm_poli,
               jumlah_kunjungan: item.jumlah_kunjungan,
               total_material_tindakan: item.total_material_tindakan,
@@ -381,6 +484,7 @@ require_once '../layouts/header.php';
           // Tambahkan baris Laboratorium (total)
           transformedData.push({
             no: counter++,
+            tahun: selectedTahun,
             nm_poli: 'LABORATORIUM',
             jumlah_kunjungan: null,
             total_material_tindakan: totalLabData.material,
@@ -395,6 +499,7 @@ require_once '../layouts/header.php';
           // Tambahkan baris Radiologi (total)
           transformedData.push({
             no: counter++,
+            tahun: selectedTahun,
             nm_poli: 'RADIOLOGI',
             jumlah_kunjungan: null,
             total_material_tindakan: totalRadData.material,
@@ -408,6 +513,7 @@ require_once '../layouts/header.php';
           // Tambahkan baris farmasi (total)
           transformedData.push({
             no: counter++,
+            tahun: selectedTahun,
             nm_poli: 'FARMASI',
             jumlah_kunjungan: totalKunjunganSemua,
             total_material_tindakan: null,
@@ -459,9 +565,12 @@ require_once '../layouts/header.php';
   }
 
   function resetFilter() {
+    $('#filter_type').val('bulan');
+    toggleFilterType();
     const now = new Date();
     const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
     $('#bulan').val(bulanIni);
+    $('#tahun').val(now.getFullYear());
     $('#kd_pj').val('');
     loadData();
   }
