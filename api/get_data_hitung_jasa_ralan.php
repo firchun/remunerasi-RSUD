@@ -277,19 +277,18 @@ while ($row = mysqli_fetch_assoc($result)) {
     elseif ($total_non_racikan > 0)
         $jasa_obat = 15000;
     $jasa_operasi = $total_resep_operasi > 0 ? 35000 : 0;
-    // $row['jasa_farmasi'] = $jasa_obat + $jasa_operasi;
-    $row['jasa_farmasi'] = 15000;
-    $row['jasa_apoteker'] = 12000;
-    $row['jasa_non_apoteker'] = 3000;
+    $row['jasa_farmasi'] = $jasa_obat + $jasa_operasi;
+    $row['jasa_apoteker'] = 0.80 * $row['jasa_farmasi'];
+    $row['jasa_non_apoteker'] = 0.20 * $row['jasa_farmasi'];
 
-    $row['total_non_medis'] = $row['total_menejemen_tindakan'] + $row['total_menejemen_lab'] + $row['total_menejemen_radiologi'];
+    $row['total_non_medis'] = $row['total_menejemen_tindakan'] + $row['total_menejemen_lab'] + $row['total_menejemen_radiologi'] + $row['jasa_non_apoteker'];
 
     $row['total_jasa'] = $row['jasa_tindakan'] + $row['jasa_farmasi'] + $row['jasa_lab'] + $row['jasa_radiologi'];
 
     $tj = $row['total_jasa'];
     $row['persen_dpjp'] = $tj > 0 ? round($row['total_tindakan_dr'] / $tj * 100, 2) : 0;
     $row['persen_perawat'] = $tj > 0 ? round($row['total_tindakan_pr'] / $tj * 100, 2) : 0;
-    $row['persen_farmasi'] = $tj > 0 ? round($row['jasa_farmasi'] / $tj * 100, 2) : 0;
+    $row['persen_farmasi'] = $tj > 0 ? round($row['jasa_apoteker'] / $tj * 100, 2) : 0;
     $row['persen_dokter_lab'] = $tj > 0 ? round($row['total_dokter_lab'] / $tj * 100, 2) : 0;
     $row['persen_analis_lab'] = $tj > 0 ? round($row['total_petugas_lab'] / $tj * 100, 2) : 0;
     $row['persen_dokter_radiologi'] = $tj > 0 ? round($row['total_dokter_radiologi'] / $tj * 100, 2) : 0;

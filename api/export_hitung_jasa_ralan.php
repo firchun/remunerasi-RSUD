@@ -137,6 +137,8 @@ $headerRow = [
     'Total Jasa Tindakan',
     'Total Non Medis',
     'Jasa Farmasi',
+    'Apoteker',
+    'Non Apoteker',
     'Jasa Dokter Lab',
     'Jasa Petugas Lab',
     'Jasa Manajemen Lab',
@@ -345,8 +347,10 @@ while (true) {
         if ($total_racikan > 0) $jasa_obat = 25000;
         elseif ($total_non_racikan > 0) $jasa_obat = 15000;
         $row['jasa_farmasi'] = $jasa_obat + ($total_resep_operasi > 0 ? 35000 : 0);
+        $row['jasa_apoteker'] = 0.80 * $row['jasa_farmasi'];
+        $row['jasa_non_apoteker'] = 0.20 * $row['jasa_farmasi'];
 
-        $row['total_non_medis'] = $row['total_menejemen_tindakan'] + $row['total_menejemen_lab'] + $row['total_menejemen_radiologi'];
+        $row['total_non_medis'] = $row['total_menejemen_tindakan'] + $row['total_menejemen_lab'] + $row['total_menejemen_radiologi'] + $row['jasa_non_apoteker'];
         $row['total_jasa'] = $row['jasa_tindakan'] + $row['jasa_farmasi'] + $row['jasa_lab'] + $row['jasa_radiologi'];
 
         $tj = $row['total_jasa'];
@@ -357,7 +361,7 @@ while (true) {
         $tb44 = $kolom_44;
         $jml_dpjp = $tb44 > 0 ? round($pct($row['total_tindakan_dr']) / 100 * $tb44) : 0;
         $jml_perawat = $tb44 > 0 ? round($pct($row['total_tindakan_pr']) / 100 * $tb44) : 0;
-        $jml_farmasi = $tb44 > 0 ? round($pct($row['jasa_farmasi']) / 100 * $tb44) : 0;
+        $jml_farmasi = $tb44 > 0 ? round($pct($row['jasa_apoteker']) / 100 * $tb44) : 0;
         $jml_dokter_lab = $tb44 > 0 ? round($pct($row['total_dokter_lab']) / 100 * $tb44) : 0;
         $jml_analis_lab = $tb44 > 0 ? round($pct($row['total_petugas_lab']) / 100 * $tb44) : 0;
         $jml_dokter_rad = $tb44 > 0 ? round($pct($row['total_dokter_radiologi']) / 100 * $tb44) : 0;
@@ -381,6 +385,8 @@ while (true) {
             $row['jasa_tindakan'],
             $row['total_non_medis'],
             $row['jasa_farmasi'],
+            $row['jasa_apoteker'],
+            $row['jasa_non_apoteker'],
             $row['total_dokter_lab'],
             $row['total_petugas_lab'],
             $row['total_menejemen_lab'],
@@ -394,7 +400,7 @@ while (true) {
             $jml_dpjp,
             $pct($row['total_tindakan_pr']),
             $jml_perawat,
-            $pct($row['jasa_farmasi']),
+            $pct($row['jasa_apoteker']),
             $jml_farmasi,
             $pct($row['total_dokter_lab']),
             $jml_dokter_lab,
