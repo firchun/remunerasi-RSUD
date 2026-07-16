@@ -165,7 +165,7 @@ function isActive($paths)
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-1">Menu Utama</p>
 
       <a href="<?= $baseUrl ?>/"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white         <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi']) ? 'active text-white' : '' ?>">
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white         <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum']) ? 'active text-white' : '' ?>">
         <i class="fas fa-home w-5 text-center text-emerald-300"></i>
         <span>Dashboard</span>
       </a>
@@ -213,28 +213,48 @@ function isActive($paths)
         Ralan
       </p>
       <a href="<?= $baseUrl ?>/hitung-jasa-ralan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ralan') ? 'active text-white' : '' ?>">
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ralan') && !isActive('hitung-jasa-ralan-umum') ? 'active text-white' : '' ?>">
         <i class="fas fa-calculator w-5 text-center text-emerald-300"></i>
         <span>Hitung Jasa Ralan</span>
       </a>
+      <a href="<?= $baseUrl ?>/hitung-jasa-ralan-umum"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ralan-umum') ? 'active text-white' : '' ?>">
+        <i class="fas fa-calculator w-5 text-center text-emerald-300"></i>
+        <span>Hitung Jasa Ralan Umum</span>
+      </a>
       <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ralan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ralan') ? 'active text-white' : '' ?>">
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ralan') && !isActive('hitung-jasa-dokter-ralan-umum') ? 'active text-white' : '' ?>">
         <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
         <span>Jasa Dokter Ralan</span>
+      </a>
+      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ralan-umum"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ralan-umum') ? 'active text-white' : '' ?>">
+        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
+        <span>Jasa Dokter Ralan Umum</span>
       </a>
 
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Perhitungan
         Ranap
       </p>
       <a href="<?= $baseUrl ?>/hitung-jasa-ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ranap') ? 'active text-white' : '' ?>">
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ranap') && !isActive('hitung-jasa-ranap-umum') ? 'active text-white' : '' ?>">
         <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
         <span>Hitung Jasa Ranap</span>
       </a>
+      <a href="<?= $baseUrl ?>/hitung-jasa-ranap-umum"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ranap-umum') ? 'active text-white' : '' ?>">
+        <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
+        <span>Hitung Jasa Ranap Umum</span>
+      </a>
       <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ranap') ? 'active text-white' : '' ?>">
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ranap') && !isActive('hitung-jasa-dokter-ranap-umum') ? 'active text-white' : '' ?>">
         <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
         <span>Jasa Dokter Ranap</span>
+      </a>
+      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ranap-umum"
+        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ranap-umum') ? 'active text-white' : '' ?>">
+        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
+        <span>Jasa Dokter Ranap Umum</span>
       </a>
       <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data
         Umpan Balik

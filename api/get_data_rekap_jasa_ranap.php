@@ -1,32 +1,32 @@
 <?php
+error_reporting(0);
+ob_start();
 set_time_limit(600);
 ini_set('memory_limit', '1024M');
 
 require_once '../config/conf.php';
 require_once '../vendor/autoload.php';
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
-use PhpOffice\PhpSpreadsheet\Settings;
-use PhpOffice\PhpSpreadsheet\Collection\MemoryCompact;
 
-if (class_exists(MemoryCompact::class)) {
-    Settings::setCache(new MemoryCompact());
-}
+
+
+
+
+
+
+
+
+
 
 $koneksi = bukakoneksi();
 
-$bulan     = $_GET['bulan'] ?? date('m');
-$tahun     = $_GET['tahun'] ?? date('Y');
-$grup_bangsal = $_GET['grup_bangsal'] ?? '';
-$kd_pj     = $_GET['kd_pj'] ?? '';
-$tcari     = $_GET['tcari'] ?? '';
-$filter_sep = $_GET['filter_sep'] ?? 'semua';
-$status_pulang = $_GET['status_pulang'] ?? 'semua';
+$bulan     = $_POST['bulan'] ?? date('m');
+$tahun     = $_POST['tahun'] ?? date('Y');
+$grup_bangsal = $_POST['grup_bangsal'] ?? '';
+$kd_pj     = $_POST['kd_pj'] ?? '';
+$tcari     = $_POST['tcari'] ?? '';
+$filter_sep = $_POST['filter_sep'] ?? 'semua';
+$status_pulang = $_POST['status_pulang'] ?? 'semua';
 
 $bulan_padded = str_pad($bulan, 2, '0', STR_PAD_LEFT);
 $tgl_awal  = "$tahun-$bulan_padded-01 00:00:00";
@@ -96,143 +96,20 @@ if (!empty($tcari)) {
     )";
 }
 
-function safeSheetName(string $name): string
-{
-    $n = preg_replace('/[\/\\\?\*\[\]\:\']+/', ' ', trim($name));
-    return mb_substr($n, 0, 31);
-}
-function headerStyle(): array
-{
-    return [
-        'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10, 'name' => 'Arial'],
-        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1F4E79']],
-        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
-        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'B8CCE4']]],
-    ];
-}
-function cellStyle(): array
-{
-    return [
-        'font' => ['size' => 9, 'name' => 'Arial'],
-        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D9D9D9']]],
-    ];
-}
-function altRowStyle(): array
-{
-    return ['fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'EBF3FF']]];
-}
 
-$headerRow = [
-    'No',
-    'No.Rawat',
-    'No.SEP',
-    'Total BPJS',
-    '44%',
-    'Sisa BPJS',
-    'No.RM',
-    'Pasien',
-    'Bangsal',
-    'DPJP',
-    'Tgl Masuk',
-    'Lama',
-    'Status Pulang',
-    'Jasa Dokter',
-    'Jasa Perawat',
-    'Jasa Manajemen',
-    'Total Jasa Tindakan',
-    'Total Non Medis',
-    'Operator',
-    'Asisten',
-    'Dr Anestesi',
-    'As Anestesi',
-    'Dr Anak',
-    'Pr Resusitasi',
-    'Bidan',
-    'Instrumen',
-    'Omloop',
-    'Dr PJA',
-    'Dr Umum',
-    'Pr Luar',
-    'Total Ops',
-    'Jasa Farmasi',
-    'Jasa Dokter Lab',
-    'Jasa Petugas Lab',
-    'Jasa Manajemen Lab',
-    'Total Jasa Lab',
-    'Jasa Dokter Rad',
-    'Jasa Petugas Rad',
-    'Jasa Manajemen Rad',
-    'Total Jasa Rad',
-    'TOTAL JASA',
-    '%DPJP',
-    'Jml DPJP',
-    '%Perawat',
-    'Jml Perawat',
-    '%Operator',
-    'Jml Operator',
-    '%Asisten',
-    'Jml Asisten',
-    '%Dr Anes',
-    'Jml Dr Anes',
-    '%As Anes',
-    'Jml As Anes',
-    '%Dr Anak',
-    'Jml Dr Anak',
-    '%Pr Resus',
-    'Jml Pr Resus',
-    '%Bidan',
-    'Jml Bidan',
-    '%Instrumen',
-    'Jml Instrumen',
-    '%Omloop',
-    'Jml Omloop',
-    '%Dr PJA',
-    'Jml Dr PJA',
-    '%Dr Umum',
-    'Jml Dr Umum',
-    '%Pr Luar',
-    'Jml Pr Luar',
-    '%Farmasi',
-    'Jml Farmasi',
-    '%Dr Lab',
-    'Jml Dr Lab',
-    '%Analis Lab',
-    'Jml Analis Lab',
-    '%Dr Rad',
-    'Jml Dr Rad',
-    '%Radiografer',
-    'Jml Radiografer',
-    '%Non Medis',
-    'Jml Non Medis',
-];
-$lastCol = Coordinate::stringFromColumnIndex(count($headerRow));
 
-$spreadsheet = new Spreadsheet();
-$spreadsheet->removeSheetByIndex(0);
-$wsSheets = [];
-$rowSheets = [];
-$sheetIdx = 0;
+
+
+
+
+
+
+
 $no = 1;
 $rekap = [];
 $selisih = [];
 $pasien_gagal_compare = [];
 $used_seps = [];
-
-function getWs($spreadsheet, &$wsSheets, &$rowSheets, &$sheetIdx, $name, $header, $hStyle, $lastCol)
-{
-    $safe = safeSheetName($name);
-    if (!isset($wsSheets[$safe])) {
-        $ws = $spreadsheet->createSheet($sheetIdx++);
-        $ws->setTitle($safe);
-        $ws->fromArray([$header], null, 'A1');
-        $ws->getStyle('A1:' . $lastCol . '1')->applyFromArray($hStyle);
-        $ws->getRowDimension(1)->setRowHeight(28);
-        $ws->freezePane('A2');
-        $wsSheets[$safe] = $ws;
-        $rowSheets[$safe] = 2;
-    }
-    return $wsSheets[$safe];
-}
 
 $offset = 0;
 $batch = 200;
@@ -597,200 +474,50 @@ while (true) {
             $pasien_gagal_compare[] = $finalRow;
         }
 
-        $ws = getWs($spreadsheet, $wsSheets, $rowSheets, $sheetIdx, $bangsalKey, $headerRow, headerStyle(), $lastCol);
-        $ws->fromArray([$finalRow], null, 'A' . $rowSheets[safeSheetName($bangsalKey)]);
-        $range = 'A' . $rowSheets[safeSheetName($bangsalKey)] . ':' . $lastCol . $rowSheets[safeSheetName($bangsalKey)];
-        $ws->getStyle($range)->applyFromArray(cellStyle());
-        if ($rowSheets[safeSheetName($bangsalKey)] % 2 === 0) {
-            $ws->getStyle($range)->applyFromArray(altRowStyle());
-        }
-        $rowSheets[safeSheetName($bangsalKey)]++;
+        
+        
+        
+        
+        
+        
         $no++;
     }
     unset($q, $ids, $id_q, $labMap, $radMap, $obatMap, $resepMap, $resepIds, $racikanSet, $nonRacikanSet);
     $offset += $batch;
 }
 
-// ─── Fetch This Month's BPJS for Gagal Compare ─────────────────────────────
-$bpjs_this_month = [];
-$bulan_int = (int)$bulan;
-$bpjs_res_month = mysqli_query($koneksi, "SELECT data FROM bpjs_verifikasi WHERE bulan = '$bulan_int' AND tahun = '$tahun' AND jenis = 'ranap' ORDER BY created_at DESC");
-if ($bpjs_res_month) {
-    while ($bm = mysqli_fetch_assoc($bpjs_res_month)) {
-        $m_rows = json_decode($bm['data'], true);
-        if (is_array($m_rows)) {
-            foreach ($m_rows as $r) {
-                if (!empty($r['no_sep'])) {
-                    $bpjs_this_month[$r['no_sep']] = $r;
-                }
-            }
-        }
-    }
-}
-
-$sep_gagal_compare = [];
-$no_sep_gagal = 1;
-foreach ($bpjs_this_month as $sep => $r) {
-    if (!isset($used_seps[$sep]) && floatval($r['disetujui'] ?? 0) > 0) {
-        $sep_gagal_compare[] = [
-            $no_sep_gagal++,
-            $sep,
-            floatval($r['disetujui'] ?? 0)
-        ];
-    }
-}
-
-if (!empty($rekap)) {
-    $rekapHeader = [
-        'Bangsal', 'Jumlah Pasien', 'Total BPJS', '44%', 'Sisa BPJS',
-        'Jml DPJP', 'Jml Perawat', 'Jml Operator', 'Jml Asisten', 'Jml Dr Anes', 'Jml As Anes', 'Jml Dr Anak', 'Jml Pr Resusitasi', 'Jml Bidan', 'Jml Instrumen', 'Jml Omloop', 'Jml Dr PJA', 'Jml Dr Umum', 'Jml Pr Luar', 'Jml Farmasi',
-        'Jml Dr Lab', 'Jml Analis Lab', 'Jml Dr Rad',
-        'Jml Radiografer', 'Jml Non Medis'
+$data_rekap = [];
+foreach ($rekap as $bangsal => $v) {
+    $data_rekap[] = [
+        'nm_bangsal' => $bangsal,
+        'jumlah_pasien' => $v[0],
+        'total_bpjs' => $v[1],
+        'kolom_44' => $v[2],
+        'sisa_bpjs' => $v[3],
+        'jml_dpjp' => $v[4],
+        'jml_perawat' => $v[5],
+        'jml_operator' => $v[6],
+        'jml_asisten' => $v[7],
+        'jml_dr_anestesi' => $v[8],
+        'jml_as_anestesi' => $v[9],
+        'jml_dr_anak' => $v[10],
+        'jml_pr_resusitas' => $v[11],
+        'jml_bidan' => $v[12],
+        'jml_instrumen' => $v[13],
+        'jml_omloop' => $v[14],
+        'jml_dr_pjanak' => $v[15],
+        'jml_dr_umum' => $v[16],
+        'jml_pr_luar' => $v[17],
+        'jml_farmasi' => $v[18],
+        'jml_dokter_lab' => $v[19],
+        'jml_analis_lab' => $v[20],
+        'jml_dokter_radiologi' => $v[21],
+        'jml_radiografer' => $v[22],
+        'jml_non_medis' => $v[23]
     ];
-    $wsRekap = $spreadsheet->createSheet($sheetIdx++);
-    $wsRekap->setTitle('Rekap Per Bangsal');
-    $wsRekap->fromArray([$rekapHeader], null, 'A1');
-    $lastRekapCol = Coordinate::stringFromColumnIndex(count($rekapHeader));
-    $wsRekap->getStyle('A1:' . $lastRekapCol . '1')->applyFromArray(headerStyle());
-    $wsRekap->getRowDimension(1)->setRowHeight(28);
-    $wsRekap->freezePane('A2');
-
-    $r = 2;
-    foreach ($rekap as $bangsal => $v) {
-        $wsRekap->fromArray([array_merge([$bangsal, $v[0], $v[1], $v[2]], [$v[3]], array_slice($v, 4))], null, 'A' . $r);
-        $range = 'A' . $r . ':' . $lastRekapCol . $r;
-        $wsRekap->getStyle($range)->applyFromArray(cellStyle());
-        if ($r % 2 === 0) {
-            $wsRekap->getStyle($range)->applyFromArray(altRowStyle());
-        }
-        $r++;
-    }
-
-    for ($c = 1; $c <= count($rekapHeader); $c++) {
-        $wsRekap->getColumnDimensionByColumn($c)->setAutoSize(true);
-    }
 }
 
-// ─── Selisih sheet ───────────────────────────────────────────────────────────
-if (!empty($selisih)) {
-    $selisihHeader = [
-        'Bangsal',
-        'Total Pasien',
-        'Berhasil Di Compare',
-        'Tidak Berhasil Di Compare',
-        'Sisa BPJS',
-        'Sisa Jasa RS'
-    ];
-    $wsSelisih = $spreadsheet->createSheet($sheetIdx++);
-    $wsSelisih->setTitle('Selisih');
-    $wsSelisih->fromArray([$selisihHeader], null, 'A1');
-    $lastSelisihCol = Coordinate::stringFromColumnIndex(count($selisihHeader));
-    $wsSelisih->getStyle('A1:' . $lastSelisihCol . '1')->applyFromArray(headerStyle());
-    $wsSelisih->getRowDimension(1)->setRowHeight(28);
-    $wsSelisih->freezePane('A2');
-
-    $r = 2;
-    foreach ($selisih as $bangsal => $v) {
-        $rowSelisih = [
-            $bangsal, 
-            $v['total'], 
-            $v['berhasil'],
-            $v['tidak_berhasil'],
-            $v['sisa_bpjs'],
-            $v['sisa_rs']
-        ];
-        $wsSelisih->fromArray([$rowSelisih], null, 'A' . $r);
-        $range = 'A' . $r . ':' . $lastSelisihCol . $r;
-        $wsSelisih->getStyle($range)->applyFromArray(cellStyle());
-        if ($r % 2 === 0) {
-            $wsSelisih->getStyle($range)->applyFromArray(altRowStyle());
-        }
-        $r++;
-    }
-
-    for ($c = 1; $c <= count($selisihHeader); $c++) {
-        $wsSelisih->getColumnDimensionByColumn($c)->setAutoSize(true);
-    }
-}
-
-// ─── Daftar Pasien Gagal Kompare ─────────────────────────────────────────────
-if (!empty($pasien_gagal_compare)) {
-    $wsGagalPasien = $spreadsheet->createSheet($sheetIdx++);
-    $wsGagalPasien->setTitle('Pasien Gagal Kompare');
-    $wsGagalPasien->fromArray([$headerRow], null, 'A1');
-    $wsGagalPasien->getStyle('A1:' . $lastCol . '1')->applyFromArray(headerStyle());
-    $wsGagalPasien->getRowDimension(1)->setRowHeight(28);
-    $wsGagalPasien->freezePane('A2');
-
-    $r = 2;
-    foreach ($pasien_gagal_compare as $rowGagal) {
-        $wsGagalPasien->fromArray([$rowGagal], null, 'A' . $r);
-        $range = 'A' . $r . ':' . $lastCol . $r;
-        $wsGagalPasien->getStyle($range)->applyFromArray(cellStyle());
-        if ($r % 2 === 0) {
-            $wsGagalPasien->getStyle($range)->applyFromArray(altRowStyle());
-        }
-        $r++;
-    }
-
-    for ($c = 1; $c <= count($headerRow); $c++) {
-        $wsGagalPasien->getColumnDimensionByColumn($c)->setAutoSize(true);
-    }
-}
-
-// ─── Daftar SEP BPJS Gagal Kompare ───────────────────────────────────────────
-if (!empty($sep_gagal_compare)) {
-    $bpjsHeader = ['No.', 'No. SEP', 'Nominal BPJS'];
-    $wsGagalSep = $spreadsheet->createSheet($sheetIdx++);
-    $wsGagalSep->setTitle('Sisa BPJS');
-    $wsGagalSep->fromArray([$bpjsHeader], null, 'A1');
-    $lastBpjsCol = Coordinate::stringFromColumnIndex(count($bpjsHeader));
-    $wsGagalSep->getStyle('A1:' . $lastBpjsCol . '1')->applyFromArray(headerStyle());
-    $wsGagalSep->getRowDimension(1)->setRowHeight(28);
-    $wsGagalSep->freezePane('A2');
-
-    $r = 2;
-    foreach ($sep_gagal_compare as $rowSep) {
-        $wsGagalSep->fromArray([$rowSep], null, 'A' . $r);
-        $range = 'A' . $r . ':' . $lastBpjsCol . $r;
-        $wsGagalSep->getStyle($range)->applyFromArray(cellStyle());
-        if ($r % 2 === 0) {
-            $wsGagalSep->getStyle($range)->applyFromArray(altRowStyle());
-        }
-        $r++;
-    }
-
-    for ($c = 1; $c <= count($bpjsHeader); $c++) {
-        $wsGagalSep->getColumnDimensionByColumn($c)->setAutoSize(true);
-    }
-}
-
-if ($sheetIdx === 0) {
-    $ws = $spreadsheet->createSheet(0);
-    $ws->setTitle('TIDAK ADA DATA');
-    $ws->setCellValue('A1', 'Tidak ada data.');
-} else {
-    foreach ($wsSheets as $ws) {
-        $lastR = $rowSheets[$ws->getTitle()] ?? $ws->getHighestRow();
-        if ($lastR > 1) {
-            $ws->setAutoFilter('A1:' . $lastCol . '1');
-        }
-        for ($c = 1; $c <= count($headerRow); $c++) {
-            $ws->getColumnDimensionByColumn($c)->setAutoSize(true);
-        }
-    }
-}
-
-$spreadsheet->setActiveSheetIndex(0);
-$filename = 'hitung_jasa_ranap_' . date('Ymd_His') . '.xlsx';
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment; filename="' . $filename . '"');
-header('Cache-Control: no-cache, no-store, must-revalidate');
-header('Pragma: no-cache');
-header('Expires: 0');
-
-(new Xlsx($spreadsheet))->save('php://output');
-$spreadsheet->disconnectWorksheets();
-unset($spreadsheet);
+ob_clean();
+header('Content-Type: application/json');
+echo json_encode(['data' => $data_rekap]);
 mysqli_close($koneksi);
-exit;

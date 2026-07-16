@@ -25,7 +25,6 @@ $tahun     = $_GET['tahun'] ?? date('Y');
 $kd_dokter = $_GET['kd_dokter'] ?? '';
 $kd_pj     = $_GET['kd_pj'] ?? '';
 $tcari     = $_GET['tcari'] ?? '';
-$filter_sep = $_GET['filter_sep'] ?? 'semua';
 $grup_bangsal = $_GET['grup_bangsal'] ?? '';
 
 $bulan_padded = str_pad($bulan, 2, '0', STR_PAD_LEFT);
@@ -36,8 +35,7 @@ $base = "
     FROM reg_periksa
     JOIN pasien ON reg_periksa.no_rkm_medis = pasien.no_rkm_medis
     JOIN penjab ON reg_periksa.kd_pj = penjab.kd_pj
-    LEFT JOIN bridging_sep ON bridging_sep.no_rawat = reg_periksa.no_rawat
-    LEFT JOIN rawat_inap_drpr ON rawat_inap_drpr.no_rawat = reg_periksa.no_rawat
+        LEFT JOIN rawat_inap_drpr ON rawat_inap_drpr.no_rawat = reg_periksa.no_rawat
         AND rawat_inap_drpr.kd_jenis_prw NOT IN ('RI01330','RI01331','RI01332','RI01337','RI00267','RI000276','RI00345','RI00751','RI01314','RI01315','RI01316','RI01317','RI01306','RI01307','RI01308','RI01309','RI00724','RI01918','RI01326','RI01327','RI01328','RI01329','RI00805','RI01373','RI01374','RI01375','RI01376','RI01365','RI01366','RI01367','RI01368','RI00778','RI01396','RI01385','RI01386','RI01387','RI01388')
     LEFT JOIN jns_perawatan_inap ON rawat_inap_drpr.kd_jenis_prw = jns_perawatan_inap.kd_jenis_prw
     LEFT JOIN dokter ON rawat_inap_drpr.kd_dokter = dokter.kd_dokter
@@ -47,7 +45,8 @@ $base = "
     WHERE 1=1
     AND reg_periksa.status_lanjut = 'Ranap'
     AND reg_periksa.stts != 'Batal'
-    AND reg_periksa.stts != 'Belum'
+    AND reg_periksa.kd_pj != 'BPJ'
+AND reg_periksa.stts != 'Belum'
 ";
 
 $base .= " AND (
@@ -67,19 +66,6 @@ if (!empty($grup_bangsal)) {
     $base .= " AND bangsal.kd_bangsal IN (SELECT kd_bangsal FROM v_bangsal_grup WHERE grup_bangsal = '$grup_bangsal')";
 }
 
-if ($filter_sep == 'ada') {
-    $base .= " AND EXISTS (
-        SELECT 1 FROM bridging_sep bs
-        WHERE bs.no_rawat = reg_periksa.no_rawat
-        AND bs.no_sep IS NOT NULL AND bs.no_sep != '' AND bs.no_sep != '-'
-    )";
-} elseif ($filter_sep == 'tidak_ada') {
-    $base .= " AND NOT EXISTS (
-        SELECT 1 FROM bridging_sep bs
-        WHERE bs.no_rawat = reg_periksa.no_rawat
-        AND bs.no_sep IS NOT NULL AND bs.no_sep != '' AND bs.no_sep != '-'
-    )";
-}
 
 if (!empty($tcari)) {
     $c = mysqli_real_escape_string($koneksi, $tcari);
@@ -88,7 +74,6 @@ if (!empty($tcari)) {
         OR pasien.nm_pasien LIKE '%$c%'
         OR dokter.nm_dokter LIKE '%$c%'
         OR reg_periksa.no_rkm_medis LIKE '%$c%'
-        OR bridging_sep.no_sep LIKE '%$c%'
         OR bangsal.nm_bangsal LIKE '%$c%'
     )";
 }
@@ -124,8 +109,8 @@ $headerRow = [
     'No.Rawat',
     'No.SEP',
     'Nominal RS',
-    'Total BPJS',
-    '44%',
+    
+    
     'No.RM',
     'Pasien',
     'Bangsal',
@@ -183,8 +168,7 @@ while (true) {
         reg_periksa.tgl_registrasi,
         pasien.nm_pasien,
         penjab.png_jawab,
-        IFNULL(bridging_sep.no_sep, '-') AS no_sep,
-        MIN(bangsal.nm_bangsal) AS nm_bangsal,
+                MIN(bangsal.nm_bangsal) AS nm_bangsal,
         MIN(kamar_inap.tgl_masuk) AS tgl_masuk,
         MIN(kamar_inap.stts_pulang) AS stts_pulang
     $base
@@ -194,8 +178,7 @@ while (true) {
         reg_periksa.no_rkm_medis,
         reg_periksa.tgl_registrasi,
         pasien.nm_pasien,
-        penjab.png_jawab,
-        bridging_sep.no_sep
+        penjab.png_jawab
     ORDER BY reg_periksa.tgl_registrasi DESC, reg_periksa.jam_reg DESC
     ");
     if (!$q) break;
@@ -410,29 +393,7 @@ while (true) {
         $row['nominal_rs'] = $row['jasa_tindakan'] + $row['total_obat'] + $row['jasa_farmasi'] + $row['jasa_lab'] + $row['jasa_radiologi'];
 
         $tj = $row['total_jasa'];
-        $row['persen_dpjp'] = $tj > 0 ? round($row['total_tindakan_dr'] / $tj * 100, 2) : 0;
-        $row['persen_operator'] = $tj > 0 ? round($row['jasa_operator'] / $tj * 100, 2) : 0;
-        $row['persen_dr_anestesi'] = $tj > 0 ? round($row['jasa_dr_anestesi'] / $tj * 100, 2) : 0;
-        $row['persen_dr_anak'] = $tj > 0 ? round($row['jasa_dr_anak'] / $tj * 100, 2) : 0;
-        $row['persen_dr_pjanak'] = $tj > 0 ? round($row['jasa_dr_pjanak'] / $tj * 100, 2) : 0;
-        $row['persen_dr_umum'] = $tj > 0 ? round($row['jasa_dr_umum'] / $tj * 100, 2) : 0;
-        $row['persen_dokter_lab'] = $tj > 0 ? round($row['total_dokter_lab'] / $tj * 100, 2) : 0;
-        $row['persen_dokter_radiologi'] = $tj > 0 ? round($row['total_dokter_radiologi'] / $tj * 100, 2) : 0;
-        
-        $row['total_bpjs'] = $bpjs_lookup[$row['no_sep']] ?? 0;
-        $row['kolom_44'] = $row['total_bpjs'] * 0.44;
-        $tb44 = $row['kolom_44'];
-
-        $row['jumlah_dpjp'] = $tb44 > 0 ? round($row['persen_dpjp'] / 100 * $tb44) : 0;
-        $row['jumlah_operator'] = $tb44 > 0 ? round($row['persen_operator'] / 100 * $tb44) : 0;
-        $row['jumlah_dr_anestesi'] = $tb44 > 0 ? round($row['persen_dr_anestesi'] / 100 * $tb44) : 0;
-        $row['jumlah_dr_anak'] = $tb44 > 0 ? round($row['persen_dr_anak'] / 100 * $tb44) : 0;
-        $row['jumlah_dr_pjanak'] = $tb44 > 0 ? round($row['persen_dr_pjanak'] / 100 * $tb44) : 0;
-        $row['jumlah_dr_umum'] = $tb44 > 0 ? round($row['persen_dr_umum'] / 100 * $tb44) : 0;
-        $row['jumlah_dokter_lab'] = $tb44 > 0 ? round($row['persen_dokter_lab'] / 100 * $tb44) : 0;
-        $row['jumlah_dokter_radiologi'] = $tb44 > 0 ? round($row['persen_dokter_radiologi'] / 100 * $tb44) : 0;
-
-            $dokters = [];
+        $dokters = [];
     $addJasa = function($kd, $nm, $jasaBpjs, $jasaRs) use (&$dokters) {
         if ($jasaRs <= 0 || !$kd) return;
         if (!isset($dokters[$kd])) $dokters[$kd] = ['nm_dokter' => $nm, 'jasa' => 0, 'jasa_rs' => 0];
@@ -509,7 +470,7 @@ while (true) {
         if ($d_info['jasa_rs'] > 0) {
                 if (!empty($kd_dokter) && $kd !== $kd_dokter) continue;
                 $row['nm_dokter'] = $d_info['nm_dokter'];
-                $row['jumlah_dpjp'] = $d_info['jasa']; $row['total_tindakan_dr'] = $d_info['jasa_rs']; 
+                $row['total_tindakan_dr'] = $d_info['jasa_rs']; 
                 $rekap[$d_info['nm_dokter']][] = $row;
             }
         }
@@ -527,8 +488,8 @@ if (!empty($rekap)) {
         'Pasien BPJS',
         'Non BPJS',
         'Klaim BPJS',
-        'Total BPJS',
-        '44%',
+        
+        
         'Jasa Dokter (Tarif)',
         '%Dokter',
         'Nominal Jasa (Rupiah)',

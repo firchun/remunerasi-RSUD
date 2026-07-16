@@ -77,15 +77,7 @@ require_once '../layouts/header.php';
         <?php endwhile; ?>
       </select>
     </div>
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">Status SEP</label>
-      <select id="filter_sep"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-        <option value="semua" selected>Semua Data</option>
-        <option value="ada">Ada SEP</option>
-        <option value="tidak_ada">Tidak Ada SEP</option>
-      </select>
-    </div>
+    
   </div>
   <div class="mt-4 flex gap-2">
     <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition"><i
@@ -116,9 +108,6 @@ require_once '../layouts/header.php';
           <tr>
             <th class="px-2 text-left">No.</th>
             <th class="px-2 text-left">No.Rawat</th>
-            <th class="px-2 text-left">No.SEP</th>
-            <th class="px-2 text-right" style="background:#166534;color:#fff">Total BPJS</th>
-            <th class="px-2 text-right" style="background:#166534;color:#fff">44%</th>
             <th class="px-2 text-right" style="background:#166534;color:#fff">Sisa BPJS</th>
             <th class="px-2 text-left">No.RM</th>
             <th class="px-2 text-left">Pasien</th>
@@ -166,10 +155,6 @@ require_once '../layouts/header.php';
 
             <th class="px-2 text-right border-l-2 border-white" style="background:#991b1b;color:#fff;font-weight:900">
               TOTAL JASA</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%DPJP</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml DPJP</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Perawat</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Perawat</th>
             <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Operator</th>
             <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Operator</th>
             <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Asisten</th>
@@ -194,44 +179,12 @@ require_once '../layouts/header.php';
             <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Dr Umum</th>
             <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Pr Luar</th>
             <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Pr Luar</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Farmasi</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Farmasi</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Dr Lab</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Dr Lab</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Analis Lab</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Analis Lab</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Dr Rad</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Dr Rad</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Radiografer</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Radiografer</th>
-            <th class="px-2 text-right text-xs" style="background:#064e3b;color:#fff">%Non Medis</th>
-            <th class="px-2 text-right text-xs" style="background:#065f46;color:#fff">Jml Non Medis</th>
-          </tr>
+            </tr>
         </thead>
         <tbody></tbody>
         <tfoot class="bg-green-800 font-bold text-white">
           <tr>
-            <th class="text-right px-2"></th>
             <th class="text-right px-2">TOTAL AKHIR :</th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
-            <th class="text-right px-2"></th>
             <th class="text-right px-2"></th>
             <th class="text-right px-2"></th>
             <th class="text-right px-2"></th>
@@ -307,11 +260,7 @@ require_once '../layouts/header.php';
               <th class="px-2 text-left">No.</th>
               <th class="px-2 text-left">Bangsal</th>
               <th class="px-2 text-right">Jml Pasien</th>
-              <th class="px-2 text-right">Total BPJS</th>
-              <th class="px-2 text-right">44%</th>
               <th class="px-2 text-right">Sisa BPJS</th>
-              <th class="px-2 text-right">Jml DPJP</th>
-              <th class="px-2 text-right">Jml Perawat</th>
               <th class="px-2 text-right">Jml Operator</th>
               <th class="px-2 text-right">Jml Asisten</th>
               <th class="px-2 text-right">Jml Dr Anes</th>
@@ -324,13 +273,7 @@ require_once '../layouts/header.php';
               <th class="px-2 text-right">Jml Dr PJA</th>
               <th class="px-2 text-right">Jml Dr Umum</th>
               <th class="px-2 text-right">Jml Pr Luar</th>
-              <th class="px-2 text-right">Jml Farmasi</th>
-              <th class="px-2 text-right">Jml Dr Lab</th>
-              <th class="px-2 text-right">Jml Analis Lab</th>
-              <th class="px-2 text-right">Jml Dr Rad</th>
-              <th class="px-2 text-right">Jml Radiografer</th>
-              <th class="px-2 text-right">Jml Non Medis</th>
-            </tr>
+              </tr>
           </thead>
           <tbody></tbody>
           <tfoot class="bg-green-800 font-bold text-white">
@@ -423,8 +366,7 @@ require_once '../layouts/header.php';
           d.tahun = $('#filter_tahun').val();
           d.grup_bangsal = $('#grup_bangsal').val();
           d.kd_pj = $('#kd_pj').val();
-          d.filter_sep = $('#filter_sep').val();
-        }
+                  }
       },
       columns: [
         {
@@ -435,9 +377,9 @@ require_once '../layouts/header.php';
           }
         },
         { data: 'nm_bangsal', className: 'font-semibold' },
-        { data: 'jumlah_pasien', className: 'num text-center', render: function (v) { return v ? v.toLocaleString('id-ID') : '0'; } },
-        { data: 'total_bpjs', className: 'num', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-        { data: 'kolom_44', className: 'num', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
+        },
+        },
+        },
         { data: 'sisa_bpjs', className: 'num', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
         { data: 'jml_dpjp', className: 'num', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
         { data: 'jml_perawat', className: 'num', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
@@ -522,7 +464,7 @@ require_once '../layouts/header.php';
       buttons: [{
         extend: 'excel',
         text: 'Export Excel',
-        filename: 'hitung_jasa_ranap'
+        filename: 'hitung_jasa_ranap_umum'
       },
       {
         extend: 'pdfHtml5',
@@ -543,7 +485,7 @@ require_once '../layouts/header.php';
       autoWidth: false,
 
       ajax: {
-        url: window.BASE_URL + '/api/get_data_hitung_jasa_ranap.php',
+        url: window.BASE_URL + '/api/get_data_hitung_jasa_ranap_umum.php',
         type: 'POST',
         dataSrc: function (json) {
           return json.data || json;
@@ -553,8 +495,7 @@ require_once '../layouts/header.php';
           d.tahun = $('#filter_tahun').val();
           d.grup_bangsal = $('#grup_bangsal').val();
           d.kd_pj = $('#kd_pj').val();
-          d.filter_sep = $('#filter_sep').val();
-          d.tcari = '';
+                    d.tcari = '';
           d.search_value = d.search.value;
         }
       },
@@ -569,22 +510,7 @@ require_once '../layouts/header.php';
         data: 'no_rawat',
         className: 'text-blue-600 font-semibold'
       },
-      {
-        data: 'no_sep'
-      },
-      {
-        data: 'total_bpjs',
-        className: 'num',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
-      },
-      {
-        data: 'kolom_44',
-        className: 'num',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
+            },
       },
       {
         data: 'sisa_bpjs',
@@ -716,142 +642,46 @@ require_once '../layouts/header.php';
         }
       },
 
-      {
-        data: 'persen_dpjp',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_dpjp',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
-      {
-        data: 'persen_perawat',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_perawat',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
-      { data: 'persen_operator', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_operator', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_asisten', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_asisten', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_dr_anestesi', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_dr_anestesi', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_as_anestesi', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_as_anestesi', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_dr_anak', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_dr_anak', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_pr_resusitas', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_pr_resusitas', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_bidan', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_bidan', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_instrumen', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_instrumen', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_omloop', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_omloop', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_dr_pjanak', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_dr_pjanak', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_dr_umum', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_dr_umum', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
-      { data: 'persen_pr_luar', className: 'num text-xs', render: function (v) { return v ? v.toFixed(2) : '0'; } },
-      { data: 'jumlah_pr_luar', className: 'num text-xs', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
+      },
 
-      {
-        data: 'persen_farmasi',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_farmasi',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
-      {
-        data: 'persen_dokter_lab',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_dokter_lab',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
-      {
-        data: 'persen_analis_lab',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_analis_lab',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
-      {
-        data: 'persen_dokter_radiologi',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_dokter_radiologi',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
-      {
-        data: 'persen_radiografer',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_radiografer',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
-      {
-        data: 'persen_non_medis',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? v.toFixed(2) : '0';
-        }
       },
-      {
-        data: 'jumlah_non_medis',
-        className: 'num text-xs',
-        render: function (v) {
-          return v ? Math.round(v).toLocaleString('id-ID') : '0';
-        }
       },
       ],
       order: [
@@ -881,78 +711,78 @@ require_once '../layouts/header.php';
         const st2 = (p) => sumData(p);
         const sj2 = st2('total_jasa');
 
-        $(api.column(12).footer()).html(fmt(sumData('total_tindakan_dr')));
-        $(api.column(13).footer()).html(fmt(sumData('total_tindakan_pr')));
-        $(api.column(14).footer()).html(fmt(sumData('total_menejemen_tindakan')));
-        $(api.column(15).footer()).html(fmt(sumData('jasa_tindakan')));
-        $(api.column(16).footer()).html(fmt(sumData('total_non_medis')));
-        $(api.column(17).footer()).html(fmt(sumData('jasa_operator')));
-        $(api.column(18).footer()).html(fmt(sumData('jasa_asisten')));
-        $(api.column(19).footer()).html(fmt(sumData('jasa_dr_anestesi')));
-        $(api.column(20).footer()).html(fmt(sumData('jasa_as_anestesi')));
-        $(api.column(21).footer()).html(fmt(sumData('jasa_dr_anak')));
-        $(api.column(22).footer()).html(fmt(sumData('jasa_pr_resusitas')));
-        $(api.column(23).footer()).html(fmt(sumData('jasa_bidan')));
-        $(api.column(24).footer()).html(fmt(sumData('jasa_instrumen')));
-        $(api.column(25).footer()).html(fmt(sumData('jasa_omloop')));
-        $(api.column(26).footer()).html(fmt(sumData('jasa_dr_pjanak')));
-        $(api.column(27).footer()).html(fmt(sumData('jasa_dr_umum')));
-        $(api.column(28).footer()).html(fmt(sumData('jasa_pr_luar')));
-        $(api.column(29).footer()).html(fmt(sumData('jasa_operasi')));
-        $(api.column(30).footer()).html(fmt(sumData('jasa_farmasi')));
-        $(api.column(31).footer()).html(fmt(sumData('total_dokter_lab')));
-        $(api.column(32).footer()).html(fmt(sumData('total_petugas_lab')));
-        $(api.column(33).footer()).html(fmt(sumData('total_menejemen_lab')));
-        $(api.column(34).footer()).html(fmt(sumData('jasa_lab')));
-        $(api.column(35).footer()).html(fmt(sumData('total_dokter_radiologi')));
-        $(api.column(36).footer()).html(fmt(sumData('total_petugas_radiologi')));
-        $(api.column(37).footer()).html(fmt(sumData('total_menejemen_radiologi')));
-        $(api.column(38).footer()).html(fmt(sumData('jasa_radiologi')));
-        $(api.column(39).footer()).html(fmt(sumData('total_jasa')));
-        $(api.column(3).footer()).html(fmt(sumData('total_bpjs')));
-        $(api.column(4).footer()).html(fmt(sumData('kolom_44')));
-        $(api.column(5).footer()).html(fmt(sumData('sisa_bpjs')));
+        $(api.column(11).footer()).html(fmt(sumData('total_tindakan_dr')));
+        $(api.column(12).footer()).html(fmt(sumData('total_tindakan_pr')));
+        $(api.column(13).footer()).html(fmt(sumData('total_menejemen_tindakan')));
+        $(api.column(14).footer()).html(fmt(sumData('jasa_tindakan')));
+        $(api.column(15).footer()).html(fmt(sumData('total_non_medis')));
+        $(api.column(16).footer()).html(fmt(sumData('jasa_operator')));
+        $(api.column(17).footer()).html(fmt(sumData('jasa_asisten')));
+        $(api.column(18).footer()).html(fmt(sumData('jasa_dr_anestesi')));
+        $(api.column(19).footer()).html(fmt(sumData('jasa_as_anestesi')));
+        $(api.column(20).footer()).html(fmt(sumData('jasa_dr_anak')));
+        $(api.column(21).footer()).html(fmt(sumData('jasa_pr_resusitas')));
+        $(api.column(22).footer()).html(fmt(sumData('jasa_bidan')));
+        $(api.column(23).footer()).html(fmt(sumData('jasa_instrumen')));
+        $(api.column(24).footer()).html(fmt(sumData('jasa_omloop')));
+        $(api.column(25).footer()).html(fmt(sumData('jasa_dr_pjanak')));
+        $(api.column(26).footer()).html(fmt(sumData('jasa_dr_umum')));
+        $(api.column(27).footer()).html(fmt(sumData('jasa_pr_luar')));
+        $(api.column(28).footer()).html(fmt(sumData('jasa_operasi')));
+        $(api.column(29).footer()).html(fmt(sumData('jasa_farmasi')));
+        $(api.column(30).footer()).html(fmt(sumData('total_dokter_lab')));
+        $(api.column(31).footer()).html(fmt(sumData('total_petugas_lab')));
+        $(api.column(32).footer()).html(fmt(sumData('total_menejemen_lab')));
+        $(api.column(33).footer()).html(fmt(sumData('jasa_lab')));
+        $(api.column(34).footer()).html(fmt(sumData('total_dokter_radiologi')));
+        $(api.column(35).footer()).html(fmt(sumData('total_petugas_radiologi')));
+        $(api.column(36).footer()).html(fmt(sumData('total_menejemen_radiologi')));
+        $(api.column(37).footer()).html(fmt(sumData('jasa_radiologi')));
+        $(api.column(38).footer()).html(fmt(sumData('total_jasa')));
+        $(api.column(2).footer()).html(fmt(sumData('total_bpjs')));
+        $(api.column(3).footer()).html(fmt(sumData('kolom_44')));
+        $(api.column(4).footer()).html(fmt(sumData('sisa_bpjs')));
 
-        $(api.column(40).footer()).html(pct(st2('total_tindakan_dr'), sj2));
-        $(api.column(41).footer()).html(fmt(sumData('jumlah_dpjp')));
-        $(api.column(42).footer()).html(pct(st2('total_tindakan_pr'), sj2));
-        $(api.column(43).footer()).html(fmt(sumData('jumlah_perawat')));
-        $(api.column(44).footer()).html(pct(st2('jasa_operator'), sj2));
-        $(api.column(45).footer()).html(fmt(sumData('jumlah_operator')));
-        $(api.column(46).footer()).html(pct(st2('jasa_asisten'), sj2));
-        $(api.column(47).footer()).html(fmt(sumData('jumlah_asisten')));
-        $(api.column(48).footer()).html(pct(st2('jasa_dr_anestesi'), sj2));
-        $(api.column(49).footer()).html(fmt(sumData('jumlah_dr_anestesi')));
-        $(api.column(50).footer()).html(pct(st2('jasa_as_anestesi'), sj2));
-        $(api.column(51).footer()).html(fmt(sumData('jumlah_as_anestesi')));
-        $(api.column(52).footer()).html(pct(st2('jasa_dr_anak'), sj2));
-        $(api.column(53).footer()).html(fmt(sumData('jumlah_dr_anak')));
-        $(api.column(54).footer()).html(pct(st2('jasa_pr_resusitas'), sj2));
-        $(api.column(55).footer()).html(fmt(sumData('jumlah_pr_resusitas')));
-        $(api.column(56).footer()).html(pct(st2('jasa_bidan'), sj2));
-        $(api.column(57).footer()).html(fmt(sumData('jumlah_bidan')));
-        $(api.column(58).footer()).html(pct(st2('jasa_instrumen'), sj2));
-        $(api.column(59).footer()).html(fmt(sumData('jumlah_instrumen')));
-        $(api.column(60).footer()).html(pct(st2('jasa_omloop'), sj2));
-        $(api.column(61).footer()).html(fmt(sumData('jumlah_omloop')));
-        $(api.column(62).footer()).html(pct(st2('jasa_dr_pjanak'), sj2));
-        $(api.column(63).footer()).html(fmt(sumData('jumlah_dr_pjanak')));
-        $(api.column(64).footer()).html(pct(st2('jasa_dr_umum'), sj2));
-        $(api.column(65).footer()).html(fmt(sumData('jumlah_dr_umum')));
-        $(api.column(66).footer()).html(pct(st2('jasa_pr_luar'), sj2));
-        $(api.column(67).footer()).html(fmt(sumData('jumlah_pr_luar')));
-        $(api.column(68).footer()).html(pct(st2('jasa_farmasi'), sj2));
-        $(api.column(69).footer()).html(fmt(sumData('jumlah_farmasi')));
-        $(api.column(70).footer()).html(pct(st2('total_dokter_lab'), sj2));
-        $(api.column(71).footer()).html(fmt(sumData('jumlah_dokter_lab')));
-        $(api.column(72).footer()).html(pct(st2('total_petugas_lab'), sj2));
-        $(api.column(73).footer()).html(fmt(sumData('jumlah_analis_lab')));
-        $(api.column(74).footer()).html(pct(st2('total_dokter_radiologi'), sj2));
-        $(api.column(75).footer()).html(fmt(sumData('jumlah_dokter_radiologi')));
-        $(api.column(76).footer()).html(pct(st2('total_petugas_radiologi'), sj2));
-        $(api.column(77).footer()).html(fmt(sumData('jumlah_radiografer')));
-        $(api.column(78).footer()).html(pct(st2('total_non_medis'), sj2));
-        $(api.column(79).footer()).html(fmt(sumData('jumlah_non_medis')));
+        $(api.column(39).footer()).html(pct(st2('total_tindakan_dr'), sj2));
+        $(api.column(40).footer()).html(fmt(sumData('jumlah_dpjp')));
+        $(api.column(41).footer()).html(pct(st2('total_tindakan_pr'), sj2));
+        $(api.column(42).footer()).html(fmt(sumData('jumlah_perawat')));
+        $(api.column(43).footer()).html(pct(st2('jasa_operator'), sj2));
+        $(api.column(44).footer()).html(fmt(sumData('jumlah_operator')));
+        $(api.column(45).footer()).html(pct(st2('jasa_asisten'), sj2));
+        $(api.column(46).footer()).html(fmt(sumData('jumlah_asisten')));
+        $(api.column(47).footer()).html(pct(st2('jasa_dr_anestesi'), sj2));
+        $(api.column(48).footer()).html(fmt(sumData('jumlah_dr_anestesi')));
+        $(api.column(49).footer()).html(pct(st2('jasa_as_anestesi'), sj2));
+        $(api.column(50).footer()).html(fmt(sumData('jumlah_as_anestesi')));
+        $(api.column(51).footer()).html(pct(st2('jasa_dr_anak'), sj2));
+        $(api.column(52).footer()).html(fmt(sumData('jumlah_dr_anak')));
+        $(api.column(53).footer()).html(pct(st2('jasa_pr_resusitas'), sj2));
+        $(api.column(54).footer()).html(fmt(sumData('jumlah_pr_resusitas')));
+        $(api.column(55).footer()).html(pct(st2('jasa_bidan'), sj2));
+        $(api.column(56).footer()).html(fmt(sumData('jumlah_bidan')));
+        $(api.column(57).footer()).html(pct(st2('jasa_instrumen'), sj2));
+        $(api.column(58).footer()).html(fmt(sumData('jumlah_instrumen')));
+        $(api.column(59).footer()).html(pct(st2('jasa_omloop'), sj2));
+        $(api.column(60).footer()).html(fmt(sumData('jumlah_omloop')));
+        $(api.column(61).footer()).html(pct(st2('jasa_dr_pjanak'), sj2));
+        $(api.column(62).footer()).html(fmt(sumData('jumlah_dr_pjanak')));
+        $(api.column(63).footer()).html(pct(st2('jasa_dr_umum'), sj2));
+        $(api.column(64).footer()).html(fmt(sumData('jumlah_dr_umum')));
+        $(api.column(65).footer()).html(pct(st2('jasa_pr_luar'), sj2));
+        $(api.column(66).footer()).html(fmt(sumData('jumlah_pr_luar')));
+        $(api.column(67).footer()).html(pct(st2('jasa_farmasi'), sj2));
+        $(api.column(68).footer()).html(fmt(sumData('jumlah_farmasi')));
+        $(api.column(69).footer()).html(pct(st2('total_dokter_lab'), sj2));
+        $(api.column(70).footer()).html(fmt(sumData('jumlah_dokter_lab')));
+        $(api.column(71).footer()).html(pct(st2('total_petugas_lab'), sj2));
+        $(api.column(72).footer()).html(fmt(sumData('jumlah_analis_lab')));
+        $(api.column(73).footer()).html(pct(st2('total_dokter_radiologi'), sj2));
+        $(api.column(74).footer()).html(fmt(sumData('jumlah_dokter_radiologi')));
+        $(api.column(75).footer()).html(pct(st2('total_petugas_radiologi'), sj2));
+        $(api.column(76).footer()).html(fmt(sumData('jumlah_radiografer')));
+        $(api.column(77).footer()).html(pct(st2('total_non_medis'), sj2));
+        $(api.column(78).footer()).html(fmt(sumData('jumlah_non_medis')));
       }
     });
   });
@@ -972,8 +802,7 @@ require_once '../layouts/header.php';
     $('#filter_tahun').val(String(now.getFullYear()));
     $('#grup_bangsal').val('');
     $('#kd_pj').val('');
-    $('#filter_sep').val('semua');
-    loadData();
+        loadData();
   }
 
   function exportExcelPerBangsal() {
@@ -982,10 +811,9 @@ require_once '../layouts/header.php';
       tahun: $('#filter_tahun').val(),
       grup_bangsal: $('#grup_bangsal').val(),
       kd_pj: $('#kd_pj').val(),
-      filter_sep: $('#filter_sep').val(),
-      tcari: ''
+            tcari: ''
     };
-    window.open(window.BASE_URL + '/api/export_hitung_jasa_ranap.php?' + $.param(params), '_blank');
+    window.open(window.BASE_URL + '/api/export_hitung_jasa_ranap_umum.php?' + $.param(params), '_blank');
   }
 </script>
 <?php require_once '../layouts/footer.php'; ?>
