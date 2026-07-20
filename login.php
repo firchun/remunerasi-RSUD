@@ -31,7 +31,7 @@ if (isset($_SESSION['user_id'])) {
 <body class="min-h-screen bg-gradient-to-br from-sky-100 via-white to-slate-100 flex items-center justify-center p-6">
 
   <main class="w-full max-w-md">
-    <section class="glass rounded-2xl shadow-lg p-8 sm:p-10">
+    <section class="glass rounded-2xl border border-gray-200 p-8 sm:p-10">
       <header class="flex items-center gap-4 mb-6">
         <!-- Logo placeholder -->
         <div class="w-12 h-12 flex items-center justify-center rounded-lg  text-white text-xl font-semibold">
@@ -56,7 +56,7 @@ if (isset($_SESSION['user_id'])) {
           <div class="mt-1 relative">
             <input type="text" name="username" required autocomplete="username" placeholder="Username..."
               class="peer block w-full rounded-lg border border-slate-200 bg-white py-3 px-4 text-slate-700 placeholder-slate-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 focus:border-sky-300" />
-            <span class="absolute right-3 top-3 text-slate-400 text-sm hidden peer-invalid:block">!</span>
+            <span class="absolute right-3 top-3 text-slate-400 text-sm hidden peer-invalid:block"></span>
           </div>
         </label>
 
@@ -69,7 +69,7 @@ if (isset($_SESSION['user_id'])) {
         </label>
 
         <button type="submit"
-          class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-sky-600 py-3 px-4 font-medium text-white shadow hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
+          class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 py-3 px-4 font-medium text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-sky-300">
           <!-- simple SVG icon -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"
             aria-hidden="true">
@@ -83,7 +83,7 @@ if (isset($_SESSION['user_id'])) {
       </form>
 
       <footer class="mt-6 text-center text-sm text-slate-500">
-        <p class="mt-2">&copy; <span id="year"></span> Remon RSUD MERAUKE</p>
+        <p class="mt-2">&copy; <span id="year"></span> Remunerasi - PIT - RSUD MERAUKE</p>
       </footer>
     </section>
 

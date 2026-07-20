@@ -22,7 +22,7 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
 $rootPath = '../';
 require_once '../layouts/header.php';
 ?>
-<div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3 mb-3">
   <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
     <i class="fas fa-calculator mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
     Filter Pencarian
@@ -77,16 +77,15 @@ require_once '../layouts/header.php';
         <?php endwhile; ?>
       </select>
     </div>
-    
+
   </div>
   <div class="mt-4 flex gap-2">
-    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition"><i
+    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-xl transition"><i
         class="fas fa-search mr-2"></i>Cari Data</button>
     <button onclick="resetFilter()"
-      class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition"><i
+      class="border border-gray-600 text-gray-600 p-2 rounded-xl hover:bg-gray-200 transition"><i
         class="fas fa-redo mr-2"></i>Reset</button>
-    <button onclick="exportExcelPerPoli()"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition"><i
+    <button onclick="exportExcelPerPoli()" class="bg-blue-600 hover:bg-blue-700 text-whitep-2 rounded-xl transition"><i
         class="fas fa-file-excel mr-2"></i>Export Excel per Poli</button>
   </div>
 </div>
@@ -127,7 +126,7 @@ require_once '../layouts/header.php';
 
           <th class="px-2 text-right border-l-2 border-white" style="background:#991b1b;color:#fff;font-weight:900">
             TOTAL JASA</th>
-          </tr>
+        </tr>
       </thead>
       <tbody></tbody>
       <tfoot class="bg-green-800 font-bold text-white">
@@ -197,7 +196,7 @@ require_once '../layouts/header.php';
       data: 'no_rawat',
       className: 'text-blue-600 font-semibold'
     },
-        {
+    {
       data: 'no_rkm_medis'
     },
     {
@@ -373,7 +372,7 @@ require_once '../layouts/header.php';
           d.tahun = $('#filter_tahun').val();
           d.kd_poli = $('#kd_poli').val();
           d.kd_pj = $('#kd_pj').val();
-                    d.tcari = '';
+          d.tcari = '';
           d.search_value = d.search.value;
         }
       }
@@ -386,7 +385,7 @@ require_once '../layouts/header.php';
     $('#filter_tahun').val(String(now.getFullYear()));
     $('#kd_poli').val('');
     $('#kd_pj').val('');
-        loadData();
+    loadData();
   }
 
   function exportExcelPerPoli() {
@@ -395,7 +394,7 @@ require_once '../layouts/header.php';
       tahun: $('#filter_tahun').val(),
       kd_poli: $('#kd_poli').val(),
       kd_pj: $('#kd_pj').val(),
-            tcari: ''
+      tcari: ''
     };
     window.open(window.BASE_URL + '/api/export_hitung_jasa_ralan_umum.php?' + $.param(params), '_blank');
   }

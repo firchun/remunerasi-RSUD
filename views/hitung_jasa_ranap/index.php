@@ -21,7 +21,7 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
 $rootPath = '../';
 require_once '../layouts/header.php';
 ?>
-<div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3 mb-3">
   <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
     <i class="fas fa-calculator mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
     Filter Pencarian
@@ -88,13 +88,13 @@ require_once '../layouts/header.php';
     </div>
   </div>
   <div class="mt-4 flex gap-2">
-    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition"><i
+    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-xl transition"><i
         class="fas fa-search mr-2"></i>Cari Data</button>
     <button onclick="resetFilter()"
-      class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition"><i
+      class="border border-gray-600 text-gray-600 p-2 rounded-xl hover:bg-gray-200 transition"><i
         class="fas fa-redo mr-2"></i>Reset</button>
     <button onclick="exportExcelPerBangsal()"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition"><i
+      class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-xl transition"><i
         class="fas fa-file-excel mr-2"></i>Export Excel per Bangsal</button>
   </div>
 </div>
@@ -109,7 +109,7 @@ require_once '../layouts/header.php';
 </div>
 
 <div id="content-pasien" class="tab-content block">
-  <div class="bg-white rounded-2xl border border-green-700 p-6">
+  <div class="bg-white rounded-2xl border border-green-700 p-3">
     <div class="overflow-x-auto">
       <table id="tabelJasa" class="display w-full">
         <thead class="bg-green-800 text-white">
@@ -298,75 +298,75 @@ require_once '../layouts/header.php';
   </div>
 </div>
 
-  <div id="content-ruangan" class="tab-content hidden">
-    <div class="bg-white rounded-2xl border border-green-700 p-6">
-      <div class="overflow-x-auto">
-        <table id="tabelRekap" class="display w-full">
-          <thead class="bg-green-800 text-white">
-            <tr>
-              <th class="px-2 text-left">No.</th>
-              <th class="px-2 text-left">Bangsal</th>
-              <th class="px-2 text-right">Jml Pasien</th>
-              <th class="px-2 text-right">Total BPJS</th>
-              <th class="px-2 text-right">44%</th>
-              <th class="px-2 text-right">Sisa BPJS</th>
-              <th class="px-2 text-right">Jml DPJP</th>
-              <th class="px-2 text-right">Jml Perawat</th>
-              <th class="px-2 text-right">Jml Operator</th>
-              <th class="px-2 text-right">Jml Asisten</th>
-              <th class="px-2 text-right">Jml Dr Anes</th>
-              <th class="px-2 text-right">Jml As Anes</th>
-              <th class="px-2 text-right">Jml Dr Anak</th>
-              <th class="px-2 text-right">Jml Pr Resusitasi</th>
-              <th class="px-2 text-right">Jml Bidan</th>
-              <th class="px-2 text-right">Jml Instrumen</th>
-              <th class="px-2 text-right">Jml Omloop</th>
-              <th class="px-2 text-right">Jml Dr PJA</th>
-              <th class="px-2 text-right">Jml Dr Umum</th>
-              <th class="px-2 text-right">Jml Pr Luar</th>
-              <th class="px-2 text-right">Jml Farmasi</th>
-              <th class="px-2 text-right">Jml Dr Lab</th>
-              <th class="px-2 text-right">Jml Analis Lab</th>
-              <th class="px-2 text-right">Jml Dr Rad</th>
-              <th class="px-2 text-right">Jml Radiografer</th>
-              <th class="px-2 text-right">Jml Non Medis</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-          <tfoot class="bg-green-800 font-bold text-white">
-            <tr>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2">TOTAL AKHIR :</th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-              <th class="text-right px-2"></th>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+<div id="content-ruangan" class="tab-content hidden">
+  <div class="bg-white rounded-2xl border border-green-700 p-6">
+    <div class="overflow-x-auto">
+      <table id="tabelRekap" class="display w-full">
+        <thead class="bg-green-800 text-white">
+          <tr>
+            <th class="px-2 text-left">No.</th>
+            <th class="px-2 text-left">Bangsal</th>
+            <th class="px-2 text-right">Jml Pasien</th>
+            <th class="px-2 text-right">Total BPJS</th>
+            <th class="px-2 text-right">44%</th>
+            <th class="px-2 text-right">Sisa BPJS</th>
+            <th class="px-2 text-right">Jml DPJP</th>
+            <th class="px-2 text-right">Jml Perawat</th>
+            <th class="px-2 text-right">Jml Operator</th>
+            <th class="px-2 text-right">Jml Asisten</th>
+            <th class="px-2 text-right">Jml Dr Anes</th>
+            <th class="px-2 text-right">Jml As Anes</th>
+            <th class="px-2 text-right">Jml Dr Anak</th>
+            <th class="px-2 text-right">Jml Pr Resusitasi</th>
+            <th class="px-2 text-right">Jml Bidan</th>
+            <th class="px-2 text-right">Jml Instrumen</th>
+            <th class="px-2 text-right">Jml Omloop</th>
+            <th class="px-2 text-right">Jml Dr PJA</th>
+            <th class="px-2 text-right">Jml Dr Umum</th>
+            <th class="px-2 text-right">Jml Pr Luar</th>
+            <th class="px-2 text-right">Jml Farmasi</th>
+            <th class="px-2 text-right">Jml Dr Lab</th>
+            <th class="px-2 text-right">Jml Analis Lab</th>
+            <th class="px-2 text-right">Jml Dr Rad</th>
+            <th class="px-2 text-right">Jml Radiografer</th>
+            <th class="px-2 text-right">Jml Non Medis</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot class="bg-green-800 font-bold text-white">
+          <tr>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2">TOTAL AKHIR :</th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+            <th class="text-right px-2"></th>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </div>
+</div>
 </div>
 
 <script>

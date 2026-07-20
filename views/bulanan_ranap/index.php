@@ -134,110 +134,108 @@ EOT;
 $rootPath = '../';
 require_once '../layouts/header.php';
 ?>
-        <div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
-          <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
-            <i
-              class="fas fa-filter mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
-            Filter Periode
-          </h3>
+<div class="bg-white rounded-2xl border border-green-700 3 mb-3">
+  <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
+    <i class="fas fa-filter mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
+    Filter Periode
+  </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Filter</label>
-              <select id="filter_type" onchange="toggleFilterType()"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="bulan">Per Bulan</option>
-                <option value="tahun">Per Tahun</option>
-              </select>
-            </div>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Filter</label>
+      <select id="filter_type" onchange="toggleFilterType()"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <option value="bulan">Per Bulan</option>
+        <option value="tahun">Per Tahun</option>
+      </select>
+    </div>
 
-            <div id="container-bulan">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Bulan & Tahun</label>
-              <input type="month" id="bulan"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
+    <div id="container-bulan">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Bulan & Tahun</label>
+      <input type="month" id="bulan"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+    </div>
 
-            <div id="container-tahun" class="hidden">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-              <select id="tahun"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <?php
-                $currentYear = date('Y');
-                for ($y = $currentYear; $y >= $currentYear - 5; $y--) {
-                  echo "<option value=\"$y\">$y</option>";
-                }
-                ?>
-              </select>
-            </div>
+    <div id="container-tahun" class="hidden">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+      <select id="tahun"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <?php
+        $currentYear = date('Y');
+        for ($y = $currentYear; $y >= $currentYear - 5; $y--) {
+          echo "<option value=\"$y\">$y</option>";
+        }
+        ?>
+      </select>
+    </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Cara Bayar</label>
-              <select id="kd_pj"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">Semua Cara Bayar</option>
-                <?php while ($row = mysqli_fetch_assoc($result_pj)): ?>
-                <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
-                <?php endwhile; ?>
-              </select>
-            </div>
-          </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Cara Bayar</label>
+      <select id="kd_pj"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <option value="">Semua Cara Bayar</option>
+        <?php while ($row = mysqli_fetch_assoc($result_pj)): ?>
+          <option value="<?= $row['kd_pj'] ?>"><?= $row['png_jawab'] ?></option>
+        <?php endwhile; ?>
+      </select>
+    </div>
+  </div>
 
-          <div class="mt-4 flex gap-2">
-            <button onclick="loadData()"
-              class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition">
-              <i class="fas fa-search mr-2"></i>Tampilkan Data
-            </button>
-            <button onclick="resetFilter()"
-              class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
-              <i class="fas fa-redo mr-2"></i>Reset
-            </button>
-          </div>
-        </div>
+  <div class="mt-4 flex gap-2">
+    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition">
+      <i class="fas fa-search mr-2"></i>Tampilkan Data
+    </button>
+    <button onclick="resetFilter()"
+      class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
+      <i class="fas fa-redo mr-2"></i>Reset
+    </button>
+  </div>
+</div>
 
-        <div class="bg-white rounded-2xl border border-green-700 p-6">
-          <h3 id="periodeInfo" class="text-lg font-bold text-green-800 mb-4">
-            Periode: -
-          </h3>
+<div class="bg-white rounded-2xl border border-green-700 p-3">
+  <h3 id="periodeInfo" class="text-lg font-bold text-green-800 mb-4">
+    Periode: -
+  </h3>
 
-          <div class="overflow-x-auto">
-            <table id="tabelBulanan" class="display w-full">
-              <thead>
-                <tr>
-                  <th rowspan="3">No</th>
-                  <th rowspan="3">Tahun</th>
-                  <th rowspan="3">Ruangan</th>
-                  <th rowspan="3">Kunjungan</th>
-                  <th rowspan="3">Biaya Kamar</th>
-                </tr>
-                <tr>
-                  <th rowspan="2">Sarana</th>
-                  <th colspan="2">Jasa Pelayanan</th>
-                  <th rowspan="2">Non Medis</th>
-                  <th rowspan="2">Grand Total</th>
-                </tr>
-                <tr>
-                  <th>Dokter</th>
-                  <th>Perawat</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-              <tfoot>
-                <tr>
-                  <th colspan="3" class="text-right">TOTAL</th>
-                  <th class="text-right" id="foot-kunjungan">0</th>
-                  <th class="text-right" id="foot-biaya-kamar">0</th>
-                  <th class="text-right" id="foot-sarana">0</th>
-                  <th class="text-right" id="foot-dokter">0</th>
-                  <th class="text-right" id="foot-perawat">0</th>
-                  <th class="text-right" id="foot-menejemen">0</th>
-                  <th class="text-right" id="foot-grand">0</th>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
+  <div class="overflow-x-auto">
+    <table id="tabelBulanan" class="display w-full">
+      <thead>
+        <tr>
+          <th rowspan="3">No</th>
+          <th rowspan="3">Tahun</th>
+          <th rowspan="3">Ruangan</th>
+          <th rowspan="3">Kunjungan</th>
+          <th rowspan="3">Biaya Kamar</th>
+        </tr>
+        <tr>
+          <th rowspan="2">Sarana</th>
+          <th colspan="2">Jasa Pelayanan</th>
+          <th rowspan="2">Non Medis</th>
+          <th rowspan="2">Grand Total</th>
+        </tr>
+        <tr>
+          <th>Dokter</th>
+          <th>Perawat</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3" class="text-right">TOTAL</th>
+          <th class="text-right" id="foot-kunjungan">0</th>
+          <th class="text-right" id="foot-biaya-kamar">0</th>
+          <th class="text-right" id="foot-sarana">0</th>
+          <th class="text-right" id="foot-dokter">0</th>
+          <th class="text-right" id="foot-perawat">0</th>
+          <th class="text-right" id="foot-menejemen">0</th>
+          <th class="text-right" id="foot-grand">0</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
 
-  <script>
+<script>
   let table;
 
   function toggleFilterType() {
@@ -251,7 +249,7 @@ require_once '../layouts/header.php';
     }
   }
 
-  $(document).ready(function() {
+  $(document).ready(function () {
     const now = new Date();
     const bulanIni = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
     $('#bulan').val(bulanIni);
@@ -259,31 +257,31 @@ require_once '../layouts/header.php';
     table = $('#tabelBulanan').DataTable({
       dom: '<"flex justify-between items-center mb-4"lB>rtip',
       buttons: [{
-          extend: 'excel',
-          text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
-          title: 'Laporan Bulanan Per Kamar - RSUD MERAUKE',
-          exportOptions: {
-            columns: ':visible'
-          }
-        },
-        {
-          extend: 'pdfHtml5',
-          text: '<i class="fas fa-file-pdf mr-2"></i>Export PDF',
-          orientation: 'landscape',
-          pageSize: 'A4',
-          title: 'Laporan Bulanan Per Kamar - RSUD MERAUKE',
-          exportOptions: {
-            columns: ':visible'
-          },
-          customize: function(doc) {
-            doc.defaultStyle.fontSize = 7;
-            doc.styles.tableHeader.fontSize = 8;
-          }
-        },
-        {
-          extend: 'colvis',
-          text: '<i class="fas fa-columns mr-2"></i>Pilih Kolom'
+        extend: 'excel',
+        text: '<i class="fas fa-file-excel mr-2"></i>Export Excel',
+        title: 'Laporan Bulanan Per Kamar - RSUD MERAUKE',
+        exportOptions: {
+          columns: ':visible'
         }
+      },
+      {
+        extend: 'pdfHtml5',
+        text: '<i class="fas fa-file-pdf mr-2"></i>Export PDF',
+        orientation: 'landscape',
+        pageSize: 'A4',
+        title: 'Laporan Bulanan Per Kamar - RSUD MERAUKE',
+        exportOptions: {
+          columns: ':visible'
+        },
+        customize: function (doc) {
+          doc.defaultStyle.fontSize = 7;
+          doc.styles.tableHeader.fontSize = 8;
+        }
+      },
+      {
+        extend: 'colvis',
+        text: '<i class="fas fa-columns mr-2"></i>Pilih Kolom'
+      }
       ],
       lengthMenu: [
         [10, 25, 50, -1],
@@ -297,87 +295,87 @@ require_once '../layouts/header.php';
       searching: true,
       info: false,
       columns: [{
-          data: 'no',
-          className: 'text-center'
+        data: 'no',
+        className: 'text-center'
+      },
+      {
+        data: 'tahun',
+        className: 'text-center'
+      },
+      {
+        data: 'nama_gedung',
+        className: 'text-left'
+      },
+      {
+        data: 'jumlah_kunjungan',
+        render: function (data, type) {
+          if (type === 'display') {
+            return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+          }
+          return data;
         },
-        {
-          data: 'tahun',
-          className: 'text-center'
+        className: 'text-right'
+      },
+      {
+        data: 'total_biaya_kamar',
+        render: function (data, type) {
+          if (type === 'display') {
+            return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+          }
+          return data;
         },
-        {
-          data: 'nama_gedung',
-          className: 'text-left'
+        className: 'text-right'
+      },
+      {
+        data: 'total_sarana',
+        render: function (data, type) {
+          if (type === 'display') {
+            return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+          }
+          return data;
         },
-        {
-          data: 'jumlah_kunjungan',
-          render: function(data, type) {
-            if (type === 'display') {
-              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
-            }
-            return data;
-          },
-          className: 'text-right'
+        className: 'text-right'
+      },
+      {
+        data: 'total_dokter',
+        render: function (data, type) {
+          if (type === 'display') {
+            return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+          }
+          return data;
         },
-        {
-          data: 'total_biaya_kamar',
-          render: function(data, type) {
-            if (type === 'display') {
-              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
-            }
-            return data;
-          },
-          className: 'text-right'
+        className: 'text-right'
+      },
+      {
+        data: 'total_perawat',
+        render: function (data, type) {
+          if (type === 'display') {
+            return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+          }
+          return data;
         },
-        {
-          data: 'total_sarana',
-          render: function(data, type) {
-            if (type === 'display') {
-              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
-            }
-            return data;
-          },
-          className: 'text-right'
+        className: 'text-right'
+      },
+      {
+        data: 'total_menejemen',
+        render: function (data, type) {
+          if (type === 'display') {
+            return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+          }
+          return data;
         },
-        {
-          data: 'total_dokter',
-          render: function(data, type) {
-            if (type === 'display') {
-              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
-            }
-            return data;
-          },
-          className: 'text-right'
+        className: 'text-right'
+      },
+      {
+        data: 'grand_total',
+        render: function (data, type) {
+          if (type === 'display') {
+            return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
+          }
+          return data;
         },
-        {
-          data: 'total_perawat',
-          render: function(data, type) {
-            if (type === 'display') {
-              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
-            }
-            return data;
-          },
-          className: 'text-right'
-        },
-        {
-          data: 'total_menejemen',
-          render: function(data, type) {
-            if (type === 'display') {
-              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
-            }
-            return data;
-          },
-          className: 'text-right'
-        },
-        {
-          data: 'grand_total',
-          render: function(data, type) {
-            if (type === 'display') {
-              return data ? $.fn.dataTable.render.number(',', '.', 0).display(data) : '-';
-            }
-            return data;
-          },
-          className: 'text-right font-bold'
-        }
+        className: 'text-right font-bold'
+      }
       ]
     });
 
@@ -399,7 +397,7 @@ require_once '../layouts/header.php';
         tahun,
         kd_pj
       },
-      success: function(response) {
+      success: function (response) {
         console.log('Response:', response);
 
         try {
@@ -469,7 +467,7 @@ require_once '../layouts/header.php';
                 parseFloat(item.jumlah_resep_operasi || 0);
               totalFarmasi.total += (parseFloat(item.jumlah_resep_racikan || 0) * 25000) + (parseFloat(item
                 .jumlah_resep_non_racikan || 0) * 15000) + (parseFloat(item.jumlah_resep_operasi || 0) *
-                30000);
+                  30000);
 
               // Akumulasi Lab
               totalLab.sarana += parseFloat(item.total_material_lab || 0);
@@ -563,7 +561,7 @@ require_once '../layouts/header.php';
           alert('Error parsing data: ' + e.message);
         }
       },
-      error: function(xhr) {
+      error: function (xhr) {
         alert('Error loading data');
         console.error(xhr.responseText);
       }
@@ -606,5 +604,5 @@ require_once '../layouts/header.php';
     $('#kd_pj').val('');
     loadData();
   }
-  </script>
+</script>
 <?php require_once '../layouts/footer.php'; ?>

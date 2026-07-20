@@ -30,7 +30,7 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
 $rootPath = '../';
 require_once '../layouts/header.php';
 ?>
-<div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3 mb-3">
   <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
     <i class="fas fa-calculator mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
     Filter Pencarian
@@ -94,7 +94,7 @@ require_once '../layouts/header.php';
         <?php
         $grup_result = mysqli_query($koneksi, "SELECT DISTINCT grup_bangsal FROM v_bangsal_grup ORDER BY grup_bangsal");
         while ($g = mysqli_fetch_assoc($grup_result)):
-        ?>
+          ?>
           <option value="<?= $g['grup_bangsal'] ?>"><?= $g['grup_bangsal'] ?></option>
         <?php endwhile; ?>
       </select>
@@ -121,7 +121,7 @@ require_once '../layouts/header.php';
   </div>
 </div>
 
-<div class="bg-white rounded-2xl border border-green-700 p-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3">
   <!-- Tabs Navigation -->
   <div class="flex border-b border-gray-200 mb-4">
     <button onclick="switchTab('pasien')" id="tab-pasien"

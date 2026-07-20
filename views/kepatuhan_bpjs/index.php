@@ -15,7 +15,7 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
 $rootPath = '../';
 require_once '../layouts/header.php';
 ?>
-<div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3 mb-3">
   <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
     <i
       class="fas fa-file-invoice mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
@@ -44,17 +44,17 @@ require_once '../layouts/header.php';
     </div>
   </div>
   <div class="mt-4 flex gap-2">
-    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition">
+    <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-xl transition">
       <i class="fas fa-search mr-2"></i>Cari Data
     </button>
     <button onclick="resetFilter()"
-      class="border border-gray-600 text-gray-600 px-6 py-2 rounded-xl hover:bg-gray-200 transition">
+      class="border border-gray-600 text-gray-600 p-2 rounded-xl hover:bg-gray-200 transition">
       <i class="fas fa-redo mr-2"></i>Reset
     </button>
   </div>
 </div>
 
-<div class="bg-white rounded-2xl border border-green-700 p-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3">
   <div class="overflow-x-auto">
     <table id="tabelKepatuhan" class="display w-full">
       <thead class="bg-green-800">

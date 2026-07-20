@@ -2,18 +2,21 @@
 require_once 'conf.php';
 
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+  session_start();
 }
 $koneksi = bukakoneksi();
 
 $username = mysqli_real_escape_string($koneksi, $_POST['username']);
 $password = mysqli_real_escape_string($koneksi, $_POST['password']);
 
+$aesUserKey = $_ENV['AES_USER_KEY'] ?? 'test';
+$aesPassKey = $_ENV['AES_PASS_KEY'] ?? 'test';
+
 // Cek user di tabel admin dengan AES_ENCRYPT
-$sql = "SELECT AES_DECRYPT(usere, 'nur') as username_decrypted 
+$sql = "SELECT AES_DECRYPT(usere, '$aesUserKey') as username_decrypted 
         FROM admin 
-        WHERE usere = AES_ENCRYPT('$username','nur') 
-        AND passworde = AES_ENCRYPT('$password','windi') 
+        WHERE usere = AES_ENCRYPT('$username','$aesUserKey') 
+        AND passworde = AES_ENCRYPT('$password','$aesPassKey') 
         LIMIT 1";
 
 $q = mysqli_query($koneksi, $sql);
@@ -29,5 +32,5 @@ $user = mysqli_fetch_assoc($q);
 $_SESSION['user_id'] = $username;
 $_SESSION['username'] = $username;
 
-header("Location: ../index.php");
+header("Location: ../");
 exit;

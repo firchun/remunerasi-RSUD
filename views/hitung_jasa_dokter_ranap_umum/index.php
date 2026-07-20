@@ -30,7 +30,7 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
 $rootPath = '../';
 require_once '../layouts/header.php';
 ?>
-<div class="bg-white rounded-2xl border border-green-700 p-6 mb-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3 mb-3">
   <h3 class="text-lg font-semibold mb-4 text-green-800 flex items-center">
     <i class="fas fa-calculator mr-2 w-[40px] h-[40px] rounded-full bg-green-200 flex items-center justify-center"></i>
     Filter Pencarian
@@ -94,12 +94,12 @@ require_once '../layouts/header.php';
         <?php
         $grup_result = mysqli_query($koneksi, "SELECT DISTINCT grup_bangsal FROM v_bangsal_grup ORDER BY grup_bangsal");
         while ($g = mysqli_fetch_assoc($grup_result)):
-        ?>
+          ?>
           <option value="<?= $g['grup_bangsal'] ?>"><?= $g['grup_bangsal'] ?></option>
         <?php endwhile; ?>
       </select>
     </div>
-    
+
   </div>
   <div class="mt-4 flex gap-2">
     <button onclick="loadData()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl transition"><i
@@ -113,7 +113,7 @@ require_once '../layouts/header.php';
   </div>
 </div>
 
-<div class="bg-white rounded-2xl border border-green-700 p-6">
+<div class="bg-white rounded-2xl border border-green-700 p-3">
   <!-- Tabs Navigation -->
   <div class="flex border-b border-gray-200 mb-4">
     <button onclick="switchTab('pasien')" id="tab-pasien"
@@ -143,7 +143,7 @@ require_once '../layouts/header.php';
       <tfoot class="bg-green-800 font-bold text-white">
         <tr>
           <th colspan="4" class="text-right px-2">TOTAL AKHIR :</th>
-          </tr>
+        </tr>
       </tfoot>
     </table>
   </div>
@@ -168,7 +168,7 @@ require_once '../layouts/header.php';
       <tfoot class="bg-green-800 font-bold text-white">
         <tr>
           <th colspan="1" class="text-right px-2">TOTAL AKHIR :</th>
-          </tr>
+        </tr>
       </tfoot>
     </table>
   </div>
@@ -245,7 +245,7 @@ require_once '../layouts/header.php';
           d.tahun = $('#filter_tahun').val();
           d.kd_dokter = $('#kd_dokter').val();
           d.kd_pj = $('#kd_pj').val();
-                    d.grup_bangsal = $('#grup_bangsal').val();
+          d.grup_bangsal = $('#grup_bangsal').val();
           d.tcari = '';
           d.search_value = d.search.value;
         }
@@ -261,66 +261,66 @@ require_once '../layouts/header.php';
         data: 'no_rawat',
         className: 'text-blue-600 font-semibold'
       },
-            {
+      {
         data: 'nominal_rs',
         className: 'num',
         render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
       },
       },
       },
-      {
-        data: 'no_rkm_medis'
-      },
-      {
-        data: 'nm_pasien'
-      },
-      {
-        data: 'nm_bangsal'
-      },
-      {
-        data: 'nm_dokter'
-      },
-      {
-        data: 'tgl_masuk'
-      },
-      {
-        data: 'total_tindakan_dr',
-        className: 'num'
-      },
-      render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+    {
+      data: 'no_rkm_medis'
+    },
+    {
+      data: 'nm_pasien'
+    },
+    {
+      data: 'nm_bangsal'
+    },
+    {
+      data: 'nm_dokter'
+    },
+    {
+      data: 'tgl_masuk'
+    },
+    {
+      data: 'total_tindakan_dr',
+      className: 'num'
+    },
+    render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
       }
       ],
-      order: [[10, 'desc']],
-      language: {
-        processing: "Memuat data...",
-        lengthMenu: "Tampilkan _MENU_ data per halaman",
-        zeroRecords: "Data tidak ditemukan",
-        info: "Menampilkan halaman _PAGE_ dari _PAGES_",
-        infoEmpty: "Tidak ada data tersedia",
-        infoFiltered: "(difilter dari _MAX_ total data)",
-        search: "Cari:",
-        paginate: {
-          first: "Pertama",
-          last: "Terakhir",
-          next: "Selanjutnya",
-          previous: "Sebelumnya"
-        }
-      },
-      footerCallback: function (row, data, start, end, display) {
-        const api = this.api();
-        const sumData = (prop) => data.map(r => parseFloat(r[prop]) || 0).reduce((a, b) => a + b, 0);
-        const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
+    order: [[10, 'desc']],
+    language: {
+    processing: "Memuat data...",
+    lengthMenu: "Tampilkan _MENU_ data per halaman",
+    zeroRecords: "Data tidak ditemukan",
+    info: "Menampilkan halaman _PAGE_ dari _PAGES_",
+    infoEmpty: "Tidak ada data tersedia",
+    infoFiltered: "(difilter dari _MAX_ total data)",
+    search: "Cari:",
+    paginate: {
+      first: "Pertama",
+      last: "Terakhir",
+      next: "Selanjutnya",
+      previous: "Sebelumnya"
+    }
+  },
+    footerCallback: function (row, data, start, end, display) {
+      const api = this.api();
+      const sumData = (prop) => data.map(r => parseFloat(r[prop]) || 0).reduce((a, b) => a + b, 0);
+      const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
 
-        $(api.column(2).footer()).html(fmt(sumData('nominal_rs')));
-        $(api.column(3).footer()).html(fmt(sumData('total_bpjs')));
-        $(api.column(4).footer()).html(fmt(sumData('kolom_44')));
-        $(api.column(10).footer()).html(fmt(sumData('total_tindakan_dr')));
-        $(api.column(11).footer()).html(fmt(sumData('jumlah_dpjp')));
-      }
+      $(api.column(2).footer()).html(fmt(sumData('nominal_rs')));
+      $(api.column(3).footer()).html(fmt(sumData('total_bpjs')));
+      $(api.column(4).footer()).html(fmt(sumData('kolom_44')));
+      $(api.column(10).footer()).html(fmt(sumData('total_tindakan_dr')));
+      $(api.column(11).footer()).html(fmt(sumData('jumlah_dpjp')));
+    }
     });
 
-    // Tabel Per Dokter
-    tableRekap = buatTabelRekap(false);
+  // Tabel Per Dokter
+  tableRekap = buatTabelRekap(false);
 
   });
 
@@ -340,55 +340,55 @@ require_once '../layouts/header.php';
         { data: null, className: 'text-center', render: function (data, type, row, meta) { return meta.row + 1; } },
         { data: 'nm_dokter', className: 'font-semibold' },
         },
+  },
+  { data: 'total_tindakan_dr', className: 'num' },
         },
-        { data: 'total_tindakan_dr', className: 'num' },
-        },
-        render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } }
+  render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } }
       ],
-      order: [[1, 'asc']],
-      language: {
-        processing: "Memuat rekap...",
-        lengthMenu: "Tampilkan _MENU_ data",
+  order: [[1, 'asc']],
+    language: {
+    processing: "Memuat rekap...",
+      lengthMenu: "Tampilkan _MENU_ data",
         zeroRecords: "Data tidak ditemukan",
-        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ dokter",
-        infoEmpty: "Tidak ada data tersedia",
-        infoFiltered: "(difilter dari _MAX_ total data)",
-        search: "Cari Dokter:",
-        paginate: { first: "Pertama", last: "Terakhir", next: "Selanjutnya", previous: "Sebelumnya" }
-      },
-      footerCallback: function (row, data, start, end, display) {
-        const api = this.api();
-        const sumData = (prop) => data.map(r => parseFloat(r[prop]) || 0).reduce((a, b) => a + b, 0);
-        const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
-        $(api.column(2).footer()).html(Math.round(sumData('jumlah_pasien')).toLocaleString('id-ID'));
-        $(api.column(2).footer()).html(Math.round(sumData('jumlah_pasien_bpjs')).toLocaleString('id-ID'));
-        $(api.column(3).footer()).html(Math.round(sumData('jumlah_pasien_non_bpjs')).toLocaleString('id-ID'));
-        $(api.column(4).footer()).html(Math.round(sumData('jumlah_pasien_klaim_bpjs')).toLocaleString('id-ID'));
-        $(api.column(5).footer()).html(fmt(sumData('total_bpjs')));
-        $(api.column(6).footer()).html(fmt(sumData('kolom_44')));
-        $(api.column(7).footer()).html(fmt(sumData('total_tindakan_dr')));
-        let sum_44 = sumData('kolom_44');
-        let sum_jml_dpjp = sumData('jumlah_dpjp');
-        let avg_pct = sum_44 > 0 ? ((sum_jml_dpjp / sum_44) * 100).toFixed(2) : 0;
-        $(api.column(8).footer()).html(avg_pct + '%');
-        $(api.column(9).footer()).html(fmt(sum_jml_dpjp));
+          info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ dokter",
+            infoEmpty: "Tidak ada data tersedia",
+              infoFiltered: "(difilter dari _MAX_ total data)",
+                search: "Cari Dokter:",
+                  paginate: { first: "Pertama", last: "Terakhir", next: "Selanjutnya", previous: "Sebelumnya" }
+  },
+  footerCallback: function (row, data, start, end, display) {
+    const api = this.api();
+    const sumData = (prop) => data.map(r => parseFloat(r[prop]) || 0).reduce((a, b) => a + b, 0);
+    const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
+    $(api.column(2).footer()).html(Math.round(sumData('jumlah_pasien')).toLocaleString('id-ID'));
+    $(api.column(2).footer()).html(Math.round(sumData('jumlah_pasien_bpjs')).toLocaleString('id-ID'));
+    $(api.column(3).footer()).html(Math.round(sumData('jumlah_pasien_non_bpjs')).toLocaleString('id-ID'));
+    $(api.column(4).footer()).html(Math.round(sumData('jumlah_pasien_klaim_bpjs')).toLocaleString('id-ID'));
+    $(api.column(5).footer()).html(fmt(sumData('total_bpjs')));
+    $(api.column(6).footer()).html(fmt(sumData('kolom_44')));
+    $(api.column(7).footer()).html(fmt(sumData('total_tindakan_dr')));
+    let sum_44 = sumData('kolom_44');
+    let sum_jml_dpjp = sumData('jumlah_dpjp');
+    let avg_pct = sum_44 > 0 ? ((sum_jml_dpjp / sum_44) * 100).toFixed(2) : 0;
+    $(api.column(8).footer()).html(avg_pct + '%');
+    $(api.column(9).footer()).html(fmt(sum_jml_dpjp));
+  }
+    };
+  if (withAjax) {
+    opts.ajax = {
+      url: window.BASE_URL + '/api/get_rekap_hitung_jasa_dokter_ranap_umum.php',
+      type: 'POST',
+      dataSrc: function (json) { return json.data || json; },
+      data: function (d) {
+        d.bulan = $('#filter_bulan').val();
+        d.tahun = $('#filter_tahun').val();
+        d.kd_dokter = $('#kd_dokter').val();
+        d.kd_pj = $('#kd_pj').val();
+        d.grup_bangsal = $('#grup_bangsal').val();
       }
     };
-    if (withAjax) {
-      opts.ajax = {
-        url: window.BASE_URL + '/api/get_rekap_hitung_jasa_dokter_ranap_umum.php',
-        type: 'POST',
-        dataSrc: function (json) { return json.data || json; },
-        data: function (d) {
-          d.bulan = $('#filter_bulan').val();
-          d.tahun = $('#filter_tahun').val();
-          d.kd_dokter = $('#kd_dokter').val();
-          d.kd_pj = $('#kd_pj').val();
-                    d.grup_bangsal = $('#grup_bangsal').val();
-        }
-      };
-    }
-    return $('#tabelRekap').DataTable(opts);
+  }
+  return $('#tabelRekap').DataTable(opts);
   }
 
   function loadData() {
@@ -406,7 +406,7 @@ require_once '../layouts/header.php';
     $('#filter_tahun').val(String(now.getFullYear()));
     $('#kd_dokter').val('');
     $('#kd_pj').val('');
-        $('#grup_bangsal').val('');
+    $('#grup_bangsal').val('');
     loadData();
   }
 
@@ -416,7 +416,7 @@ require_once '../layouts/header.php';
       tahun: $('#filter_tahun').val(),
       kd_dokter: $('#kd_dokter').val(),
       kd_pj: $('#kd_pj').val(),
-            grup_bangsal: $('#grup_bangsal').val(),
+      grup_bangsal: $('#grup_bangsal').val(),
       tcari: ''
     };
     window.open(window.BASE_URL + '/api/export_hitung_jasa_dokter_ranap_umum.php?' + $.param(params), '_blank');

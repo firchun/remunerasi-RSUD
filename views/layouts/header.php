@@ -4,9 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    $loginUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/login.php';
-    header("Location: " . $loginUrl);
-    exit;
+  $loginUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/login.php';
+  header("Location: " . $loginUrl);
+  exit;
 }
 
 $pageTitle = $pageTitle ?? 'Remunerasi RSUD MERAUKE';
@@ -72,8 +72,42 @@ function isActive($paths)
     }
 
     .sidebar-item.active {
-      background: rgba(255, 255, 255, 0.12);
-      border-left-color: #22c55e;
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 4px solid #10b981;
+    }
+
+    /* Sidebar collapsed (icon only) styles for Desktop */
+    @media (min-width: 1024px) {
+      .sidebar-collapsed {
+        width: 4.5rem !important;
+      }
+
+      .sidebar-collapsed #menuSearchContainer,
+      .sidebar-collapsed span,
+      .sidebar-collapsed p,
+      .sidebar-collapsed h1,
+      .sidebar-collapsed .min-w-0,
+      .sidebar-collapsed a[title="Logout"] {
+        display: none !important;
+      }
+
+      .sidebar-collapsed .sidebar-item {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+        gap: 0 !important;
+      }
+
+      .sidebar-collapsed .border-b,
+      .sidebar-collapsed .border-t {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+      }
+
+      .content-expanded {
+        margin-left: 4.5rem !important;
+      }
     }
 
     .dt-button.buttons-excel.buttons-html5 {
@@ -160,177 +194,125 @@ function isActive($paths)
     </div>
 
     <!-- Menu -->
-    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
-
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-1">Menu Utama</p>
-
-      <a href="<?= $baseUrl ?>/"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white         <?= !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum']) ? 'active text-white' : '' ?>">
-        <i class="fas fa-home w-5 text-center text-emerald-300"></i>
-        <span>Dashboard</span>
-      </a>
-
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Tindakan
-      </p>
-
-
-      <a href="<?= $baseUrl ?>/rajal"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('rajal') ? 'active text-white' : '' ?>">
-        <i class="fas fa-user-doctor w-5 text-center text-emerald-300"></i>
-        <span>Rawat Jalan</span>
-      </a>
-
-
-
-      <a href="<?= $baseUrl ?>/ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('ranap') ? 'active text-white' : '' ?>">
-        <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
-        <span>Rawat Inap</span>
-      </a>
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Kepatuhan
-      </p>
-      <a href="<?= $baseUrl ?>/kepatuhan-ralan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-ralan') ? 'active text-white' : '' ?>">
-        <i class="fas fa-clipboard-check w-5 text-center text-emerald-300"></i>
-        <span>Kepatuhan Rawat Jalan</span>
-      </a>
-      <a href="<?= $baseUrl ?>/kepatuhan-penunjang-ralan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-penunjang-ralan') ? 'active text-white' : '' ?>">
-        <i class="fas fa-flask w-5 text-center text-emerald-300"></i>
-        <span>Kepatuhan Penunjang Ralan</span>
-      </a>
-      <a href="<?= $baseUrl ?>/kepatuhan-bpjs"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-bpjs') ? 'active text-white' : '' ?>">
-        <i class="fas fa-file-invoice w-5 text-center text-emerald-300"></i>
-        <span>Kepatuhan BPJS</span>
-      </a>
-      <a href="<?= $baseUrl ?>/kepatuhan-remunerasi"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('kepatuhan-remunerasi') ? 'active text-white' : '' ?>">
-        <i class="fas fa-coins w-5 text-center text-emerald-300"></i>
-        <span>Kepatuhan Remunerasi</span>
-      </a>
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Perhitungan
-        Ralan
-      </p>
-      <a href="<?= $baseUrl ?>/hitung-jasa-ralan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ralan') && !isActive('hitung-jasa-ralan-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-calculator w-5 text-center text-emerald-300"></i>
-        <span>Hitung Jasa Ralan</span>
-      </a>
-      <a href="<?= $baseUrl ?>/hitung-jasa-ralan-umum"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ralan-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-calculator w-5 text-center text-emerald-300"></i>
-        <span>Hitung Jasa Ralan Umum</span>
-      </a>
-      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ralan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ralan') && !isActive('hitung-jasa-dokter-ralan-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
-        <span>Jasa Dokter Ralan</span>
-      </a>
-      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ralan-umum"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ralan-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
-        <span>Jasa Dokter Ralan Umum</span>
-      </a>
-
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data Perhitungan
-        Ranap
-      </p>
-      <a href="<?= $baseUrl ?>/hitung-jasa-ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ranap') && !isActive('hitung-jasa-ranap-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
-        <span>Hitung Jasa Ranap</span>
-      </a>
-      <a href="<?= $baseUrl ?>/hitung-jasa-ranap-umum"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-ranap-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-bed w-5 text-center text-emerald-300"></i>
-        <span>Hitung Jasa Ranap Umum</span>
-      </a>
-      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ranap') && !isActive('hitung-jasa-dokter-ranap-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
-        <span>Jasa Dokter Ranap</span>
-      </a>
-      <a href="<?= $baseUrl ?>/hitung-jasa-dokter-ranap-umum"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('hitung-jasa-dokter-ranap-umum') ? 'active text-white' : '' ?>">
-        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
-        <span>Jasa Dokter Ranap Umum</span>
-      </a>
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Data
-        Umpan Balik
-      </p>
-      <a href="<?= $baseUrl ?>/bpjs-verifikasi"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bpjs-verifikasi') ? 'active text-white' : '' ?>">
-        <i class="fas fa-file-invoice w-5 text-center text-emerald-300"></i>
-        <span>Umbal BPJS</span>
-      </a>
-
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Laporan</p>
-
-      <a href="<?= $baseUrl ?>/bulanan-rajal"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bulanan-rajal') ? 'active text-white' : '' ?>">
-        <i class="fas fa-calendar-week w-5 text-center text-emerald-300"></i>
-        <span>RALAN Per-Bulan</span>
-      </a>
-
-      <a href="<?= $baseUrl ?>/bulanan-ranap"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('bulanan-ranap') ? 'active text-white' : '' ?>">
-        <i class="fas fa-calendar-alt w-5 text-center text-emerald-300"></i>
-        <span>RANAP Per-Bulan</span>
-      </a>
-
-      <a href="<?= $baseUrl ?>/laporan-gabungan"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('laporan-gabungan') ? 'active text-white' : '' ?>">
-        <i class="fas fa-chart-pie w-5 text-center text-emerald-300"></i>
-        <span>Laporan Gabungan</span>
-      </a>
-
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Keuangan</p>
-
-
-      <a href="<?= $baseUrl ?>/jasaraharja"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('jasaraharja') ? 'active text-white' : '' ?>">
-        <i class="fas fa-car w-5 text-center text-emerald-300"></i>
-        <span>Jasa Raharja</span>
-      </a>
-
-      <p class="text-[11px] font-semibold text-emerald-400/70 uppercase tracking-wider px-3 mb-2 mt-4">Lainnya</p>
-
-      <a href="<?= $baseUrl ?>/cari-petugas"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('cari-petugas') ? 'active text-white' : '' ?>">
-        <i class="fas fa-user-md w-5 text-center text-emerald-300"></i>
-        <span>Cari Paramedis/Dokter</span>
-      </a>
-
-      <a href="<?= $baseUrl ?>/tunsus"
-        class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= isActive('tunsus') ? 'active text-white' : '' ?>">
-        <i class="fas fa-stethoscope w-5 text-center text-emerald-300"></i>
-        <span>Tunjangan Khusus</span>
-      </a>
-    </nav>
-
-    <!-- Bottom user -->
-    <div class="border-t border-emerald-700/40 px-4 py-3 shrink-0">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-xs font-bold text-white">
-          <?= strtoupper(substr($username, 0, 1)) ?>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-white truncate"><?= htmlspecialchars($username) ?></p>
-        </div>
-        <a href="<?= $baseUrl ?>/config/logout.php" class="text-emerald-300/70 hover:text-white transition"
-          title="Logout">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
+    <?php
+    $menus = [
+      [
+        'title' => 'Menu Utama',
+        'items' => [
+          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum'])]
+        ]
+      ],
+      [
+        'title' => 'Data Tindakan',
+        'items' => [
+          ['url' => '/rajal', 'icon' => 'fas fa-user-doctor', 'label' => 'Rawat Jalan', 'active' => isActive('rajal')],
+          ['url' => '/ranap', 'icon' => 'fas fa-bed', 'label' => 'Rawat Inap', 'active' => isActive('ranap')],
+        ]
+      ],
+      [
+        'title' => 'Data Kepatuhan',
+        'items' => [
+          ['url' => '/kepatuhan-ralan', 'icon' => 'fas fa-clipboard-check', 'label' => 'Kepatuhan Rawat Jalan', 'active' => isActive('kepatuhan-ralan')],
+          ['url' => '/kepatuhan-penunjang-ralan', 'icon' => 'fas fa-flask', 'label' => 'Kepatuhan Penunjang Ralan', 'active' => isActive('kepatuhan-penunjang-ralan')],
+          ['url' => '/kepatuhan-bpjs', 'icon' => 'fas fa-file-invoice', 'label' => 'Kepatuhan BPJS', 'active' => isActive('kepatuhan-bpjs')],
+          ['url' => '/kepatuhan-remunerasi', 'icon' => 'fas fa-coins', 'label' => 'Kepatuhan Remunerasi', 'active' => isActive('kepatuhan-remunerasi')],
+        ]
+      ],
+      [
+        'title' => 'Data Perhitungan Ralan BPJS',
+        'items' => [
+          ['url' => '/hitung-jasa-ralan', 'icon' => 'fas fa-calculator', 'label' => 'Hitung Jasa Ralan', 'active' => isActive('hitung-jasa-ralan') && !isActive('hitung-jasa-ralan-umum')],
+          ['url' => '/hitung-jasa-dokter-ralan', 'icon' => 'fas fa-user-md', 'label' => 'Jasa Dokter Ralan', 'active' => isActive('hitung-jasa-dokter-ralan') && !isActive('hitung-jasa-dokter-ralan-umum')],
+        ]
+      ],
+      [
+        'title' => 'Data Perhitungan Ralan UMUM',
+        'items' => [
+          ['url' => '/hitung-jasa-ralan-umum', 'icon' => 'fas fa-calculator', 'label' => 'Hitung Jasa Ralan Umum', 'active' => isActive('hitung-jasa-ralan-umum')],
+          ['url' => '/hitung-jasa-dokter-ralan-umum', 'icon' => 'fas fa-user-md', 'label' => 'Jasa Dokter Ralan Umum', 'active' => isActive('hitung-jasa-dokter-ralan-umum')],
+        ]
+      ],
+      [
+        'title' => 'Data Perhitungan Ranap BPJS',
+        'items' => [
+          ['url' => '/hitung-jasa-ranap', 'icon' => 'fas fa-bed', 'label' => 'Hitung Jasa Ranap', 'active' => isActive('hitung-jasa-ranap') && !isActive('hitung-jasa-ranap-umum')],
+          ['url' => '/hitung-jasa-dokter-ranap', 'icon' => 'fas fa-user-md', 'label' => 'Jasa Dokter Ranap', 'active' => isActive('hitung-jasa-dokter-ranap') && !isActive('hitung-jasa-dokter-ranap-umum')],
+        ]
+      ],
+      [
+        'title' => 'Data Perhitungan Ranap UMUM',
+        'items' => [
+          ['url' => '/hitung-jasa-ranap-umum', 'icon' => 'fas fa-bed', 'label' => 'Hitung Jasa Ranap Umum', 'active' => isActive('hitung-jasa-ranap-umum')],
+          ['url' => '/hitung-jasa-dokter-ranap-umum', 'icon' => 'fas fa-user-md', 'label' => 'Jasa Dokter Ranap Umum', 'active' => isActive('hitung-jasa-dokter-ranap-umum')],
+        ]
+      ],
+      [
+        'title' => 'Data Umpan Balik',
+        'items' => [
+          ['url' => '/bpjs-verifikasi', 'icon' => 'fas fa-file-invoice', 'label' => 'Umbal BPJS', 'active' => isActive('bpjs-verifikasi')],
+        ]
+      ],
+      [
+        'title' => 'Laporan',
+        'items' => [
+          ['url' => '/bulanan-rajal', 'icon' => 'fas fa-calendar-week', 'label' => 'RALAN Per-Bulan', 'active' => isActive('bulanan-rajal')],
+          ['url' => '/bulanan-ranap', 'icon' => 'fas fa-calendar-alt', 'label' => 'RANAP Per-Bulan', 'active' => isActive('bulanan-ranap')],
+          ['url' => '/laporan-gabungan', 'icon' => 'fas fa-chart-pie', 'label' => 'Laporan Gabungan', 'active' => isActive('laporan-gabungan')],
+        ]
+      ],
+      [
+        'title' => 'Keuangan',
+        'items' => [
+          ['url' => '/jasaraharja', 'icon' => 'fas fa-car', 'label' => 'Jasa Raharja', 'active' => isActive('jasaraharja')],
+        ]
+      ],
+      [
+        'title' => 'Lainnya',
+        'items' => [
+          ['url' => '/cari-petugas', 'icon' => 'fas fa-user-md', 'label' => 'Cari Paramedis/Dokter', 'active' => isActive('cari-petugas')],
+          ['url' => '/tunsus', 'icon' => 'fas fa-stethoscope', 'label' => 'Tunjangan Khusus', 'active' => isActive('tunsus')],
+        ]
+      ]
+    ];
+    ?>
+    <!-- Menu Search -->
+    <div id="menuSearchContainer" class="px-4 py-2 mt-2">
+      <div class="relative ">
+        <input type="text" id="menuSearch" onkeyup="filterMenu()" placeholder="Cari menu..."
+          class="w-full bg-emerald-600/50 text-emerald-100 placeholder-emerald-400/70 border border-emerald-700/50 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+        <i class="fas fa-search absolute left-3 top-2.5 text-emerald-400/70 text-sm "></i>
       </div>
     </div>
+
+    <nav class="flex-1 overflow-y-auto py-2 px-3 space-y-0.5" id="sidebarMenu">
+      <?php foreach ($menus as $menu_index => $section): ?>
+        <div class="menu-section">
+          <?php if (!empty($section['title'])): ?>
+            <p
+              class="menu-title text-[11px] font-bold text-white uppercase tracking-wider px-3 mb-2 <?= $menu_index > 0 ? 'mt-4' : 'mt-1' ?>">
+              <?= $section['title'] ?>
+            </p>
+          <?php endif; ?>
+
+          <?php foreach ($section['items'] as $item): ?>
+            <a href="<?= $baseUrl . $item['url'] ?>"
+              class="sidebar-item menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-emerald-100/90 hover:text-white <?= $item['active'] ? 'active text-white' : '' ?>">
+              <i class="<?= $item['icon'] ?> w-5 text-center text-emerald-300"></i>
+              <span class="menu-text"><?= $item['label'] ?></span>
+            </a>
+          <?php endforeach; ?>
+        </div>
+      <?php endforeach; ?>
+    </nav>
+
+
   </aside>
 
   <!-- Main Area -->
-  <div class="lg:ml-64 flex flex-col min-h-screen transition-all duration-300">
+  <div id="mainContent" class="lg:ml-64 flex flex-col min-h-screen transition-all duration-300">
 
     <!-- Navbar -->
-    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
+    <header class="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-200 ">
       <div class="flex items-center justify-between px-4 lg:px-6 h-16">
         <div class="flex items-center gap-3">
           <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
@@ -345,18 +327,38 @@ function isActive($paths)
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-500 hidden sm:block">
-            <i class="far fa-calendar-alt mr-1"></i>
+          <span class="text-sm text-gray-500 hidden sm:block bg-gray-100 p-2 rounded-lg">
+            <i class="far fa-calendar-alt mr-1 text-emerald-600"></i>
             <?= date('d/m/Y') ?>
           </span>
-          <a href="<?= $baseUrl ?>/config/logout.php"
-            class="flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition">
-            <i class="fas fa-sign-out-alt"></i>
-            <span class="hidden sm:inline">Logout</span>
-          </a>
+
+          <!-- User Dropdown -->
+          <div class="relative">
+            <button onclick="toggleUserDropdown(event)"
+              class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition focus:outline-none">
+              <div
+                class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-xs font-bold text-white">
+                <?= strtoupper(substr($username, 0, 1)) ?>
+              </div>
+              <span class="text-sm font-medium text-gray-700 hidden sm:block"><?= htmlspecialchars($username) ?></span>
+              <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="userDropdown"
+              class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 border border-gray-100 z-50">
+              <div class="px-4 py-3 border-b border-gray-100 sm:hidden">
+                <p class="text-sm font-medium text-gray-800 truncate"><?= htmlspecialchars($username) ?></p>
+              </div>
+              <a href="<?= $baseUrl ?>/config/logout.php"
+                class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
     <!-- Content -->
-    <main class="flex-1 p-4 lg:p-6 overflow-y-auto">
+    <main class="flex-1 p-4 lg:p-6 overflow-y-auto ">
