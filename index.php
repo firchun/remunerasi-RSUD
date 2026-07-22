@@ -46,6 +46,9 @@ $routes = [
     'kepatuhan-remunerasi' => './views/kepatuhan_remunerasi/index.php',
     'perbaikan-tarif' => './views/perbaikan_tarif/index.php',
     'kepatuhan' => './public_kepatuhan_remunerasi.php',
+    'perbaikan-konsultasi' => './views/perbaikan_konsultasi/index.php',
+    'perbaikan-visite' => './views/perbaikan_visite/index.php',
+    'perbaikan-operasi' => './views/perbaikan_operasi/index.php',
 ];
 
 if ($path !== '' && isset($routes[$path])) {

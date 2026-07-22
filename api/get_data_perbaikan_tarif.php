@@ -52,7 +52,10 @@ if ($result) {
             'kd_jenis_prw'  => $row['kd_jenis_prw'],
             'nm_perawatan'  => $row['nm_perawatan'],
             'total_byrdrpr' => $row['tarif'],
-            'action'        => '<button class="btn-perbaiki" data-kd="' . htmlspecialchars($row['kd_jenis_prw']) . '" data-type="' . $type . '"> perbaiki</button>'
+            'action'        => '<div style="display:flex; gap:5px; justify-content:center;">' .
+                               '<button class="btn-perbaiki" data-kd="' . htmlspecialchars($row['kd_jenis_prw']) . '" data-type="' . $type . '"> perbaiki</button>' .
+                               '<button class="btn-edit-tarif" data-kd="' . htmlspecialchars($row['kd_jenis_prw']) . '" data-type="' . $type . '" style="background:#f59e0b; color:#fff; border:none; border-radius:6px; padding:4px 12px; font-size:12px; cursor:pointer; transition:background 0.2s;"> edit</button>' .
+                               '</div>'
         ];
     }
 }

@@ -16,8 +16,8 @@ $extraHead = '<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css
   .btn-perbaiki { background: #047857; color: #fff; border: none; border-radius: 6px; padding: 4px 12px; font-size: 12px; cursor: pointer; transition: background 0.2s; }
   .btn-perbaiki:hover { background: #065f46; }
   /* Modal */
-  #modalPerbaiki { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
-  #modalPerbaiki.show { display:flex; }
+  #modalPerbaiki, #modalEditTarifMaster { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.5); align-items:center; justify-content:center; }
+  #modalPerbaiki.show, #modalEditTarifMaster.show { display:flex; }
   .modal-box { background:#fff; border-radius:16px; width:92%; max-width:900px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.3); overflow:hidden; }
   .modal-header { background:#047857; color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
   .modal-header h3 { margin:0; font-size:16px; }
@@ -223,6 +223,29 @@ require_once '../layouts/header.php';
     <div class="modal-footer">
       <button class="btn-batal" id="btnBatal">Tutup</button>
       <button class="btn-eksekusi" id="btnEksekusi">&#9888; Perbaiki Tarif</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalEditTarifMaster">
+  <div class="modal-box" style="max-width: 600px;">
+    <div class="modal-header">
+      <h3 id="modalEditTitle">Edit Tarif Master</h3>
+      <button class="modal-close" id="btnCloseEditModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="alertEditSuccess" class="alert-success"></div>
+      <div id="alertEditError" class="alert-error"></div>
+      <form id="formEditTarif">
+        <input type="hidden" name="type" id="editType">
+        <input type="hidden" name="kd" id="editKd">
+        <div id="editFormFields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-batal" id="btnBatalEdit">Batal</button>
+      <button class="btn-edit" id="btnSimpanEdit" style="display:inline-block;">&#128190; Simpan Perubahan</button>
     </div>
   </div>
 </div>
@@ -609,6 +632,93 @@ $(document).ready(function() {
       },
       error: function() { $('#alertError').text('Terjadi kesalahan jaringan.').show(); },
       complete: function() { $('#btnEksekusi').text('\u26A0 Perbaiki Tarif').prop('disabled', false); }
+    });
+  });
+
+  // =============================================
+  // MODAL EDIT TARIF MASTER
+  // =============================================
+  function closeEditModal() {
+    $('#modalEditTarifMaster').removeClass('show');
+  }
+  $('#btnCloseEditModal, #btnBatalEdit').click(closeEditModal);
+  
+  $(document).on('click', '.btn-edit-tarif', function() {
+    const type = $(this).data('type');
+    const kd = $(this).data('kd');
+    
+    $('#editType').val(type);
+    $('#editKd').val(kd);
+    $('#alertEditSuccess, #alertEditError').hide();
+    $('#editFormFields').html('<div style="grid-column: 1 / -1; text-align: center;">Memuat data...</div>');
+    $('#modalEditTarifMaster').addClass('show');
+
+    $.ajax({
+      url: window.BASE_URL + '/api/get_detail_tarif.php',
+      method: 'GET',
+      data: { type: type, kd: kd },
+      success: function(res) {
+        if(res.success) {
+          const data = res.data;
+          $('#modalEditTitle').text('Edit Tarif - ' + (data.nm_perawatan || kd));
+          
+          let html = '';
+          const excludeFields = ['kd_jenis_prw', 'kode_paket', 'nm_perawatan', 'kd_kategori', 'kd_pj', 'kd_poli', 'kd_bangsal', 'status', 'kelas', 'kategori'];
+          
+          for(const key in data) {
+            if(!excludeFields.includes(key)) {
+              let label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              let val = data[key];
+              html += `
+                <div>
+                  <label style="display:block; font-size:12px; font-weight:600; margin-bottom:5px; color:#374151;">${label}</label>
+                  <input type="text" name="${key}" value="${val}" style="width:100%; padding:8px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:13px;">
+                </div>
+              `;
+            }
+          }
+          $('#editFormFields').html(html);
+        } else {
+          $('#editFormFields').html('<div style="grid-column: 1 / -1; text-align: center; color: red;">' + res.message + '</div>');
+        }
+      },
+      error: function() {
+        $('#editFormFields').html('<div style="grid-column: 1 / -1; text-align: center; color: red;">Terjadi kesalahan jaringan.</div>');
+      }
+    });
+  });
+
+  $('#btnSimpanEdit').click(function(e) {
+    e.preventDefault();
+    const btn = $(this);
+    btn.text('Menyimpan...').prop('disabled', true);
+    $('#alertEditSuccess, #alertEditError').hide();
+
+    $.ajax({
+      url: window.BASE_URL + '/api/save_detail_tarif.php',
+      method: 'POST',
+      data: $('#formEditTarif').serialize(),
+      success: function(res) {
+        if(res.success) {
+          $('#alertEditSuccess').text('\u2713 ' + res.message).show();
+          // Reload datatables if initialized
+          if(typeof tableRalan !== 'undefined') tableRalan.ajax.reload(null, false);
+          if(typeof tableRanap !== 'undefined') tableRanap.ajax.reload(null, false);
+          if(typeof tableLab !== 'undefined') tableLab.ajax.reload(null, false);
+          if(typeof tableRadiologi !== 'undefined') tableRadiologi.ajax.reload(null, false);
+          if(typeof tableOperasi !== 'undefined') tableOperasi.ajax.reload(null, false);
+          
+          setTimeout(closeEditModal, 1500);
+        } else {
+          $('#alertEditError').text('Gagal: ' + res.message).show();
+        }
+      },
+      error: function() {
+        $('#alertEditError').text('Terjadi kesalahan jaringan.').show();
+      },
+      complete: function() {
+        btn.html('\uD83D\uDCBE Simpan Perubahan').prop('disabled', false);
+      }
     });
   });
 

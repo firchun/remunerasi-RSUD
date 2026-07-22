@@ -207,7 +207,15 @@ function isActive($paths)
         'items' => [
           ['url' => '/rajal', 'icon' => 'fas fa-user-doctor', 'label' => 'Rawat Jalan', 'active' => isActive('rajal')],
           ['url' => '/ranap', 'icon' => 'fas fa-bed', 'label' => 'Rawat Inap', 'active' => isActive('ranap')],
+        ]
+      ],
+      [
+        'title' => 'Perbaikan Data',
+        'items' => [
           ['url' => '/perbaikan-tarif', 'icon' => 'fas fa-tags', 'label' => 'Perbaikan Tarif', 'active' => isActive('perbaikan-tarif')],
+          ['url' => '/perbaikan-konsultasi', 'icon' => 'fas fa-stethoscope', 'label' => 'Perbaikan Konsultasi', 'active' => isActive('perbaikan-konsultasi')],
+          ['url' => '/perbaikan-visite', 'icon' => 'fas fa-user-md', 'label' => 'Perbaikan Visite', 'active' => isActive('perbaikan-visite')],
+          ['url' => '/perbaikan-operasi', 'icon' => 'fas fa-syringe', 'label' => 'Perbaikan Operasi', 'active' => isActive('perbaikan-operasi')],
         ]
       ],
       [
