@@ -199,7 +199,7 @@ function isActive($paths)
       [
         'title' => 'Menu Utama',
         'items' => [
-          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum'])]
+          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum'])]
         ]
       ],
       [
@@ -207,6 +207,7 @@ function isActive($paths)
         'items' => [
           ['url' => '/rajal', 'icon' => 'fas fa-user-doctor', 'label' => 'Rawat Jalan', 'active' => isActive('rajal')],
           ['url' => '/ranap', 'icon' => 'fas fa-bed', 'label' => 'Rawat Inap', 'active' => isActive('ranap')],
+          ['url' => '/perbaikan-tarif', 'icon' => 'fas fa-tags', 'label' => 'Perbaikan Tarif', 'active' => isActive('perbaikan-tarif')],
         ]
       ],
       [
