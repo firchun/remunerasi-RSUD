@@ -26,6 +26,7 @@ $routes = [
     'cari-petugas' => './views/cari_petugas/index.php',
     'jasaraharja' => './views/jasaraharja/index.php',
     'laporan-gabungan' => './views/laporan_gabungan/index.php',
+    'rekap-jumlah-pasien' => './views/rekap_jumlah_pasien/index.php',
     'tunsus' => './views/tunsus.php',
     'hitung-jasa-ralan' => './views/hitung_jasa_ralan/index.php',
     'hitung-jasa-ralan-umum' => './views/hitung_jasa_ralan_umum/index.php',
@@ -49,6 +50,7 @@ $routes = [
     'perbaikan-konsultasi' => './views/perbaikan_konsultasi/index.php',
     'perbaikan-visite' => './views/perbaikan_visite/index.php',
     'perbaikan-operasi' => './views/perbaikan_operasi/index.php',
+    'perbaikan-triase' => './views/perbaikan_triase/index.php',
 ];
 
 if ($path !== '' && isset($routes[$path])) {
