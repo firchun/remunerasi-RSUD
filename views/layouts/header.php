@@ -199,7 +199,7 @@ function isActive($paths)
       [
         'title' => 'Menu Utama',
         'items' => [
-          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum'])]
+          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'perbaikan-diagnosa', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum'])]
         ]
       ],
       [
@@ -217,6 +217,7 @@ function isActive($paths)
           ['url' => '/perbaikan-visite', 'icon' => 'fas fa-user-md', 'label' => 'Perbaikan Visite', 'active' => isActive('perbaikan-visite')],
           ['url' => '/perbaikan-operasi', 'icon' => 'fas fa-syringe', 'label' => 'Perbaikan Operasi', 'active' => isActive('perbaikan-operasi')],
           ['url' => '/perbaikan-triase', 'icon' => 'fas fa-notes-medical', 'label' => 'Perbaikan Triase', 'active' => isActive('perbaikan-triase')],
+          ['url' => '/perbaikan-diagnosa', 'icon' => 'fas fa-stethoscope', 'label' => 'Perbaikan Diagnosa', 'active' => isActive('perbaikan-diagnosa')],
         ]
       ],
       [
