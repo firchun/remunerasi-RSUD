@@ -462,6 +462,33 @@ $months = [
                         </div>
                     </div>
 
+                    <!-- Card 8: Belum Validasi Resep -->
+                    <div class="glass-card glass-card-hover rounded-2xl p-6 relative overflow-hidden cursor-pointer"
+                        :class="activeCategory === 'belum_validasi_resep' ? 'border-cyan-500/40 bg-white' : ''"
+                        @click="selectCategory('belum_validasi_resep')">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-bl-full pointer-events-none">
+                        </div>
+                        <div class="flex items-start justify-between gap-4 mb-4">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                                <i class="fa-solid fa-prescription-bottle text-cyan-500 text-lg"></i>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-3xl font-extrabold text-cyan-500"
+                                    x-text="summary.belum_validasi_resep.count">0</div>
+                                <div class="text-[10px] text-slate-500 mt-0.5">Pasien</div>
+                            </div>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800 mb-1" x-text="summary.belum_validasi_resep.title">Belum Validasi Resep</h3>
+                        <p class="text-slate-500 text-xs line-clamp-2" x-text="summary.belum_validasi_resep.description">Deskripsi</p>
+                        <div class="mt-4 flex items-center justify-between text-xs font-semibold text-cyan-500">
+                            <span>Buka Detail Pasien</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"
+                                :class="activeCategory === 'belum_validasi_resep' ? 'rotate-90' : ''"></i>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Detailed Expandable List Container -->
@@ -586,7 +613,8 @@ $months = [
                     resep_tanpa_tindakan: { title: 'Resep Tanpa Tindakan', description: '', count: 0, patients: [] },
                     tidak_dilayani: { title: 'Pasien Tidak Dilayani', description: '', count: 0, patients: [] },
                     status_salah: { title: 'Status Salah', description: '', count: 0, patients: [] },
-                    tanpa_surat_kontrol: { title: 'Tanpa Surat Kontrol', description: '', count: 0, patients: [] }
+                    tanpa_surat_kontrol: { title: 'Tanpa Surat Kontrol', description: '', count: 0, patients: [] },
+                    belum_validasi_resep: { title: 'Belum Validasi Resep', description: '', count: 0, patients: [] }
                 },
 
                 async fetchData() {

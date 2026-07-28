@@ -17,7 +17,12 @@ $tgl_akhir = date("Y-m-t 23:59:59", strtotime($tgl_awal));
 
 $where = "WHERE rp.status_lanjut = 'Ralan'
   AND rp.stts != 'Batal'
-  AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'";
+  AND CONCAT(rp.tgl_registrasi,' ',rp.jam_reg) BETWEEN '$tgl_awal' AND '$tgl_akhir'
+  AND EXISTS (
+      SELECT 1 FROM resep_obat ro2
+      WHERE ro2.no_rawat = rp.no_rawat
+      AND ro2.status = 'ralan'
+  )";
 
 if (!empty($kd_poli)) {
     $where .= " AND rp.kd_poli = '" . mysqli_real_escape_string($koneksi, $kd_poli) . "'";
@@ -38,8 +43,9 @@ SELECT
     penjab.png_jawab,
     bridging_sep.no_sep,
     sk.no_surat AS no_surat_kontrol,
-    (SELECT ro.no_resep FROM resep_obat ro WHERE ro.no_rawat = rp.no_rawat AND ro.status = 'ralan' AND ro.tgl_perawatan != '0000-00-00' LIMIT 1) AS no_resep,
-    (SELECT 1 FROM rawat_jl_drpr rj WHERE rj.no_rawat = rp.no_rawat LIMIT 1) AS has_tindakan
+    (SELECT ro.no_resep FROM resep_obat ro WHERE ro.no_rawat = rp.no_rawat AND ro.status = 'ralan' LIMIT 1) AS no_resep,
+    (SELECT 1 FROM rawat_jl_drpr rj WHERE rj.no_rawat = rp.no_rawat LIMIT 1) AS has_tindakan,
+    (SELECT 1 FROM resep_obat ro WHERE ro.no_rawat = rp.no_rawat AND ro.status = 'ralan' AND (ro.tgl_perawatan = '0000-00-00' OR ro.tgl_perawatan IS NULL OR ro.tgl_perawatan = '') LIMIT 1) AS has_belum_validasi
 FROM reg_periksa rp
 JOIN pasien ON rp.no_rkm_medis = pasien.no_rkm_medis
 JOIN poliklinik ON rp.kd_poli = poliklinik.kd_poli
@@ -100,6 +106,12 @@ $categories = [
     "tanpa_surat_kontrol" => [
         "title" => "Tanpa Surat Kontrol",
         "description" => "Pasien BPJS terlayani tetapi tidak memiliki Surat Kontrol",
+        "count" => 0,
+        "patients" => []
+    ],
+    "belum_validasi_resep" => [
+        "title" => "Belum Validasi Resep",
+        "description" => "Resep obat yang belum divalidasi (tgl_perawatan kosong)",
         "count" => 0,
         "patients" => []
     ]
@@ -166,6 +178,12 @@ while ($row = mysqli_fetch_assoc($result)) {
     if ($is_bpjs && $row['stts'] === 'Sudah' && $no_sk_empty) {
         $categories['tanpa_surat_kontrol']['patients'][] = $patient_detail;
         $categories['tanpa_surat_kontrol']['count']++;
+    }
+
+    // 8. Belum Validasi Resep (ada resep dengan tgl_perawatan null/0000-00-00)
+    if (!empty($row['has_belum_validasi'])) {
+        $categories['belum_validasi_resep']['patients'][] = $patient_detail;
+        $categories['belum_validasi_resep']['count']++;
     }
 }
 
