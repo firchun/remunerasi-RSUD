@@ -27,6 +27,7 @@ $routes = [
     'jasaraharja' => './views/jasaraharja/index.php',
     'laporan-gabungan' => './views/laporan_gabungan/index.php',
     'rekap-jumlah-pasien' => './views/rekap_jumlah_pasien/index.php',
+    'rekap-pasien' => './views/rekap_pasien/index.php',
     'tunsus' => './views/tunsus.php',
     'hitung-jasa-ralan' => './views/hitung_jasa_ralan/index.php',
     'hitung-jasa-ralan-umum' => './views/hitung_jasa_ralan_umum/index.php',
