@@ -54,6 +54,7 @@ $routes = [
     'perbaikan-operasi' => './views/perbaikan_operasi/index.php',
     'perbaikan-triase' => './views/perbaikan_triase/index.php',
     'perbaikan-diagnosa' => './views/perbaikan_diagnosa/index.php',
+    'perbaikan-anamnesa' => './views/perbaikan_anamnesa/index.php',
 ];
 
 if ($path !== '' && isset($routes[$path])) {

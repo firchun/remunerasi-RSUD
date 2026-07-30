@@ -266,31 +266,28 @@ require_once '../layouts/header.php';
         className: 'num',
         render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
       },
+      {
+        data: 'no_rkm_medis'
       },
+      {
+        data: 'nm_pasien'
       },
-    {
-      data: 'no_rkm_medis'
-    },
-    {
-      data: 'nm_pasien'
-    },
-    {
-      data: 'nm_bangsal'
-    },
-    {
-      data: 'nm_dokter'
-    },
-    {
-      data: 'tgl_masuk'
-    },
-    {
-      data: 'total_tindakan_dr',
-      className: 'num'
-    },
-    render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
+      {
+        data: 'nm_bangsal'
+      },
+      {
+        data: 'nm_dokter'
+      },
+      {
+        data: 'tgl_masuk'
+      },
+      {
+        data: 'total_tindakan_dr',
+        className: 'num',
+        render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; }
       }
       ],
-    order: [[10, 'desc']],
+    order: [[7, 'desc']],
     language: {
     processing: "Memuat data...",
     lengthMenu: "Tampilkan _MENU_ data per halaman",
@@ -312,10 +309,7 @@ require_once '../layouts/header.php';
       const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
 
       $(api.column(2).footer()).html(fmt(sumData('nominal_rs')));
-      $(api.column(3).footer()).html(fmt(sumData('total_bpjs')));
-      $(api.column(4).footer()).html(fmt(sumData('kolom_44')));
-      $(api.column(10).footer()).html(fmt(sumData('total_tindakan_dr')));
-      $(api.column(11).footer()).html(fmt(sumData('jumlah_dpjp')));
+      $(api.column(8).footer()).html(fmt(sumData('total_tindakan_dr')));
     }
     });
 
@@ -339,11 +333,7 @@ require_once '../layouts/header.php';
       columns: [
         { data: null, className: 'text-center', render: function (data, type, row, meta) { return meta.row + 1; } },
         { data: 'nm_dokter', className: 'font-semibold' },
-        },
-  },
-  { data: 'total_tindakan_dr', className: 'num' },
-        },
-  render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } }
+        { data: 'total_tindakan_dr', className: 'num', render: function (v) { return v ? Math.round(v).toLocaleString('id-ID') : '0'; } }
       ],
   order: [[1, 'asc']],
     language: {
@@ -360,18 +350,7 @@ require_once '../layouts/header.php';
     const api = this.api();
     const sumData = (prop) => data.map(r => parseFloat(r[prop]) || 0).reduce((a, b) => a + b, 0);
     const fmt = (x) => "Rp " + Math.round(x).toLocaleString('id-ID');
-    $(api.column(2).footer()).html(Math.round(sumData('jumlah_pasien')).toLocaleString('id-ID'));
-    $(api.column(2).footer()).html(Math.round(sumData('jumlah_pasien_bpjs')).toLocaleString('id-ID'));
-    $(api.column(3).footer()).html(Math.round(sumData('jumlah_pasien_non_bpjs')).toLocaleString('id-ID'));
-    $(api.column(4).footer()).html(Math.round(sumData('jumlah_pasien_klaim_bpjs')).toLocaleString('id-ID'));
-    $(api.column(5).footer()).html(fmt(sumData('total_bpjs')));
-    $(api.column(6).footer()).html(fmt(sumData('kolom_44')));
-    $(api.column(7).footer()).html(fmt(sumData('total_tindakan_dr')));
-    let sum_44 = sumData('kolom_44');
-    let sum_jml_dpjp = sumData('jumlah_dpjp');
-    let avg_pct = sum_44 > 0 ? ((sum_jml_dpjp / sum_44) * 100).toFixed(2) : 0;
-    $(api.column(8).footer()).html(avg_pct + '%');
-    $(api.column(9).footer()).html(fmt(sum_jml_dpjp));
+    $(api.column(2).footer()).html(fmt(sumData('total_tindakan_dr')));
   }
     };
   if (withAjax) {
