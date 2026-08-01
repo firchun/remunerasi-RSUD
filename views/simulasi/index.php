@@ -54,6 +54,9 @@ require_once '../layouts/header.php';
               <?php
               $simDbPath = __DIR__ . '/../../database/simulasi.sqlite';
               if (file_exists($simDbPath)) {
+                if (!extension_loaded('pdo_sqlite')) {
+                  echo '<div class="px-4 py-2 text-sm text-red-500">Driver pdo_sqlite tidak tersedia di server.</div>';
+                } else {
                 $menudb = new PDO("sqlite:$simDbPath");
                 $menudb->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 $menudb->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -79,6 +82,7 @@ require_once '../layouts/header.php';
                   echo "<a href=\"#\" onclick=\"openMasterModal('$k');return false\" class=\"flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-700 transition-colors\">
                     <span class=\"flex-1\">$v</span><span class=\"text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full\">$cnt</span>
                   </a>\n";
+                }
                 }
               }
               ?>
