@@ -11,25 +11,11 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 
 // ============================================================
-// KONEKSI LANGSUNG KE DATABASE
+// KONEKSI DATABASE (menggunakan koneksi dari config/conf.php)
 // ============================================================
-$db_host = '100.84.210.7';
-$db_user = 'rsud';
-$db_pass = 'rsud321';
-$db_name = 'merauke_db';
+require_once __DIR__ . '/../config/conf.php';
 
-$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
-
-if (!$conn) {
-    if (isset($_GET['ajax'])) {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'Koneksi database gagal: ' . mysqli_connect_error()]);
-        exit;
-    }
-    die('Koneksi database gagal: ' . mysqli_connect_error());
-}
-
-mysqli_set_charset($conn, 'utf8');
+$conn = bukakoneksi();
 
 function bukaquery($query)
 {
@@ -58,8 +44,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 'get_dokter_list') {
 // ============================================================
 if (isset($_GET['ajax']) && $_GET['ajax'] == 'export_excel') {
     require __DIR__ . '/../vendor/autoload.php';
-
-
 
     $tanggal_mulai = isset($_GET['tanggal_mulai']) ? $_GET['tanggal_mulai'] : date('Y-m-01');
     $tanggal_selesai = isset($_GET['tanggal_selesai']) ? $_GET['tanggal_selesai'] : date('Y-m-t');
@@ -562,391 +546,388 @@ table.dataTable tbody td.sunday-cell { background-color: #ffcccc; color: #cc0000
 $rootPath = '../';
 require_once 'layouts/header.php';
 ?>
-    <div class="container">
+<div class="container">
 
-        <div class="page-header no-print">
-            <h2>LAPORAN USULAN TUNJANGAN KHUSUS DOKTER SPESIALIS DTPK</h2>
-            <p>RSUD Merauke</p>
+    <div class="page-header no-print">
+        <h2>LAPORAN USULAN TUNJANGAN KHUSUS DOKTER SPESIALIS DTPK</h2>
+        <p>RSUD Merauke</p>
+    </div>
+
+    <!-- ==================== FILTER SECTION ==================== -->
+    <div class="filter-section no-print">
+
+        <!-- Baris 1: Tanggal + Tombol -->
+        <div class="filter-row">
+            <div class="form-group" style="flex:0 0 auto; min-width:180px;">
+                <label for="filterTanggalMulai">Tanggal Mulai:</label>
+                <input type="date" id="filterTanggalMulai" value="2026-01-01">
+            </div>
+            <div class="form-group" style="flex:0 0 auto; min-width:180px;">
+                <label for="filterTanggalSelesai">Tanggal Selesai:</label>
+                <input type="date" id="filterTanggalSelesai" value="2026-01-31">
+            </div>
+            <div class="form-group" style="flex:0 0 auto;">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" onclick="loadData()">🔍 Filter Data</button>
+            </div>
+            <div class="form-group" style="flex:0 0 auto;">
+                <label>&nbsp;</label>
+                <button class="btn btn-success" onclick="exportExcel()">📥 Export Excel</button>
+            </div>
+            <div class="form-group" style="flex:0 0 auto;">
+                <label>&nbsp;</label>
+                <button class="btn btn-info" onclick="printReport()">🖨️ Print Laporan</button>
+            </div>
         </div>
 
-        <!-- ==================== FILTER SECTION ==================== -->
-        <div class="filter-section no-print">
-
-            <!-- Baris 1: Tanggal + Tombol -->
-            <div class="filter-row">
-                <div class="form-group" style="flex:0 0 auto; min-width:180px;">
-                    <label for="filterTanggalMulai">Tanggal Mulai:</label>
-                    <input type="date" id="filterTanggalMulai" value="2026-01-01">
-                </div>
-                <div class="form-group" style="flex:0 0 auto; min-width:180px;">
-                    <label for="filterTanggalSelesai">Tanggal Selesai:</label>
-                    <input type="date" id="filterTanggalSelesai" value="2026-01-31">
-                </div>
-                <div class="form-group" style="flex:0 0 auto;">
-                    <label>&nbsp;</label>
-                    <button class="btn btn-primary" onclick="loadData()">🔍 Filter Data</button>
-                </div>
-                <div class="form-group" style="flex:0 0 auto;">
-                    <label>&nbsp;</label>
-                    <button class="btn btn-success" onclick="exportExcel()">📥 Export Excel</button>
-                </div>
-                <div class="form-group" style="flex:0 0 auto;">
-                    <label>&nbsp;</label>
-                    <button class="btn btn-info" onclick="printReport()">🖨️ Print Laporan</button>
-                </div>
-            </div>
-
-            <!-- Baris 2: Pilih Dokter (multi checkbox) -->
-            <div class="filter-row">
-                <div class="dokter-dropdown-wrapper">
-                    <label style="display:block; margin-bottom:5px; font-weight:bold; color:#333; font-size:14px;">Pilih
-                        Dokter:</label>
-                    <button type="button" class="dokter-toggle-btn" id="dokterToggleBtn"
-                        onclick="toggleDokterDropdown()">
-                        <span id="dokterToggleLabel">Memuat daftar dokter...</span>
-                        <span>▼</span>
-                    </button>
-                    <div class="dokter-dropdown-panel" id="dokterDropdownPanel">
-                        <div class="dokter-search-box">
-                            <input type="text" id="dokterSearchInput" placeholder="Cari nama dokter..."
-                                oninput="filterDokterList()">
-                        </div>
-                        <div class="dokter-actions">
-                            <button onclick="selectAllDokter()">✔ Pilih Semua</button>
-                            <button onclick="clearAllDokter()">✖ Hapus Semua</button>
-                        </div>
-                        <div class="dokter-list" id="dokterList">
-                            <div style="padding:15px; text-align:center; color:#999;">Memuat...</div>
-                        </div>
+        <!-- Baris 2: Pilih Dokter (multi checkbox) -->
+        <div class="filter-row">
+            <div class="dokter-dropdown-wrapper">
+                <label style="display:block; margin-bottom:5px; font-weight:bold; color:#333; font-size:14px;">Pilih
+                    Dokter:</label>
+                <button type="button" class="dokter-toggle-btn" id="dokterToggleBtn" onclick="toggleDokterDropdown()">
+                    <span id="dokterToggleLabel">Memuat daftar dokter...</span>
+                    <span>▼</span>
+                </button>
+                <div class="dokter-dropdown-panel" id="dokterDropdownPanel">
+                    <div class="dokter-search-box">
+                        <input type="text" id="dokterSearchInput" placeholder="Cari nama dokter..."
+                            oninput="filterDokterList()">
+                    </div>
+                    <div class="dokter-actions">
+                        <button onclick="selectAllDokter()">✔ Pilih Semua</button>
+                        <button onclick="clearAllDokter()">✖ Hapus Semua</button>
+                    </div>
+                    <div class="dokter-list" id="dokterList">
+                        <div style="padding:15px; text-align:center; color:#999;">Memuat...</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Baris 3: Jenis Data -->
-            <div class="filter-row">
-                <div class="form-group" style="flex: 1 1 100%;">
-                    <label style="margin-bottom:8px; display:block;">Jenis Data:</label>
-                    <div class="jenis-data-group">
-                        <label>
-                            <input type="checkbox" class="jenis-cb" value="ralan" checked>
-                            <span>DPJP Ralan</span>
-                        </label>
-                        <label>
-                            <input type="checkbox" class="jenis-cb" value="ranap" checked>
-                            <span>DPJP Ranap</span>
-                        </label>
-                        <label>
-                            <input type="checkbox" class="jenis-cb" value="anastesi" checked>
-                            <span>Anestesi</span>
-                        </label>
-                        <label>
-                            <input type="checkbox" class="jenis-cb" value="lab" checked>
-                            <span>Lab PK</span>
-                        </label>
-                        <label>
-                            <input type="checkbox" class="jenis-cb" value="radiologi" checked>
-                            <span>Radiologi</span>
-                        </label>
-                        <label>
-                            <input type="checkbox" class="jenis-cb" value="konsultasi" checked>
-                            <span>Konsultasi Medik</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
         </div>
-        <!-- ==================== END FILTER SECTION ==================== -->
 
-        <div id="printArea">
-            <div class="print-header">
-                <div class="print-header-content">
-                    <img src="data:image/png;base64,<?= base64_encode($setting['logo']); ?>" alt="Logo"
-                        class="print-logo">
-                    <div class="print-title">
-                        <h3>PEMERINTAH KABUPATEN MERAUKE</h3>
-                        <h3>DINAS KESEHATAN</h3>
-                        <h2>RUMAH SAKIT UMUM DAERAH KELAS C</h2>
-                        <h2>MERAUKE</h2>
-                        <p>Jalan Soekarno Wiryopranoto No. 1 - Kelurahan Karang Indah - Merauke</p>
-                        <p>Pos-el: humasrsudmeraukegmail.com Kode Pos: 09614</p>
-                    </div>
-                    <img src="data:image/png;base64,<?= base64_encode($setting['logo']); ?>" alt="Logo"
-                        class="print-logo">
-                </div>
-            </div>
-
-            <div class="report-info">
-                <table style="border: none;">
-                    <tr>
-                        <td style="width: 150px;"><strong>Kode Rumah Sakit</strong></td>
-                        <td style="width: 20px;">:</td>
-                        <td><span id="printKodeRS">9201012</span></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Nama Rumah Sakit</strong></td>
-                        <td>:</td>
-                        <td><span id="printNamaRS">RSUD Merauke</span></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Periode Usulan</strong></td>
-                        <td>:</td>
-                        <td><span id="printPeriode"></span></td>
-                    </tr>
-                </table>
-            </div>
-
-            <h4 style="text-align: center; margin: 20px 0; font-size: 14px;">
-                DAFTAR NAMA USULAN TUNJANGAN KHUSUS DOKTER SPESIALIS DTPK
-            </h4>
-
-            <table id="tableLaporan" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>NIK Dokter</th>
-                        <th>Nama</th>
-                        <th>Tanggal Pelayanan</th>
-                        <th>Jumlah Pasien</th>
-                        <th>Jumlah Bacaan Penunjang</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-
-            <div class="signature-section">
-                <div class="signature-box">
-                    <p>Merauke, <span id="printTanggalTTD"></span></p>
-                    <p>Direktur RSUD Merauke</p>
-                    <div class="signature-space"></div>
-                    <p class="signature-name">dr. DEWI WULANSARI.M.Sc</p>
-                    <p>NIP.19720706 200501 2 010</p>
+        <!-- Baris 3: Jenis Data -->
+        <div class="filter-row">
+            <div class="form-group" style="flex: 1 1 100%;">
+                <label style="margin-bottom:8px; display:block;">Jenis Data:</label>
+                <div class="jenis-data-group">
+                    <label>
+                        <input type="checkbox" class="jenis-cb" value="ralan" checked>
+                        <span>DPJP Ralan</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" class="jenis-cb" value="ranap" checked>
+                        <span>DPJP Ranap</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" class="jenis-cb" value="anastesi" checked>
+                        <span>Anestesi</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" class="jenis-cb" value="lab" checked>
+                        <span>Lab PK</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" class="jenis-cb" value="radiologi" checked>
+                        <span>Radiologi</span>
+                    </label>
+                    <label>
+                        <input type="checkbox" class="jenis-cb" value="konsultasi" checked>
+                        <span>Konsultasi Medik</span>
+                    </label>
                 </div>
             </div>
         </div>
 
     </div>
+    <!-- ==================== END FILTER SECTION ==================== -->
 
-    <script>
-        let dataTable;
-        let allData = [];
-        let dokterData = [];
+    <div id="printArea">
+        <div class="print-header">
+            <div class="print-header-content">
+                <img src="data:image/png;base64,<?= base64_encode($setting['logo']); ?>" alt="Logo" class="print-logo">
+                <div class="print-title">
+                    <h3>PEMERINTAH KABUPATEN MERAUKE</h3>
+                    <h3>DINAS KESEHATAN</h3>
+                    <h2>RUMAH SAKIT UMUM DAERAH KELAS C</h2>
+                    <h2>MERAUKE</h2>
+                    <p>Jalan Soekarno Wiryopranoto No. 1 - Kelurahan Karang Indah - Merauke</p>
+                    <p>Pos-el: humasrsudmeraukegmail.com Kode Pos: 09614</p>
+                </div>
+                <img src="data:image/png;base64,<?= base64_encode($setting['logo']); ?>" alt="Logo" class="print-logo">
+            </div>
+        </div>
 
-        const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-        ];
+        <div class="report-info">
+            <table style="border: none;">
+                <tr>
+                    <td style="width: 150px;"><strong>Kode Rumah Sakit</strong></td>
+                    <td style="width: 20px;">:</td>
+                    <td><span id="printKodeRS">9201012</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Nama Rumah Sakit</strong></td>
+                    <td>:</td>
+                    <td><span id="printNamaRS">RSUD Merauke</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Periode Usulan</strong></td>
+                    <td>:</td>
+                    <td><span id="printPeriode"></span></td>
+                </tr>
+            </table>
+        </div>
 
-        function formatTanggalIndo(tanggal) {
-            const d = new Date(tanggal);
-            return d.getDate() + ' ' + bulan[d.getMonth()] + ' ' + d.getFullYear();
+        <h4 style="text-align: center; margin: 20px 0; font-size: 14px;">
+            DAFTAR NAMA USULAN TUNJANGAN KHUSUS DOKTER SPESIALIS DTPK
+        </h4>
+
+        <table id="tableLaporan" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>NIK Dokter</th>
+                    <th>Nama</th>
+                    <th>Tanggal Pelayanan</th>
+                    <th>Jumlah Pasien</th>
+                    <th>Jumlah Bacaan Penunjang</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <p>Merauke, <span id="printTanggalTTD"></span></p>
+                <p>Direktur RSUD Merauke</p>
+                <div class="signature-space"></div>
+                <p class="signature-name">dr. DEWI WULANSARI.M.Sc</p>
+                <p>NIP.19720706 200501 2 010</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let dataTable;
+    let allData = [];
+    let dokterData = [];
+
+    const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    function formatTanggalIndo(tanggal) {
+        const d = new Date(tanggal);
+        return d.getDate() + ' ' + bulan[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    function formatPeriode(tanggalMulai, tanggalSelesai) {
+        const s = new Date(tanggalMulai),
+            e = new Date(tanggalSelesai);
+        if (s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear()) {
+            return bulan[s.getMonth()] + ' ' + s.getFullYear();
         }
+        return bulan[s.getMonth()] + ' - ' + bulan[e.getMonth()] + ' ' + e.getFullYear();
+    }
 
-        function formatPeriode(tanggalMulai, tanggalSelesai) {
-            const s = new Date(tanggalMulai),
-                e = new Date(tanggalSelesai);
-            if (s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear()) {
-                return bulan[s.getMonth()] + ' ' + s.getFullYear();
+    // ================================================================
+    // DOKTER DROPDOWN
+    // ================================================================
+    function loadDokterList() {
+        $.ajax({
+            url: window.location.href,
+            method: 'GET',
+            data: {
+                ajax: 'get_dokter_list'
+            },
+            dataType: 'json',
+            success: function (list) {
+                dokterData = list;
+                renderDokterList(list);
+                updateDokterLabel();
+            },
+            error: function () {
+                $('#dokterList').html('<div style="padding:10px;color:red;">Gagal memuat daftar dokter</div>');
             }
-            return bulan[s.getMonth()] + ' - ' + bulan[e.getMonth()] + ' ' + e.getFullYear();
+        });
+    }
+
+    function renderDokterList(list) {
+        const $list = $('#dokterList');
+        $list.empty();
+
+        if (list.length === 0) {
+            $list.html('<div style="padding:10px;color:#999;text-align:center;">Tidak ada dokter ditemukan</div>');
+            return;
         }
 
-        // ================================================================
-        // DOKTER DROPDOWN
-        // ================================================================
-        function loadDokterList() {
-            $.ajax({
-                url: window.location.href,
-                method: 'GET',
-                data: {
-                    ajax: 'get_dokter_list'
-                },
-                dataType: 'json',
-                success: function (list) {
-                    dokterData = list;
-                    renderDokterList(list);
-                    updateDokterLabel();
-                },
-                error: function () {
-                    $('#dokterList').html('<div style="padding:10px;color:red;">Gagal memuat daftar dokter</div>');
-                }
-            });
-        }
-
-        function renderDokterList(list) {
-            const $list = $('#dokterList');
-            $list.empty();
-
-            if (list.length === 0) {
-                $list.html('<div style="padding:10px;color:#999;text-align:center;">Tidak ada dokter ditemukan</div>');
-                return;
-            }
-
-            list.forEach(function (d) {
-                const checked = true;
-                const $item = $(`
+        list.forEach(function (d) {
+            const checked = true;
+            const $item = $(`
                 <div class="dokter-item ${checked ? 'selected' : ''}" data-nama="${d.nm_dokter}">
                     <input type="checkbox" class="dokter-cb" value="${d.nm_dokter}" ${checked ? 'checked' : ''}>
                     ${d.nm_dokter}
                 </div>
             `);
 
-                $item.on('click', function (e) {
-                    if (e.target.tagName !== 'INPUT') {
-                        const cb = $(this).find('input[type="checkbox"]')[0];
-                        cb.checked = !cb.checked;
-                        $(cb).trigger('change');
-                    }
-                });
-
-                $item.find('input').on('change', function () {
-                    $(this).closest('.dokter-item').toggleClass('selected', this.checked);
-                    updateDokterLabel();
-                });
-
-                $list.append($item);
-            });
-
-            updateDokterLabel();
-        }
-
-        function filterDokterList() {
-            const keyword = $('#dokterSearchInput').val().toLowerCase();
-            $('#dokterList .dokter-item').each(function () {
-                const nama = $(this).data('nama').toLowerCase();
-                $(this).toggle(nama.includes(keyword));
-            });
-        }
-
-        function selectAllDokter() {
-            $('#dokterList .dokter-item:visible input[type="checkbox"]').prop('checked', true).trigger('change');
-            $('#dokterList .dokter-item:visible').addClass('selected');
-            updateDokterLabel();
-        }
-
-        function clearAllDokter() {
-            $('#dokterList .dokter-item:visible input[type="checkbox"]').prop('checked', false).trigger('change');
-            $('#dokterList .dokter-item:visible').removeClass('selected');
-            updateDokterLabel();
-        }
-
-        function getSelectedDokter() {
-            const selected = [];
-            $('#dokterList .dokter-cb:checked').each(function () {
-                selected.push($(this).val());
-            });
-            return selected;
-        }
-
-        function updateDokterLabel() {
-            const selected = getSelectedDokter();
-            const total = $('#dokterList .dokter-cb').length;
-            let label = '';
-            if (selected.length === 0) {
-                label = 'Tidak ada dokter dipilih';
-            } else if (selected.length === total) {
-                label = 'Semua Dokter (' + total + ')';
-            } else if (selected.length === 1) {
-                label = selected[0];
-            } else {
-                label = selected.length + ' Dokter dipilih';
-            }
-            $('#dokterToggleLabel').text(label);
-        }
-
-        function toggleDokterDropdown() {
-            $('#dokterDropdownPanel').toggleClass('open');
-        }
-
-        $(document).on('click', function (e) {
-            if (!$(e.target).closest('.dokter-dropdown-wrapper').length) {
-                $('#dokterDropdownPanel').removeClass('open');
-            }
-        });
-
-        // ================================================================
-        // LOAD DATA
-        // ================================================================
-        function loadData() {
-            const tanggalMulai = $('#filterTanggalMulai').val();
-            const tanggalSelesai = $('#filterTanggalSelesai').val();
-            const selectedDokter = getSelectedDokter();
-            const selectedJenis = [];
-            $('.jenis-cb:checked').each(function () {
-                selectedJenis.push($(this).val());
-            });
-
-            if (selectedDokter.length === 0) {
-                alert('Silakan pilih minimal satu dokter.');
-                return;
-            }
-
-            if (selectedJenis.length === 0) {
-                alert('Silakan pilih minimal satu jenis data.');
-                return;
-            }
-
-            const params = {
-                ajax: 'get_data',
-                tanggal_mulai: tanggalMulai,
-                tanggal_selesai: tanggalSelesai
-            };
-
-            selectedDokter.forEach(function (nm, i) {
-                params['dokter[' + i + ']'] = nm;
-            });
-
-            selectedJenis.forEach(function (j, i) {
-                params['jenis[' + i + ']'] = j;
-            });
-
-            $('#tableLaporan tbody').html(
-                '<tr><td colspan="6" style="text-align:center;padding:20px;color:#666;">⏳ Memuat data...</td></tr>');
-
-            $.ajax({
-                url: window.location.href,
-                method: 'GET',
-                data: params,
-                dataType: 'json',
-                success: function (response) {
-                    if (response && response.error) {
-                        $('#tableLaporan tbody').html(
-                            `<tr><td colspan="6" style="color:red;padding:15px;">
-                            <strong>Error:</strong> ${response.error}
-                        </td></tr>`
-                        );
-                        return;
-                    }
-                    allData = response;
-                    renderTable(response);
-                },
-                error: function (xhr, status, error) {
-                    $('#tableLaporan tbody').html(
-                        `<tr><td colspan="6" style="color:red;padding:15px;"><strong>Error:</strong> ${error}</td></tr>`
-                    );
+            $item.on('click', function (e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const cb = $(this).find('input[type="checkbox"]')[0];
+                    cb.checked = !cb.checked;
+                    $(cb).trigger('change');
                 }
             });
-        }
 
-        // ================================================================
-        // RENDER TABLE
-        // ================================================================
-        function renderTable(data) {
-            if (dataTable) {
-                dataTable.destroy();
-            }
-
-            data.sort((a, b) => {
-                const namaCmp = a.nama_dokter.localeCompare(b.nama_dokter);
-                return namaCmp !== 0 ? namaCmp : a.tgl_sort.localeCompare(b.tgl_sort);
+            $item.find('input').on('change', function () {
+                $(this).closest('.dokter-item').toggleClass('selected', this.checked);
+                updateDokterLabel();
             });
 
-            const tbody = $('#tableLaporan tbody');
-            tbody.empty();
+            $list.append($item);
+        });
 
-            data.forEach((item, index) => {
-                const isSunday = item.is_sunday;
-                tbody.append(`
+        updateDokterLabel();
+    }
+
+    function filterDokterList() {
+        const keyword = $('#dokterSearchInput').val().toLowerCase();
+        $('#dokterList .dokter-item').each(function () {
+            const nama = $(this).data('nama').toLowerCase();
+            $(this).toggle(nama.includes(keyword));
+        });
+    }
+
+    function selectAllDokter() {
+        $('#dokterList .dokter-item:visible input[type="checkbox"]').prop('checked', true).trigger('change');
+        $('#dokterList .dokter-item:visible').addClass('selected');
+        updateDokterLabel();
+    }
+
+    function clearAllDokter() {
+        $('#dokterList .dokter-item:visible input[type="checkbox"]').prop('checked', false).trigger('change');
+        $('#dokterList .dokter-item:visible').removeClass('selected');
+        updateDokterLabel();
+    }
+
+    function getSelectedDokter() {
+        const selected = [];
+        $('#dokterList .dokter-cb:checked').each(function () {
+            selected.push($(this).val());
+        });
+        return selected;
+    }
+
+    function updateDokterLabel() {
+        const selected = getSelectedDokter();
+        const total = $('#dokterList .dokter-cb').length;
+        let label = '';
+        if (selected.length === 0) {
+            label = 'Tidak ada dokter dipilih';
+        } else if (selected.length === total) {
+            label = 'Semua Dokter (' + total + ')';
+        } else if (selected.length === 1) {
+            label = selected[0];
+        } else {
+            label = selected.length + ' Dokter dipilih';
+        }
+        $('#dokterToggleLabel').text(label);
+    }
+
+    function toggleDokterDropdown() {
+        $('#dokterDropdownPanel').toggleClass('open');
+    }
+
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('.dokter-dropdown-wrapper').length) {
+            $('#dokterDropdownPanel').removeClass('open');
+        }
+    });
+
+    // ================================================================
+    // LOAD DATA
+    // ================================================================
+    function loadData() {
+        const tanggalMulai = $('#filterTanggalMulai').val();
+        const tanggalSelesai = $('#filterTanggalSelesai').val();
+        const selectedDokter = getSelectedDokter();
+        const selectedJenis = [];
+        $('.jenis-cb:checked').each(function () {
+            selectedJenis.push($(this).val());
+        });
+
+        if (selectedDokter.length === 0) {
+            alert('Silakan pilih minimal satu dokter.');
+            return;
+        }
+
+        if (selectedJenis.length === 0) {
+            alert('Silakan pilih minimal satu jenis data.');
+            return;
+        }
+
+        const params = {
+            ajax: 'get_data',
+            tanggal_mulai: tanggalMulai,
+            tanggal_selesai: tanggalSelesai
+        };
+
+        selectedDokter.forEach(function (nm, i) {
+            params['dokter[' + i + ']'] = nm;
+        });
+
+        selectedJenis.forEach(function (j, i) {
+            params['jenis[' + i + ']'] = j;
+        });
+
+        $('#tableLaporan tbody').html(
+            '<tr><td colspan="6" style="text-align:center;padding:20px;color:#666;">⏳ Memuat data...</td></tr>');
+
+        $.ajax({
+            url: window.location.href,
+            method: 'GET',
+            data: params,
+            dataType: 'json',
+            success: function (response) {
+                if (response && response.error) {
+                    $('#tableLaporan tbody').html(
+                        `<tr><td colspan="6" style="color:red;padding:15px;">
+                            <strong>Error:</strong> ${response.error}
+                        </td></tr>`
+                    );
+                    return;
+                }
+                allData = response;
+                renderTable(response);
+            },
+            error: function (xhr, status, error) {
+                $('#tableLaporan tbody').html(
+                    `<tr><td colspan="6" style="color:red;padding:15px;"><strong>Error:</strong> ${error}</td></tr>`
+                );
+            }
+        });
+    }
+
+    // ================================================================
+    // RENDER TABLE
+    // ================================================================
+    function renderTable(data) {
+        if (dataTable) {
+            dataTable.destroy();
+        }
+
+        data.sort((a, b) => {
+            const namaCmp = a.nama_dokter.localeCompare(b.nama_dokter);
+            return namaCmp !== 0 ? namaCmp : a.tgl_sort.localeCompare(b.tgl_sort);
+        });
+
+        const tbody = $('#tableLaporan tbody');
+        tbody.empty();
+
+        data.forEach((item, index) => {
+            const isSunday = item.is_sunday;
+            tbody.append(`
                 <tr class="${isSunday ? 'row-sunday' : ''}">
                     <td style="text-align:center;">${index + 1}</td>
                     <td style="text-align:center;">${item.nik || '-'}</td>
@@ -956,110 +937,110 @@ require_once 'layouts/header.php';
                     <td style="text-align:center;" class="${isSunday ? 'sunday-cell' : ''}">${item.jumlah_bacaan}</td>
                 </tr>
             `);
-            });
+        });
 
-            dataTable = $('#tableLaporan').DataTable({
-                dom: 'frtip',
-                searching: false,
-                ordering: false,
-                pageLength: 50,
-                order: [],
-                language: {
-                    lengthMenu: "Tampilkan _MENU_ data per halaman",
-                    zeroRecords: "Data tidak ditemukan",
-                    info: "Menampilkan halaman _PAGE_ dari _PAGES_",
-                    infoEmpty: "Tidak ada data tersedia",
-                    infoFiltered: "(difilter dari _MAX_ total data)",
-                    paginate: {
-                        first: "Pertama",
-                        last: "Terakhir",
-                        next: "Selanjutnya",
-                        previous: "Sebelumnya"
-                    }
+        dataTable = $('#tableLaporan').DataTable({
+            dom: 'frtip',
+            searching: false,
+            ordering: false,
+            pageLength: 50,
+            order: [],
+            language: {
+                lengthMenu: "Tampilkan _MENU_ data per halaman",
+                zeroRecords: "Data tidak ditemukan",
+                info: "Menampilkan halaman _PAGE_ dari _PAGES_",
+                infoEmpty: "Tidak ada data tersedia",
+                infoFiltered: "(difilter dari _MAX_ total data)",
+                paginate: {
+                    first: "Pertama",
+                    last: "Terakhir",
+                    next: "Selanjutnya",
+                    previous: "Sebelumnya"
                 }
-            });
+            }
+        });
+    }
+
+    // ================================================================
+    // EXPORT EXCEL PER DOKTER
+    // ================================================================
+    function exportExcel() {
+        const tanggalMulai = $('#filterTanggalMulai').val();
+        const tanggalSelesai = $('#filterTanggalSelesai').val();
+        const selectedDokter = getSelectedDokter();
+        const selectedJenis = [];
+        $('.jenis-cb:checked').each(function () {
+            selectedJenis.push($(this).val());
+        });
+
+        if (selectedDokter.length === 0) {
+            alert('Silakan pilih minimal satu dokter.');
+            return;
         }
 
-        // ================================================================
-        // EXPORT EXCEL PER DOKTER
-        // ================================================================
-        function exportExcel() {
-            const tanggalMulai = $('#filterTanggalMulai').val();
-            const tanggalSelesai = $('#filterTanggalSelesai').val();
-            const selectedDokter = getSelectedDokter();
-            const selectedJenis = [];
-            $('.jenis-cb:checked').each(function () {
-                selectedJenis.push($(this).val());
-            });
-
-            if (selectedDokter.length === 0) {
-                alert('Silakan pilih minimal satu dokter.');
-                return;
-            }
-
-            if (selectedJenis.length === 0) {
-                alert('Silakan pilih minimal satu jenis data.');
-                return;
-            }
-
-            const params = {
-                ajax: 'export_excel',
-                tanggal_mulai: tanggalMulai,
-                tanggal_selesai: tanggalSelesai
-            };
-
-            selectedDokter.forEach(function (nm, i) {
-                params['dokter[' + i + ']'] = nm;
-            });
-
-            selectedJenis.forEach(function (j, i) {
-                params['jenis[' + i + ']'] = j;
-            });
-
-            const queryString = new URLSearchParams(params).toString();
-            window.location.href = window.location.href + '?' + queryString;
+        if (selectedJenis.length === 0) {
+            alert('Silakan pilih minimal satu jenis data.');
+            return;
         }
 
-        // ================================================================
-        // PRINT
-        // ================================================================
-        function printReport() {
-            if (allData.length === 0) {
-                alert('Tidak ada data yang dapat diprint. Silakan filter data terlebih dahulu.');
-                return;
+        const params = {
+            ajax: 'export_excel',
+            tanggal_mulai: tanggalMulai,
+            tanggal_selesai: tanggalSelesai
+        };
+
+        selectedDokter.forEach(function (nm, i) {
+            params['dokter[' + i + ']'] = nm;
+        });
+
+        selectedJenis.forEach(function (j, i) {
+            params['jenis[' + i + ']'] = j;
+        });
+
+        const queryString = new URLSearchParams(params).toString();
+        window.location.href = window.location.href + '?' + queryString;
+    }
+
+    // ================================================================
+    // PRINT
+    // ================================================================
+    function printReport() {
+        if (allData.length === 0) {
+            alert('Tidak ada data yang dapat diprint. Silakan filter data terlebih dahulu.');
+            return;
+        }
+
+        const tanggalMulai = $('#filterTanggalMulai').val();
+        const tanggalSelesai = $('#filterTanggalSelesai').val();
+        const periodeText = formatPeriode(tanggalMulai, tanggalSelesai);
+        const today = new Date();
+        const ttdDate = formatTanggalIndo(today.toISOString().split('T')[0]);
+
+        // Group data by doctor
+        const groupedData = {};
+        allData.forEach(item => {
+            if (!groupedData[item.nama_dokter]) {
+                groupedData[item.nama_dokter] = [];
             }
+            groupedData[item.nama_dokter].push(item);
+        });
 
-            const tanggalMulai = $('#filterTanggalMulai').val();
-            const tanggalSelesai = $('#filterTanggalSelesai').val();
-            const periodeText = formatPeriode(tanggalMulai, tanggalSelesai);
-            const today = new Date();
-            const ttdDate = formatTanggalIndo(today.toISOString().split('T')[0]);
+        // Prepare logo
+        const logoSrc = `data:image/png;base64,<?= base64_encode($setting['logo']); ?>`;
 
-            // Group data by doctor
-            const groupedData = {};
-            allData.forEach(item => {
-                if (!groupedData[item.nama_dokter]) {
-                    groupedData[item.nama_dokter] = [];
-                }
-                groupedData[item.nama_dokter].push(item);
-            });
+        const $printContainer = $('<div id="printPagesContainer"></div>');
 
-            // Prepare logo
-            const logoSrc = `data:image/png;base64,<?= base64_encode($setting['logo']); ?>`;
+        Object.keys(groupedData).forEach(dokterName => {
+            const docData = groupedData[dokterName].sort((a, b) => a.tgl_sort.localeCompare(b.tgl_sort));
+            const nik = docData[0].nik || '-';
 
-            const $printContainer = $('<div id="printPagesContainer"></div>');
+            let tbodyHtml = '';
+            docData.forEach((item, index) => {
+                const isSunday = item.is_sunday;
+                const cssClass = isSunday ? 'class="row-sunday"' : '';
+                const cellClass = isSunday ? 'class="sunday-cell" style="text-align:center;"' : 'style="text-align:center;"';
 
-            Object.keys(groupedData).forEach(dokterName => {
-                const docData = groupedData[dokterName].sort((a, b) => a.tgl_sort.localeCompare(b.tgl_sort));
-                const nik = docData[0].nik || '-';
-
-                let tbodyHtml = '';
-                docData.forEach((item, index) => {
-                    const isSunday = item.is_sunday;
-                    const cssClass = isSunday ? 'class="row-sunday"' : '';
-                    const cellClass = isSunday ? 'class="sunday-cell" style="text-align:center;"' : 'style="text-align:center;"';
-
-                    tbodyHtml += `
+                tbodyHtml += `
                         <tr ${cssClass}>
                             <td style="text-align:center;">${index + 1}</td>
                             <td style="text-align:center;">${nik}</td>
@@ -1069,9 +1050,9 @@ require_once 'layouts/header.php';
                             <td ${cellClass}>${item.jumlah_bacaan}</td>
                         </tr>
                     `;
-                });
+            });
 
-                const pageHtml = `
+            const pageHtml = `
                     <div class="print-page">
                         <div class="print-header" style="display:block; text-align:center; margin-bottom:20px; padding-bottom:15px; border-bottom:3px solid #000;">
                             <div class="print-header-content" style="display:flex; align-items:center; justify-content:space-between;">
@@ -1145,20 +1126,20 @@ require_once 'layouts/header.php';
                     </div>
                 `;
 
-                $printContainer.append(pageHtml);
-            });
-
-            $('#printPagesContainer').remove();
-            $('body').append($printContainer);
-
-            window.print();
-        }
-
-        // ================================================================
-        // ON READY
-        // ================================================================
-        $(document).ready(function () {
-            loadDokterList();
+            $printContainer.append(pageHtml);
         });
-    </script>
+
+        $('#printPagesContainer').remove();
+        $('body').append($printContainer);
+
+        window.print();
+    }
+
+    // ================================================================
+    // ON READY
+    // ================================================================
+    $(document).ready(function () {
+        loadDokterList();
+    });
+</script>
 <?php require_once 'layouts/footer.php'; ?>
