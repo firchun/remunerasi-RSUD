@@ -118,6 +118,7 @@ while ($row = mysqli_fetch_assoc($resPetugas)) {
       </select>
     </div>
     <button class="btn-cari" id="btnFilter">&#128269; Tampilkan Data</button>
+    <button class="btn-cari" id="btnExportExcel" onclick="exportExcel()" style="background:#047857;">&#128202; Export Excel</button>
   </div>
 </div>
 
@@ -190,6 +191,11 @@ while ($row = mysqli_fetch_assoc($resPetugas)) {
 </div>
 
 <script>
+function exportExcel() {
+  const params = new URLSearchParams({ tahun: $('#tahun').val() });
+  window.location.href = window.BASE_URL + '/api/export_perbaikan_visite.php?' + params.toString();
+}
+
 $(document).ready(function () {
   const tableConfig = {
     processing: true,

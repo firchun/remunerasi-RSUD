@@ -199,7 +199,7 @@ function isActive($paths)
       [
         'title' => 'Menu Utama',
         'items' => [
-          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'perbaikan-diagnosa', 'perbaikan-anamnesa', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'rekap-pasien', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum', 'simulasi'])]
+          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'perbaikan-diagnosa', 'perbaikan-anamnesa', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'rekap-pasien', 'kantong-darah', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-ranap', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum', 'simulasi', 'evaluasi'])]
         ]
       ],
       [
@@ -225,6 +225,7 @@ function isActive($paths)
         'title' => 'Data Kepatuhan',
         'items' => [
           ['url' => '/kepatuhan-ralan', 'icon' => 'fas fa-clipboard-check', 'label' => 'Kepatuhan Rawat Jalan', 'active' => isActive('kepatuhan-ralan')],
+          ['url' => '/kepatuhan-ranap', 'icon' => 'fas fa-bed-pulse', 'label' => 'Kepatuhan Rawat Inap', 'active' => isActive('kepatuhan-ranap')],
           ['url' => '/kepatuhan-penunjang-ralan', 'icon' => 'fas fa-flask', 'label' => 'Kepatuhan Penunjang Ralan', 'active' => isActive('kepatuhan-penunjang-ralan')],
           ['url' => '/kepatuhan-bpjs', 'icon' => 'fas fa-file-invoice', 'label' => 'Kepatuhan BPJS', 'active' => isActive('kepatuhan-bpjs')],
           ['url' => '/kepatuhan-remunerasi', 'icon' => 'fas fa-coins', 'label' => 'Kepatuhan Remunerasi', 'active' => isActive('kepatuhan-remunerasi')],
@@ -272,6 +273,7 @@ function isActive($paths)
           ['url' => '/laporan-gabungan', 'icon' => 'fas fa-chart-pie', 'label' => 'Laporan Gabungan', 'active' => isActive('laporan-gabungan')],
           ['url' => '/rekap-jumlah-pasien', 'icon' => 'fas fa-users', 'label' => 'Rekap Jumlah Pasien', 'active' => isActive('rekap-jumlah-pasien')],
           ['url' => '/rekap-pasien', 'icon' => 'fas fa-chart-bar', 'label' => 'Rekap Pasien', 'active' => isActive('rekap-pasien')],
+          ['url' => '/kantong-darah', 'icon' => 'fas fa-droplet', 'label' => 'Rekap Kantong Darah', 'active' => isActive('kantong-darah')],
         ]
       ],
       [
@@ -284,6 +286,12 @@ function isActive($paths)
         'title' => 'Simulasi Remunerasi',
         'items' => [
           ['url' => '/simulasi', 'icon' => 'fas fa-chart-bar', 'label' => 'Simulasi Remunerasi', 'active' => isActive('simulasi')],
+        ]
+      ],
+      [
+        'title' => 'Evaluasi',
+        'items' => [
+          ['url' => '/evaluasi', 'icon' => 'fas fa-clipboard-list', 'label' => 'Evaluasi', 'active' => isActive('evaluasi')],
         ]
       ],
       [
