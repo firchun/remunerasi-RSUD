@@ -129,6 +129,7 @@ index.php (router)
 | `/remon/cari-petugas` | `views/cari_petugas/index.php` |
 | `/remon/jasaraharja` | `views/jasaraharja/index.php` |
 | `/remon/laporan-gabungan` | `views/laporan_gabungan/index.php` |
+| `/remon/rekap-kunjungan-pasien-ralan` | `views/rekap_kunjungan_pasien_ralan/index.php` |
 | `/remon/tunsus` | `views/tunsus.php` |
 
 ### Alur Dashboard
@@ -203,6 +204,8 @@ Semua endpoint mengembalikan JSON dan dipanggil dari JavaScript (DataTables / Ch
 | `api/export_hitung_jasa_ralan.php` | `views/hitung_jasa_ralan/index.php` |
 | `api/get_data_hitung_jasa_ranap.php` | `views/hitung_jasa_ranap/index.php` |
 | `api/export_hitung_jasa_ranap.php` | `views/hitung_jasa_ranap/index.php` |
+| `api/get_rekap_kunjungan_pasien_ralan.php` | `views/rekap_kunjungan_pasien_ralan/index.php` |
+| `api/export_rekap_kunjungan_pasien_ralan.php` | `views/rekap_kunjungan_pasien_ralan/index.php` |
 
 ## Fitur per Modul
 
@@ -214,6 +217,7 @@ Semua endpoint mengembalikan JSON dan dipanggil dari JavaScript (DataTables / Ch
 | **RALAN Per-Bulan** | Rekapitulasi pendapatan rawat jalan per bulan per poli |
 | **RANAP Per-Bulan** | Rekapitulasi pendapatan rawat inap per bulan per bangsal |
 | **Laporan Gabungan** | Gabungan Ralan/Ranap + Lab + Radiologi + Farmasi |
+| **Rekap Kunjungan Pasien Ralan** | Kunjungan pasien ralan BPJS per bulan per poli (jumlah, batal, kunjungan >= 7 hari), hanya pasien dengan kunjungan > 2x per bulan. Data Lebih = jumlah kunjungan - 2, diurutkan per poliklinik — filter tahun/bulan/poli, export Excel: sheet `rekap` (poli x bulan, kolom Kunjungan & Data Lebih) + sheet detail per bulan |
 | **BPJS** | Data total BPJS diterima, upload CSV |
 | **BPJS Verifikasi** | Upload PDF verifikasi BPJS (scanned), OCR otomatis via Tesseract, preview & edit data, simpan ke database |
 | **Hitung Jasa Ralan** | Perhitungan jasa rawat jalan: integrasi Total BPJS, 44% multiplier, kolom % + Jumlah per petugas, export Excel multi-sheet per poli |

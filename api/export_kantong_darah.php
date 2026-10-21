@@ -101,7 +101,8 @@ $sheets = [
     'ranap' => ['title' => 'RANAP', 'label' => 'Kamar'],
 ];
 
-$header = ['No. Rawat', 'No. RM', 'Nama Pasien', 'Tgl Registrasi', 'No. SEP', 'Poli/Kamar', 'Jumlah Kantong', 'Total Biaya'];
+// Header untuk detail sheet (kolom Rekap ditambahkan di paling awal)
+$header = ['Rekap', 'No. Rawat', 'No. RM', 'Nama Pasien', 'Tgl Registrasi', 'No. SEP', 'Poli/Kamar', 'Jumlah Kantong', 'Total Biaya'];
 
 $spreadsheet = new Spreadsheet();
 $spreadsheet->removeSheetByIndex(0);
@@ -123,9 +124,108 @@ $tStyle = [
     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '065F46']]],
 ];
 
+// Kumpulkan data rekap per bulan untuk sheet REKAP
+$rekapList = [];
 foreach ($bulan_list as $m) {
     $tgl1 = sprintf('%04d-%02d-01', $tahun, $m);
     $tgl2 = date('Y-m-t', strtotime($tgl1));
+    $jmlHari = (int)date('t', strtotime($tgl1));
+
+    $totalPasienAll = 0;
+    $totalKantongAll = 0;
+    $totalBiayaAll = 0;
+    foreach ($sheets as $jenis => $info) {
+        $data = getKantongData($koneksi, $jenis, $tgl1, $tgl2);
+        $totalPasienAll += $data['total_pasien'];
+        $totalKantongAll += $data['total_kantong'];
+        $totalBiayaAll += $data['total_biaya'];
+    }
+    $rataPasien = $totalPasienAll > 0 ? ($totalKantongAll / $totalPasienAll) : 0;
+    $rataHari = $jmlHari > 0 ? ($totalKantongAll / $jmlHari) : 0;
+    $rekapList[] = [
+        'bulan' => $m,
+        'nama_bulan' => $bulan_nama[$m],
+        'tgl1' => $tgl1,
+        'tgl2' => $tgl2,
+        'jml_hari' => $jmlHari,
+        'total_pasien' => $totalPasienAll,
+        'total_kantong' => $totalKantongAll,
+        'total_biaya' => $totalBiayaAll,
+        'rata_per_pasien' => $rataPasien,
+        'rata_per_hari' => $rataHari,
+    ];
+}
+
+// Buat sheet REKAP di awal
+$wsRekap = $spreadsheet->createSheet($sheetIdx++);
+$wsRekap->setTitle('REKAP');
+
+$headerRekap = ['Bulan', 'Periode', 'Jumlah Hari', 'Total Pasien', 'Total Kantong', 'Rata-rata Kantong/Pasien', 'Rata-rata Kantong/Hari', 'Total Biaya'];
+$lastColR = Coordinate::stringFromColumnIndex(count($headerRekap));
+
+$wsRekap->setCellValue('A1', 'REKAP PENGGUNAAN KANTONG DARAH - TAHUN ' . $tahun . ($bulan !== '' ? ' (BULAN ' . strtoupper($bulan_nama[(int)$bulan]) . ')' : ' (PER BULAN)'));
+$wsRekap->mergeCells("A1:{$lastColR}1");
+$wsRekap->getStyle('A1')->getFont()->setBold(true)->setSize(13);
+$wsRekap->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+$wsRekap->getRowDimension(1)->setRowHeight(22);
+
+$hrR = 3;
+$wsRekap->fromArray([$headerRekap], null, 'A' . $hrR);
+$wsRekap->getStyle("A{$hrR}:{$lastColR}{$hrR}")->applyFromArray($hStyle);
+$wsRekap->freezePane('A' . ($hrR + 1));
+
+$hrR++;
+$grandPasien = 0; $grandKantong = 0; $grandBiaya = 0; $grandHari = 0;
+foreach ($rekapList as $rkp) {
+    $grandPasien += $rkp['total_pasien'];
+    $grandKantong += $rkp['total_kantong'];
+    $grandBiaya += $rkp['total_biaya'];
+    $grandHari += $rkp['jml_hari'];
+    $valuesR = [
+        $rkp['nama_bulan'] . ' ' . $tahun,
+        $rkp['tgl1'] . ' s/d ' . $rkp['tgl2'],
+        $rkp['jml_hari'],
+        $rkp['total_pasien'],
+        $rkp['total_kantong'],
+        $rkp['rata_per_pasien'],
+        $rkp['rata_per_hari'],
+        $rkp['total_biaya'],
+    ];
+    $wsRekap->fromArray([$valuesR], null, 'A' . $hrR);
+    $wsRekap->getStyle("A{$hrR}:{$lastColR}{$hrR}")->applyFromArray($cStyle);
+    $wsRekap->getStyle("C{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+    $wsRekap->getStyle("D{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+    $wsRekap->getStyle("E{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+    $wsRekap->getStyle("F{$hrR}")->getNumberFormat()->setFormatCode('#,##0.00');
+    $wsRekap->getStyle("F{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+    $wsRekap->getStyle("G{$hrR}")->getNumberFormat()->setFormatCode('#,##0.00');
+    $wsRekap->getStyle("G{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+    $wsRekap->getStyle("H{$hrR}")->getNumberFormat()->setFormatCode('#,##0');
+    $wsRekap->getStyle("H{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+    $hrR++;
+}
+$rataPasienGrand = $grandPasien > 0 ? ($grandKantong / $grandPasien) : 0;
+$rataHariGrand = $grandHari > 0 ? ($grandKantong / $grandHari) : 0;
+$wsRekap->fromArray([['TOTAL', '', $grandHari, $grandPasien, $grandKantong, $rataPasienGrand, $rataHariGrand, $grandBiaya]], null, 'A' . $hrR);
+$wsRekap->getStyle("A{$hrR}:{$lastColR}{$hrR}")->applyFromArray($tStyle);
+$wsRekap->getStyle("C{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+$wsRekap->getStyle("D{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+$wsRekap->getStyle("E{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+$wsRekap->getStyle("F{$hrR}")->getNumberFormat()->setFormatCode('#,##0.00');
+$wsRekap->getStyle("F{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+$wsRekap->getStyle("G{$hrR}")->getNumberFormat()->setFormatCode('#,##0.00');
+$wsRekap->getStyle("G{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+$wsRekap->getStyle("H{$hrR}")->getNumberFormat()->setFormatCode('#,##0');
+$wsRekap->getStyle("H{$hrR}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+foreach (range(1, count($headerRekap)) as $c) {
+    $wsRekap->getColumnDimensionByColumn($c)->setAutoSize(true);
+}
+
+foreach ($bulan_list as $m) {
+    $tgl1 = sprintf('%04d-%02d-01', $tahun, $m);
+    $tgl2 = date('Y-m-t', strtotime($tgl1));
+    $rekapBulanLabel = $bulan_nama[$m] . ' ' . $tahun;
 
     foreach ($sheets as $jenis => $info) {
         $data = getKantongData($koneksi, $jenis, $tgl1, $tgl2);
@@ -161,6 +261,7 @@ foreach ($bulan_list as $m) {
         } else {
             foreach ($rows as $row) {
                 $values = [
+                    $rekapBulanLabel,
                     $row['no_rawat'],
                     $row['no_rkm_medis'],
                     $row['nm_pasien'],
@@ -172,16 +273,23 @@ foreach ($bulan_list as $m) {
                 ];
                 $ws->fromArray([$values], null, 'A' . $hr);
                 $ws->getStyle("A{$hr}:{$lastCol}{$hr}")->applyFromArray($cStyle);
-                $ws->getStyle("G{$hr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-                $ws->getStyle("H{$hr}")->getNumberFormat()->setFormatCode('#,##0');
                 $ws->getStyle("H{$hr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                $ws->getStyle("I{$hr}")->getNumberFormat()->setFormatCode('#,##0');
+                $ws->getStyle("I{$hr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 $hr++;
             }
-            $ws->fromArray([['', 'TOTAL', '', '', '', '', $data['total_kantong'], $data['total_biaya']]], null, 'A' . $hr);
+            $avgPerPasien = $data['total_pasien'] > 0 ? ($data['total_kantong'] / $data['total_pasien']) : 0;
+            $ws->fromArray([['REKAP', '', 'TOTAL', '', '', '', '', $data['total_kantong'], $data['total_biaya']]], null, 'A' . $hr);
             $ws->getStyle("A{$hr}:{$lastCol}{$hr}")->applyFromArray($tStyle);
-            $ws->getStyle("G{$hr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $ws->getStyle("H{$hr}")->getNumberFormat()->setFormatCode('#,##0');
             $ws->getStyle("H{$hr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $ws->getStyle("I{$hr}")->getNumberFormat()->setFormatCode('#,##0');
+            $ws->getStyle("I{$hr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            // Tambah baris rata-rata
+            $hr++;
+            $ws->fromArray([['RATA-RATA', '', 'Per Pasien', '', '', '', '', round($avgPerPasien, 2), '']], null, 'A' . $hr);
+            $ws->getStyle("A{$hr}:{$lastCol}{$hr}")->applyFromArray($tStyle);
+            $ws->getStyle("H{$hr}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $ws->getStyle("H{$hr}")->getNumberFormat()->setFormatCode('#,##0.00');
         }
 
         foreach (range(1, count($header)) as $c) {

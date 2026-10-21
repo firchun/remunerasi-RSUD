@@ -199,7 +199,7 @@ function isActive($paths)
       [
         'title' => 'Menu Utama',
         'items' => [
-          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'perbaikan-diagnosa', 'perbaikan-anamnesa', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'rekap-pasien', 'kantong-darah', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-ranap', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum', 'simulasi', 'evaluasi'])]
+          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'perbaikan-diagnosa', 'perbaikan-anamnesa', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'rekap-pasien', 'kantong-darah', 'rekap-kunjungan-pasien-ralan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-ranap', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum', 'simulasi', 'evaluasi'])]
         ]
       ],
       [
@@ -274,6 +274,7 @@ function isActive($paths)
           ['url' => '/rekap-jumlah-pasien', 'icon' => 'fas fa-users', 'label' => 'Rekap Jumlah Pasien', 'active' => isActive('rekap-jumlah-pasien')],
           ['url' => '/rekap-pasien', 'icon' => 'fas fa-chart-bar', 'label' => 'Rekap Pasien', 'active' => isActive('rekap-pasien')],
           ['url' => '/kantong-darah', 'icon' => 'fas fa-droplet', 'label' => 'Rekap Kantong Darah', 'active' => isActive('kantong-darah')],
+          ['url' => '/rekap-kunjungan-pasien-ralan', 'icon' => 'fas fa-stethoscope', 'label' => 'Rekap Kunjungan Pasien Ralan', 'active' => isActive('rekap-kunjungan-pasien-ralan')],
         ]
       ],
       [

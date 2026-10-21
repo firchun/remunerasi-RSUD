@@ -28,6 +28,7 @@ $routes = [
     'laporan-gabungan' => './views/laporan_gabungan/index.php',
     'rekap-jumlah-pasien' => './views/rekap_jumlah_pasien/index.php',
     'rekap-pasien' => './views/rekap_pasien/index.php',
+    'rekap-kunjungan-pasien-ralan' => './views/rekap_kunjungan_pasien_ralan/index.php',
     'kantong-darah' => './views/kantong_darah/index.php',
     'tunsus' => './views/tunsus.php',
     'hitung-jasa-ralan' => './views/hitung_jasa_ralan/index.php',
