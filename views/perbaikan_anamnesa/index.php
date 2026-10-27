@@ -69,10 +69,13 @@ require_once '../layouts/header.php';
         <tr>
           <th>No</th>
           <th>Anamnesa / Keluhan Utama</th>
-          <th>Jumlah</th>
+          <th>Jumlah Pasien Sama</th>
           <th>Sumber</th>
           <th>No. Rawat</th>
-          <th>Detail</th>
+          <th>No. RM</th>
+          <th>Pasien</th>
+          <th>Dokter</th>
+          <th>Tanggal</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -80,21 +83,20 @@ require_once '../layouts/header.php';
   </div>
 </div>
 
-<div id="modalDetail" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center" onclick="if(event.target===this)closeDetail()">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-    <div class="bg-gradient-to-r from-blue-700 to-blue-800 px-5 py-4 flex justify-between items-center rounded-t-2xl">
-      <h3 class="text-white font-bold text-lg"><i class="fas fa-list mr-2"></i>Detail Anamnesa Sama</h3>
-      <button onclick="closeDetail()" class="text-white/80 hover:text-white text-xl leading-none">&times;</button>
-    </div>
-    <div class="p-5">
-      <div id="detailContent"></div>
-    </div>
-  </div>
-</div>
-
 <script>
   let table;
-  let allData = [];
+
+  function escapeHtml(value) {
+    return String(value ?? '-').replace(/[&<>"']/g, function(char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char];
+    });
+  }
 
   function exportExcel() {
     let params = 'tgl_awal=' + $('#tgl_awal').val() +
@@ -116,50 +118,49 @@ require_once '../layouts/header.php';
       columns: [
         { data: 'no', className: 'text-center font-bold' },
         {
-          data: 'anamesa_text',
+          data: 'anamnesa',
           className: 'text-left',
-          render: function(d) { return d || '-'; }
+          render: function(d) { return escapeHtml(d); }
         },
         {
           data: 'jumlah',
           className: 'text-center',
           render: function(d) {
-            var cls = 'dup-low';
-            if (d >= 5) cls = 'dup-high';
-            else if (d >= 3) cls = 'dup-medium';
-            return '<span class="badge ' + cls + '">' + d + ' data</span>';
+            return '<span class="badge dup-medium">' + d + ' pasien</span>';
           }
         },
         {
-          data: 'sumber_list',
+          data: 'sumber',
           className: 'text-center',
           render: function(d) {
-            var sources = d.split(', ');
-            var counts = {};
-            sources.forEach(function(s) { counts[s] = (counts[s] || 0) + 1; });
-            var html = '';
-            if (counts['PRIMER']) html += '<span class="badge badge-primer mr-1">Primer: ' + counts['PRIMER'] + '</span>';
-            if (counts['SEKUNDER']) html += '<span class="badge badge-sekunder">Sekunder: ' + counts['SEKUNDER'] + '</span>';
-            return html;
+            var cls = d === 'PRIMER' ? 'badge-primer' : 'badge-sekunder';
+            return '<span class="badge ' + cls + '">' + escapeHtml(d) + '</span>';
           }
         },
         {
-          data: 'no_rawat_list',
+          data: 'no_rawat',
           className: 'text-left font-mono text-xs',
-          render: function(d) {
-            if (!d) return '-';
-            var items = d.split(', ');
-            if (items.length <= 3) return d;
-            return items.slice(0, 3).join(', ') + ', ... (' + items.length + ' total)';
-          }
+          render: function(d) { return escapeHtml(d); }
         },
         {
-          data: null,
+          data: 'no_rkm_medis',
+          className: 'text-left font-mono text-xs',
+          render: function(d) { return escapeHtml(d); }
+        },
+        {
+          data: 'nm_pasien',
+          className: 'text-left',
+          render: function(d) { return escapeHtml(d); }
+        },
+        {
+          data: 'nm_dokter',
+          className: 'text-left',
+          render: function(d) { return escapeHtml(d); }
+        },
+        {
+          data: 'tgl',
           className: 'text-center',
-          sortable: false,
-          render: function(d) {
-            return '<button onclick="showDetail(' + d.no + ')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs transition"><i class="fas fa-eye mr-1"></i>Detail</button>';
-          }
+          render: function(d) { return escapeHtml(d ? d.substring(0, 10) : '-'); }
         }
       ]
     });
@@ -183,7 +184,6 @@ require_once '../layouts/header.php';
       success: function (response) {
         var res = JSON.parse(response);
         if (res.success) {
-          allData = res.data;
           var data = res.data.map(function (item, idx) {
             item.no = idx + 1;
             return item;
@@ -191,7 +191,7 @@ require_once '../layouts/header.php';
           table.clear();
           table.rows.add(data);
           table.draw();
-          $('#infoCount').text('Total: ' + data.length + ' kelompok anamnesa sama');
+          $('#infoCount').text('Total: ' + data.length + ' pasien dari ' + res.total_kelompok + ' kelompok anamnesa sama');
         } else {
           alert('Gagal: ' + (res.error || 'Unknown error'));
         }
@@ -200,48 +200,6 @@ require_once '../layouts/header.php';
         alert('Error: ' + xhr.statusText);
       }
     });
-  }
-
-  function showDetail(no) {
-    var item = allData[no - 1];
-    if (!item) return;
-
-    var html = '<div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">';
-    html += '<p class="text-sm text-gray-500 mb-1">Anamnesa / Keluhan Utama:</p>';
-    html += '<p class="text-base font-semibold text-gray-800">' + (item.anamesa_text || '-') + '</p>';
-    html += '</div>';
-
-    html += '<table class="w-full text-sm border-collapse">';
-    html += '<thead><tr class="bg-gray-100">';
-    html += '<th class="px-3 py-2 border text-left">No</th>';
-    html += '<th class="px-3 py-2 border text-left">No. Rawat</th>';
-    html += '<th class="px-3 py-2 border text-left">No. RM</th>';
-    html += '<th class="px-3 py-2 border text-left">Pasien</th>';
-    html += '<th class="px-3 py-2 border text-left">Tgl</th>';
-    html += '<th class="px-3 py-2 border text-left">Sumber</th>';
-    html += '</tr></thead><tbody>';
-
-    item.items.forEach(function(r, i) {
-      var sumberBadge = r.sumber === 'PRIMER'
-        ? '<span class="badge badge-primer">Primer</span>'
-        : '<span class="badge badge-sekunder">Sekunder</span>';
-      html += '<tr class="' + (i % 2 === 0 ? 'bg-white' : 'bg-gray-50') + '">';
-      html += '<td class="px-3 py-2 border">' + (i + 1) + '</td>';
-      html += '<td class="px-3 py-2 border font-mono">' + r.no_rawat + '</td>';
-      html += '<td class="px-3 py-2 border font-mono">' + (r.no_rkm_medis || '-') + '</td>';
-      html += '<td class="px-3 py-2 border">' + (r.nm_pasien || '-') + '</td>';
-      html += '<td class="px-3 py-2 border">' + (r.tgl ? r.tgl.substring(0, 10) : '-') + '</td>';
-      html += '<td class="px-3 py-2 border text-center">' + sumberBadge + '</td>';
-      html += '</tr>';
-    });
-
-    html += '</tbody></table>';
-    $('#detailContent').html(html);
-    $('#modalDetail').removeClass('hidden');
-  }
-
-  function closeDetail() {
-    $('#modalDetail').addClass('hidden');
   }
 
   function resetFilter() {

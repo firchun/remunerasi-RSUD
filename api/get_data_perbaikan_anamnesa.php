@@ -30,12 +30,14 @@ SELECT * FROM (
         dp.no_rawat,
         rp.no_rkm_medis,
         p.nm_pasien,
+        d.nm_dokter,
         dp.tanggaltriase AS tgl,
         dp.keluhan_utama AS anamnesa,
         LOWER(TRIM(dp.keluhan_utama)) AS anamnesa_key
     FROM data_triase_igdprimer dp
     JOIN reg_periksa rp ON dp.no_rawat = rp.no_rawat
     LEFT JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+    LEFT JOIN dokter d ON rp.kd_dokter = d.kd_dokter
     $where_primer
 
     UNION ALL
@@ -45,15 +47,17 @@ SELECT * FROM (
         ds.no_rawat,
         rp.no_rkm_medis,
         p.nm_pasien,
+        d.nm_dokter,
         ds.tanggaltriase AS tgl,
         ds.anamnesa_singkat AS anamnesa,
         LOWER(TRIM(ds.anamnesa_singkat)) AS anamnesa_key
     FROM data_triase_igdsekunder ds
     JOIN reg_periksa rp ON ds.no_rawat = rp.no_rawat
     LEFT JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+    LEFT JOIN dokter d ON rp.kd_dokter = d.kd_dokter
     $where_sekunder
 ) semua
-ORDER BY anamnesa_key, no_rawat
+ORDER BY anamnesa_key, tgl, no_rawat
 ";
 
 $q = mysqli_query($koneksi, $sql);
@@ -79,27 +83,21 @@ foreach ($all as $row) {
 
 // Filter only groups with duplicates (count > 1)
 $result = [];
-$no = 0;
+$total_kelompok = 0;
 foreach ($groups as $key => $items) {
     $cnt = count($items);
     if ($cnt > 1) {
-        $no++;
-        $rawat_list = array_map(function($x) { return $x['no_rawat']; }, $items);
-        $sumber_list = array_map(function($x) { return $x['sumber']; }, $items);
-        $result[] = [
-            'no' => $no,
-            'anamesa_text' => $items[0]['anamnesa'],
-            'anamesa_key' => $key,
-            'jumlah' => $cnt,
-            'no_rawat_list' => implode(', ', $rawat_list),
-            'sumber_list' => implode(', ', $sumber_list),
-            'items' => $items
-        ];
+        $total_kelompok++;
+        foreach ($items as $item) {
+            $item['jumlah'] = $cnt;
+            $result[] = $item;
+        }
     }
 }
 
 echo json_encode([
     'success' => true,
     'data' => $result,
-    'total' => count($result)
+    'total' => count($result),
+    'total_kelompok' => $total_kelompok
 ]);

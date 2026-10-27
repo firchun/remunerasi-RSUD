@@ -37,12 +37,14 @@ SELECT * FROM (
         dp.no_rawat,
         rp.no_rkm_medis,
         p.nm_pasien,
+        d.nm_dokter,
         dp.tanggaltriase AS tgl,
         dp.keluhan_utama AS anamnesa,
         LOWER(TRIM(dp.keluhan_utama)) AS anamnesa_key
     FROM data_triase_igdprimer dp
     JOIN reg_periksa rp ON dp.no_rawat = rp.no_rawat
     LEFT JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+    LEFT JOIN dokter d ON rp.kd_dokter = d.kd_dokter
     $where_primer
 
     UNION ALL
@@ -52,15 +54,17 @@ SELECT * FROM (
         ds.no_rawat,
         rp.no_rkm_medis,
         p.nm_pasien,
+        d.nm_dokter,
         ds.tanggaltriase AS tgl,
         ds.anamnesa_singkat AS anamnesa,
         LOWER(TRIM(ds.anamnesa_singkat)) AS anamnesa_key
     FROM data_triase_igdsekunder ds
     JOIN reg_periksa rp ON ds.no_rawat = rp.no_rawat
     LEFT JOIN pasien p ON rp.no_rkm_medis = p.no_rkm_medis
+    LEFT JOIN dokter d ON rp.kd_dokter = d.kd_dokter
     $where_sekunder
 ) semua
-ORDER BY anamnesa_key, no_rawat
+ORDER BY anamnesa_key, tgl, no_rawat
 ";
 
 $q = mysqli_query($koneksi, $sql);
@@ -132,7 +136,7 @@ foreach (range(1, count($sHeader)) as $c) {
 // Sheet 2: Detail
 $ws2 = $spreadsheet->createSheet();
 $ws2->setTitle('DETAIL');
-$dHeader = ['No', 'Anamnesa / Keluhan Utama', 'No. Rawat', 'No. RM', 'Nama Pasien', 'Tanggal', 'Sumber'];
+$dHeader = ['No', 'Anamnesa / Keluhan Utama', 'No. Rawat', 'No. RM', 'Nama Pasien', 'Dokter', 'Tanggal', 'Sumber'];
 $dLastCol = Coordinate::stringFromColumnIndex(count($dHeader));
 $ws2->fromArray([$dHeader], null, 'A1');
 $ws2->getStyle('A1:' . $dLastCol . '1')->applyFromArray($hStyle);
@@ -146,7 +150,7 @@ foreach ($groups as $key => $items) {
     if ($cnt <= 1) continue;
     $no++;
     foreach ($items as $r) {
-        $ws2->fromArray([[$no, $r['anamnesa'], $r['no_rawat'], $r['no_rkm_medis'] ?? '-', $r['nm_pasien'] ?? '-', $r['tgl'] ? date('d-m-Y H:i', strtotime($r['tgl'])) : '-', $r['sumber']]], null, 'A' . $rowIdx);
+        $ws2->fromArray([[$no, $r['anamnesa'], $r['no_rawat'], $r['no_rkm_medis'] ?? '-', $r['nm_pasien'] ?? '-', $r['nm_dokter'] ?? '-', $r['tgl'] ? date('d-m-Y H:i', strtotime($r['tgl'])) : '-', $r['sumber']]], null, 'A' . $rowIdx);
         $ws2->getStyle('A' . $rowIdx . ':' . $dLastCol . $rowIdx)->applyFromArray($cStyle);
         $rowIdx++;
     }
