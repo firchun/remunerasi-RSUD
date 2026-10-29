@@ -49,6 +49,7 @@ $routes = [
     'kepatuhan-penunjang-ralan' => './views/kepatuhan_penunjang_ralan/index.php',
     'kepatuhan-bpjs' => './views/kepatuhan_bpjs/index.php',
     'kepatuhan-remunerasi' => './views/kepatuhan_remunerasi/index.php',
+    'kepatuhan-resume-pasien' => './views/kepatuhan_resume_pasien/index.php',
     'perbaikan-tarif' => './views/perbaikan_tarif/index.php',
     'kepatuhan' => './public_kepatuhan_remunerasi.php',
     'simulasi' => './views/simulasi/index.php',

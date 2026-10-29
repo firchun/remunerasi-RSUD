@@ -199,7 +199,7 @@ function isActive($paths)
       [
         'title' => 'Menu Utama',
         'items' => [
-          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'perbaikan-diagnosa', 'perbaikan-anamnesa', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'rekap-pasien', 'kantong-darah', 'rekap-kunjungan-pasien-ralan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-ranap', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum', 'simulasi', 'evaluasi'])]
+          ['url' => '/', 'icon' => 'fas fa-home', 'label' => 'Dashboard', 'active' => !isActive(['perbaikan-tarif', 'perbaikan-triase', 'perbaikan-diagnosa', 'perbaikan-anamnesa', 'rajal', 'ranap', 'bulanan-rajal', 'bulanan-ranap', 'bpjs', 'bpjs-verifikasi', 'laporan-gabungan', 'rekap-jumlah-pasien', 'rekap-pasien', 'kantong-darah', 'rekap-kunjungan-pasien-ralan', 'cari-petugas', 'jasaraharja', 'tunsus', 'hitung-jasa-ralan', 'hitung-jasa-dokter-ralan', 'hitung-jasa-ranap', 'hitung-jasa-dokter-ranap', 'kepatuhan-ralan', 'kepatuhan-ranap', 'kepatuhan-penunjang-ralan', 'kepatuhan-bpjs', 'kepatuhan-remunerasi', 'kepatuhan-resume-pasien', 'hitung-jasa-ralan-umum', 'hitung-jasa-dokter-ralan-umum', 'hitung-jasa-ranap-umum', 'hitung-jasa-dokter-ranap-umum', 'simulasi', 'evaluasi'])]
         ]
       ],
       [
@@ -229,6 +229,7 @@ function isActive($paths)
           ['url' => '/kepatuhan-penunjang-ralan', 'icon' => 'fas fa-flask', 'label' => 'Kepatuhan Penunjang Ralan', 'active' => isActive('kepatuhan-penunjang-ralan')],
           ['url' => '/kepatuhan-bpjs', 'icon' => 'fas fa-file-invoice', 'label' => 'Kepatuhan BPJS', 'active' => isActive('kepatuhan-bpjs')],
           ['url' => '/kepatuhan-remunerasi', 'icon' => 'fas fa-coins', 'label' => 'Kepatuhan Remunerasi', 'active' => isActive('kepatuhan-remunerasi')],
+          ['url' => '/kepatuhan-resume-pasien', 'icon' => 'fas fa-file-medical', 'label' => 'Kepatuhan Resume Pasien', 'active' => isActive('kepatuhan-resume-pasien')],
         ]
       ],
       [
